@@ -10,11 +10,8 @@
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
-#' @importFrom RMAWGEN
-#' @examples
+#' @import RMAWGEN
 #' 
-#' 
-#'  
 #' @export modified_ComprehensivePrecipitationGenerator
 
 modified_ComprehensivePrecipitationGenerator <- function (station = c("T0001", "T0010", "T0099"), 

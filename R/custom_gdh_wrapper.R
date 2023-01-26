@@ -38,7 +38,7 @@
 #' parameter how much a chemical process increases by increasing the temperature by 10 degree 
 #' Celsius. Biological reactions typically a Q10 value ranging from 2 to 3. Here, ranges of 1.5 to 3.5 were used as a threshold.
 #' @author Lars Caspersen, \email{lars.caspersen@@uni-bonn.de}
-#' @importFrom chillR
+#' @import chillR
 #' @examples 
 #' \dontrun{
 #' #          yc,  zc,  s1, Tu,    E0,      E1,     A0,         A1,   Tf, Tc, Tb,  slope

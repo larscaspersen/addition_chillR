@@ -15,12 +15,8 @@
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
-#' @importFrom 
-#' @examples
-#' 
-#' 
 #'  
-#' @export evaluation_function_meigo
+#' @export solve_nle
 
 solve_nle <- function(x,params){
   

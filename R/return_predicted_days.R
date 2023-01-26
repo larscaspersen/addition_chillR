@@ -19,11 +19,7 @@
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
-#' @importFrom 
-#' @examples
 #' 
-#' 
-#'  
 #' @export return_predicted_days
 
 return_predicted_days <- function(par, 

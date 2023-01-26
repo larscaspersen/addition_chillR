@@ -44,11 +44,20 @@
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
-#' @importFrom stringr raster ncdf4 epwshiftr purrr stats reshape2
-#' @examples
-#' 
-#' temperature_scenario_from_records(weather=KA_weather,year=2001,weather_start=2000,weather_end=2005)
-#' 
+#' @importFrom purrr map 
+#' @importFrom stats na.omit 
+#' @importFrom reshape2 melt 
+#' @importFrom reshape2 dcast 
+#' @importFrom stringr str_split
+#' @importFrom raster brick
+#' @importFrom raster getZ
+#' @importFrom raster NAvalue
+#' @importFrom raster extent
+#' @importFrom raster extract
+#' @importFrom ncdf4  ncatt_get
+#' @importFrom ncdf4 nc_open
+#' @importFrom epwshiftr init_cmip6_index
+#' @importFrom epwshiftr get_data_node
 #'  
 #' @export get_scenarioMIP_data
 

@@ -47,10 +47,6 @@
 #' @author Eike Luedeling
 #' @keywords utility
 #' @importFrom stats lm
-#' @examples
-#' 
-#' temperature_scenario_from_records(weather=KA_weather,year=2001,weather_start=2000,weather_end=2005)
-#' 
 #'  
 #' @export custom_temperature_scenario_from_records
 custom_temperature_scenario_from_records <- function (weather, year, weather_start = NA, weather_end = NA, 

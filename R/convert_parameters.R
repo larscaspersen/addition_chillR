@@ -16,7 +16,7 @@
 #' @details The conversion follows the approach documented in Fishman et al (1987) and Egea et al. (2021).
 #' For more details consult equations 5 - 8 in Egea et al (2021)
 #' @author Lars Caspersen, \email{lars.caspersen@@uni-bonn.de}
-#' @importFrom nleqslv
+#' @importFrom nleqslv nleqslv
 #' @examples 
 #' \dontrun{
 #      ('yc', 'zc', 's1', 'Tu', 'theta*', 'theta_c', 'Tau(thetha*)', 'pie_c',   'Tf', 'Tc', 'Tb',  'slope')

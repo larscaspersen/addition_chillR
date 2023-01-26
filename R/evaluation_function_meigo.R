@@ -1,7 +1,8 @@
 #' Function used in the optimization process to generate bloom data
 #' 
-#' This function works like \code(\link{evaluation_function_meigo}) with some minor differences in
-#' the model output to be compatible with the VNS optimizer of the MEIGO package.
+#' This function takes the temperature data, the phenological observations and model parameters and returns
+#' a model performance score. This score is used by the optimization algorithm to 
+#' find better model parameters.
 #' 
 #' 
 #' 
@@ -15,22 +16,19 @@
 #' generated using \code(\link{chillR::genSeasonList})
 #' @param na_penalty numeric, value which is used when the model fails to generate a prediction
 #' for the bloom date. By default 365
-#' @return list with one element, which is called 'f' and contains the residual sum of squares of the model.
+#' @return list with two elements. First is called 'f' and contains the residual sum of squares of the model. The 
+#' second is 'g' which is the values of the additional model constraints defined in the function.
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
-#' @importFrom 
-#' @examples
-#' 
-#' 
 #'  
-#' @export evaluation_function_meigo_vns
+#' @export evaluation_function_meigo
 
-evaluation_function_meigo_vns <- function(x, 
-                                          modelfn,
-                                          bloomJDays,
-                                          SeasonList,
-                                          na_penalty = 365){
+evaluation_function_meigo <- function(x, 
+                                      modelfn,
+                                      bloomJDays,
+                                      SeasonList,
+                                      na_penalty = 365){
   
   #innput:
   #         x is the parameters in meigo
@@ -90,9 +88,6 @@ evaluation_function_meigo_vns <- function(x,
   g[5] <- exp((10 * x[6]) / (297 * 279))
   
   
+  return(list(F=F, g=g))
 
-    #output
-    return(F)
-
-  
 }

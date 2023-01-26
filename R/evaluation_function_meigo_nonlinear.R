@@ -23,10 +23,7 @@
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
-#' @importFrom nleqslv
-#' @examples
-#' 
-#' 
+#' @importFrom nleqslv nleqslv
 #'  
 #' @export evaluation_function_meigo_nonlinear
 
