@@ -26,12 +26,11 @@
 #' par_new <- convert_parameters(par)
 #' par_old_again <- convert_parameters_old_to_new(par)
 #' }
-#' }
 #' @export convert_parameters_old_to_new
 
 convert_parameters_old_to_new <- function(par){
   
-  output<-nleqslv::nleqslv(c(10), solve_sigma_2, jac=NULL, par, xscalm="auto", method="Newton",
+  output<-nleqslv::nleqslv(c(10), solve_sigma, jac=NULL, par, xscalm="auto", method="Newton",
                            control=list(trace=0,allowSingular=TRUE))
   
   E0 <- par[5]

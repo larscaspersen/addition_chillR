@@ -8,9 +8,7 @@ convert_parameters(par)
 }
 \arguments{
 \item{par}{vector of length 12 with the parameters in the following order:
-yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope. If the set of parameters include 
-theta_star, theta_c, tau and pie_c instead of E0, E1, A0, and A1, then the function \code{\link{convert_parameters}}
-should be run before inserting the parameters}
+yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope}
 }
 \value{
 vector of length 12, with the PhenoFlex parameters yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope
@@ -30,9 +28,8 @@ For more details consult equations 5 - 8 in Egea et al (2021)
 }
 \examples{
 \dontrun{
-par <-   c(40, 190, 0.5, 25, 279, 286.1, 47.7, 28, 4, 36, 4, 1.60)
-
-convert_parameters(par)
+par_old <-   c(40, 190, 0.5, 25, 279, 286.1, 47.7, 28, 4, 36, 4, 1.60)
+par_new <- convert_parameters(par)
 }
 }
 \author{
