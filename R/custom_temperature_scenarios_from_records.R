@@ -1,6 +1,6 @@
 #' Make monthly temperature scenario from historic records
 #' 
-#' This is an updated version of \code(\link{chillR::temperature_scenario_from_records}) which,
+#' This is an updated version of \link[chillR]{temperature_scenario_from_records} which,
 #' besides temperature, also handles precipitation data.
 #' 
 #' 
@@ -46,6 +46,7 @@
 #' 
 #' @author Eike Luedeling
 #' @keywords utility
+#' @importFrom  stats aggregate
 #' @importFrom stats lm
 #'  
 #' @export custom_temperature_scenario_from_records
@@ -74,18 +75,18 @@ custom_temperature_scenario_from_records <- function (weather, year, weather_sta
   
   #add calculation of total precipitation
   past_means <- list()
-  past_means[["Tmin"]] <- aggregate(weather$Tmin, by = list(weather$Year, 
-                                                            weather$Month), FUN = "mean")
-  past_means[["Tmax"]] <- aggregate(weather$Tmax, by = list(weather$Year, 
+  past_means[["Tmin"]] <- stats::aggregate(weather$Tmin, by = list(weather$Year, 
+                                                          weather$Month), FUN = "mean")
+  past_means[["Tmax"]] <- stats::aggregate  (weather$Tmax, by = list(weather$Year, 
                                                             weather$Month), FUN = "mean")
   
   if(prec_output == 'monthly_mean_daily_prec'){
-      past_means[['Prec']] <- aggregate(weather$Prec, by = list(weather$Year, 
+      past_means[['Prec']] <- stats::aggregate  (weather$Prec, by = list(weather$Year, 
                                                                 weather$Month), FUN = "mean")
     
   } else if (prec_output == 'monthly_sum_prec'){
     
-      past_means[['Prec']] <- aggregate(weather$Prec, by = list(weather$Year,
+      past_means[['Prec']] <- stats::aggregate  (weather$Prec, by = list(weather$Year,
                                                               weather$Month), FUN = 'sum')
     
   }else if (prec_output == 'number_wet_days'){
@@ -94,7 +95,7 @@ custom_temperature_scenario_from_records <- function (weather, year, weather_sta
       return(sum(x > threshold))
     }
     
-    past_means[['Prec']] <- aggregate(weather$Prec, by = list(weather$Year,
+    past_means[['Prec']] <- stats::aggregate  (weather$Prec, by = list(weather$Year,
                                                               weather$Month), FUN = 'get_number_wet_days')
     
   } else {

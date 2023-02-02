@@ -40,16 +40,13 @@
 #' @param warn_me boolean variable specifying whether warnings should be shown. Defaults to TRUE.
 #' @param remove_NA_scenarios boolean parameter indicating whether temperature scenarios that
 #' contain NA values should be removed. Such scenarios would generate an error.
-#' @param generate_rain = boolean, by default set FALSE. If set TRUE, then precipitation
-#' is generated at first and temperature is generated depending on the generated 
-#' precipitation. 
 #' 
 #' @return list of data.frames containing the simulated weather, with columns c("YEARMODA",
-#' "DATE","Year","Month","Day","Tmin","Tmax"). If temperature_scenario is a list, the output
-#' list contains simulated temperature records for all scenarios. In case 'generate_rain' was
-#' set equals TRUE, then the output contains a further column called "Prec"
+#' "DATE","Year","Month","Day","Tmin","Tmax", "Prec"). If temperature_scenario is a list, the output
+#' list contains simulated temperature records for all scenarios.
 #' @author Lars Caspersen, Eike Luedeling
 #' @keywords utility
+#' @importFrom stats median
 #' @export temperature_generation_rmawgen_prec
 
 

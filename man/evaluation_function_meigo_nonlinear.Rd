@@ -22,7 +22,7 @@ the 'custom_GDH_wrapper' function for that}
 
 \item{SeasonList}{list of hourly temperatures for the individual phenological seasons. Each element should contain a data.frame
 with the columns "Temp" (for the hourly temperature) and "JDay" for the corresponding Julian day. Is usually
-generated using \code(\link{chillR::genSeasonList})}
+generated using \link[chillR]{genSeasonList}}
 
 \item{na_penalty}{numeric, value which is used when the model fails to generate a prediction
 for the bloom date. By default 365}
@@ -32,7 +32,7 @@ list with two elements. First is called 'f' and contains the residual sum of squ
 second is 'g' which is the values of the additional model constraints defined in the function.
 }
 \description{
-This function works like \code(\link{evaluation_function_meigo}) except that it uses 
+This function works like \link[LarsChill]{evaluation_function_meigo} except that it uses 
 parameters theta_star, theta_c, tau and pie_c instead of the commonly used
 E0, E1, A0 and A1 parameters, which get calculated in an intermediate step.
 }

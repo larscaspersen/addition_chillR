@@ -1,9 +1,9 @@
-#' This is a modified version of the \code(\link{RMAWGEN::ComprehensivePrecipitationGenerato})
+#' This is a modified version of the \link[RMAWGEN]{ComprehensivePrecipitationGenerator}
 #' 
 #' The difference to the original version is, that the function crashes if the
 #' spline interpolation of mean daily rainfall by month yields values close to zero.
 #' 
-#' This function is called by the wrapper function \code(\link{temperature_generation_rmawgen_prec}). The rest of the 
+#' This function is called by the wrapper function \code{\link{temperature_generation_rmawgen_prec}}. The rest of the 
 #' documentation is copied from the original function.
 #' 
 #' 
@@ -11,6 +11,7 @@
 #' @author Lars Caspersen
 #' @keywords utility
 #' @import RMAWGEN
+#' @importFrom stats residuals
 #' 
 #' @export modified_ComprehensivePrecipitationGenerator
 

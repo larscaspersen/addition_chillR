@@ -2,7 +2,7 @@
 #' 
 #' This is a convenience function which allows to get the predicted bloom dates for a
 #' set of model parameters and temperature observations. Arguments are identical
-#' to \code(\link{evaluation_function_meigo}), except that the argument bloomJDays is
+#' to \code{\link{evaluation_function_meigo}}, except that the argument bloomJDays is
 #' not needed
 #' 
 #' 
@@ -12,7 +12,7 @@
 #' the 'custom_GDH_wrapper' function for that
 #' @param SeasonList list of hourly temperatures for the individual phenological seasons. Each element should contain a data.frame
 #' with the columns "Temp" (for the hourly temperature) and "JDay" for the corresponding Julian day. Is usually
-#' generated using \code(\link{chillR::genSeasonList})
+#' generated using \link[chillR]{genSeasonList}
 #' @param na_penalty numeric, value which is used when the model fails to generate a prediction
 #' for the bloom date. By default 365
 #' @return numeric vector with the predicted bloom dates

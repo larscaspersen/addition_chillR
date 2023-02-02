@@ -12,7 +12,7 @@ get_temp_response_plot(
   hourtemps = NULL,
   chill_months = c(11:12, 1:2),
   heat_months = 1:5,
-  type = 0
+  weather_freq_plot = "histogram"
 )
 }
 \arguments{
@@ -20,15 +20,15 @@ get_temp_response_plot(
 or the new model parameters in the order yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope. In the latter case the
 the argument 'par_type' should be set equal to TRUE}
 
-\item{temp_values}{numeric, vector containing the temperatures for which the temperature responses should be calcualted}
+\item{temp_values}{numeric, vector containing the temperatures for which the temperature responses should be calculated}
 
 \item{par_type}{character, by default 'old'. If set to 'new' than the supplied parameters should contain theta_star, theta_c, tau and pie_c. These
-get converted to E0, E1, A0 and A1 in an intermediate step using the \code(\link{nleqslv}) package}
+get converted to E0, E1, A0 and A1 in an intermediate step using the \code{\link{nleqslv}} package}
 
 \item{log_A}{boolean, by default FALSE. If set TRUE, then the parameters A1 and A1 are assumed to be supplied 
 log_transformed and get converted back before calculating the temperature responses
 with the columns "Temp" (for the hourly temperature) and "JDay" for the corresponding Julian day. Is usually
-generated using \code(\link{chillR::genSeasonList})}
+generated using \link[chillR]{genSeasonList}}
 
 \item{hourtemps}{data.frame containing hourly temperature, by default set to NULL. If supplied, the columns
 'Month' and 'Temp' should be present.}
@@ -39,9 +39,12 @@ the chill temperature response. By default set to c(11:12,1:3)}
 \item{heat_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
 the heat temperature response. By default set to c(1:5)}
 
-\item{type}{numeric, decides which type of plot should be returned. By default set to 0, which returns a
-simple temperarture response plot. If set equals to 1 or 2 hourtemps needs to be supplied. In case of type = ,frequency of observed temperature is
-indicated in the plot with a color gradient. If type = 2 the temperature frequency is indicated with a histogram.}
+\item{weather_freq_plot}{character, only applicable when hourtemps is supplied. 
+Decides how temperature observations should be represented in the temperature
+response plot. By default = 'histogram', which includes a histogram for the hourly
+temperature. Other option is 'gradient' which represents the frequency of observed temperature
+intervals in form of color gradient in the temperature response plot. Darker
+color indicates most frequent temperature intervals, bright color less frequent ones.}
 }
 \value{
 ggplot of the mdoelled temperature response

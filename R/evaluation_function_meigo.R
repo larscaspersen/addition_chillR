@@ -13,7 +13,7 @@
 #' @param bloomJDays numeric containing the days of the year witht the observed bloom
 #' @param SeasonList list of hourly temperatures for the individual phenological seasons. Each element should contain a data.frame
 #' with the columns "Temp" (for the hourly temperature) and "JDay" for the corresponding Julian day. Is usually
-#' generated using \code(\link{chillR::genSeasonList})
+#' generated using \link[chillR]{genSeasonList}
 #' @param na_penalty numeric, value which is used when the model fails to generate a prediction
 #' for the bloom date. By default 365
 #' @return list with two elements. First is called 'f' and contains the residual sum of squares of the model. The 

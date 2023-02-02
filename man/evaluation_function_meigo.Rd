@@ -16,7 +16,7 @@ the 'custom_GDH_wrapper' function for that}
 
 \item{SeasonList}{list of hourly temperatures for the individual phenological seasons. Each element should contain a data.frame
 with the columns "Temp" (for the hourly temperature) and "JDay" for the corresponding Julian day. Is usually
-generated using \code(\link{chillR::genSeasonList})}
+generated using \link[chillR]{genSeasonList}}
 
 \item{na_penalty}{numeric, value which is used when the model fails to generate a prediction
 for the bloom date. By default 365}

@@ -3,7 +3,7 @@
 %   R/modified_comprehensive_precipitation_generator.R
 \name{modified_ComprehensivePrecipitationGenerator}
 \alias{modified_ComprehensivePrecipitationGenerator}
-\title{This is a modified version of the \code(\link{RMAWGEN::ComprehensivePrecipitationGenerato})}
+\title{This is a modified version of the \link[RMAWGEN]{ComprehensivePrecipitationGenerator}}
 \usage{
 modified_ComprehensivePrecipitationGenerator(
   station = c("T0001", "T0010", "T0099"),
@@ -49,7 +49,7 @@ The difference to the original version is, that the function crashes if the
 spline interpolation of mean daily rainfall by month yields values close to zero.
 }
 \details{
-This function is called by the wrapper function \code(\link{temperature_generation_rmawgen_prec}). The rest of the 
+This function is called by the wrapper function \code{\link{temperature_generation_rmawgen_prec}}. The rest of the 
 documentation is copied from the original function.
 }
 \author{

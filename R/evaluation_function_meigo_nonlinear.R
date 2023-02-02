@@ -1,6 +1,6 @@
 #' Function used in the optimization process to generate bloom data
 #' 
-#' This function works like \code(\link{evaluation_function_meigo}) except that it uses 
+#' This function works like \link[LarsChill]{evaluation_function_meigo} except that it uses 
 #' parameters theta_star, theta_c, tau and pie_c instead of the commonly used
 #' E0, E1, A0 and A1 parameters, which get calculated in an intermediate step.
 #' 
@@ -15,7 +15,7 @@
 #' @param bloomJDays numeric containing the days of the year witht the observed bloom
 #' @param SeasonList list of hourly temperatures for the individual phenological seasons. Each element should contain a data.frame
 #' with the columns "Temp" (for the hourly temperature) and "JDay" for the corresponding Julian day. Is usually
-#' generated using \code(\link{chillR::genSeasonList})
+#' generated using \link[chillR]{genSeasonList}
 #' @param na_penalty numeric, value which is used when the model fails to generate a prediction
 #' for the bloom date. By default 365
 #' @return list with two elements. First is called 'f' and contains the residual sum of squares of the model. The 

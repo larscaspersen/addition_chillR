@@ -2,9 +2,9 @@
 #' 
 #' This function allows the used to download climate changed of the ScenarioMIP
 #' project of CMIP6. Data is downloaded from the "Metagrid Search Interface" provided by ESGF with the
-#' help of the \code(\link{epwshiftr}) package.
+#' help of the \code{\link{epwshiftr}} package.
 #' 
-#' At first data is queried using the function \code(\link{epwshiftr::init_cmip6_index}). If the 
+#' At first data is queried using the function \link[epwshiftr]{init_cmip6_index}. If the 
 #' user wants at first to get a feeling how much data files are found in the search, it
 #' may be a good idea to run the query at first using directly the function. Terms for the search include:
 #' 
@@ -15,7 +15,7 @@
 #'  \item{Frequency: defines the timestep of the model output. Default is 'mon' for monthly}
 #'  \item{Resolution: size of the pixels of the model output. Default is "100 km"}
 #'  \item{...: there are more possible search terms which can include 'source' (name of model) or 'variant' (identifier for the individual run of the model output). For more
-#'  details please consult the documentation of \code(\link{epwshiftr::init_cmip6_index}). Additional search terms can be specified at the end of the arguments via the '...' argument} 
+#'  details please consult the documentation of \link[epwshiftr]{init_cmip6_index}. Additional search terms can be specified at the end of the arguments via the '...' argument} 
 #' }
 #' 
 #' 
@@ -26,7 +26,7 @@
 #' @param end_year numeric, marks the end of the time series to be downloaded. Usually is 2100
 #' @param metric character / vector  of characters indicating which variables should be downloaded. 
 #' Common are 'tasmax' for near-surface maximum temperature, 'tasmin' for near-surface minimum temperature and
-#' 'pr' for precipitation. For more details please check also the documenation of \code(\link{epwshiftr::init_cmip6_index})
+#' 'pr' for precipitation. For more details please check also the documenation of \link[epwshiftr]{init_cmip6_index}
 #' @param experiment character / vector or characters defining the root experiment identifier. Commonly used Tier 1 experiments include: c("ssp126", "ssp245", "ssp370", "ssp585")
 #' @param frequency defines the timestep of the model output. Default is 'mon' for monthly
 #' @param resolution size of the pixels of the model output. Default is "100 km"
@@ -58,62 +58,10 @@
 #' @importFrom ncdf4 nc_open
 #' @importFrom epwshiftr init_cmip6_index
 #' @importFrom epwshiftr get_data_node
+#' @importFrom utils  download.file
+#' @import assertthat
 #'  
 #' @export get_scenarioMIP_data
-
-#function to extract information of one 
-extract_cmip_data <- function(fname, coords){
-  
-  #fname needs to be a character
-  assertthat::assert_that(is.character(fname))
-  
-  #coords needs to be a data.frame with column names
-  assertthat::assert_that(is.data.frame(coords))
-  assertthat::assert_that(all(c('Longitude', 'Latitude') %in% colnames(coords)))
-  
-
-  #determine the name of the variable
-  #names can be pr, tasmin, and tasmax
-  fragment_fname <- stringr::str_split(stringr::str_split(fname, pattern = '/')[[1]][2], pattern = '_')[[1]]
-  #usual names in the file
-  weather_vars <- c('tasmin', 'tasmax', 'pr')
-  #findout which one is present here
-  dname <- weather_vars[weather_vars %in% fragment_fname]
-  
-  
-  
-  #load the file
-  b <- raster::brick(fname, dname)
-  
-  #get time data
-  time <- raster::getZ(b)
-  
-  #how to get info of NA
-  fillvalue <- ncdf4::ncatt_get(ncdf4::nc_open(fname), dname, "_FillValue")
-  #ncdf4::nc_close(fname)
-  raster::NAvalue(b) <- fillvalue$value
-  
-  #if longitude only defined as degree east
-  if(as.vector(raster::extent(b))[2] > 180){
-    
-    coords$Longitude[coords$Longitude < 0] <- coords$Longitude[coords$Longitude < 0] + 360
-  } 
-  
-  
-  extract.pts <- cbind(coords$Longitude,coords$Latitude)
-  ext <- raster::extract(b,extract.pts,method="bilinear")
-  
-  #transpose extracted data
-  ext <- t(ext)
-  
-  ext_df <- as.data.frame(ext, row.names = F)
-  #colnames(ext_df) <- weather_info$id
-  ext_df$Date <- time
-  
-  return(ext_df)
-}
-
-
 
 get_scenarioMIP_data <- function(coordinates, 
                                  start_year,
@@ -152,7 +100,7 @@ get_scenarioMIP_data <- function(coordinates,
   
   #if query didn't reutrn anything stop the funciton
   if(length(query) == 0){
-    error('The search returned no valid variable. Try different search options')
+    stop('The search returned no valid variable. Try different search options')
   }
   
   #the date subset doesnt work so well, so make sure that only this period is covered
@@ -161,7 +109,7 @@ get_scenarioMIP_data <- function(coordinates,
   query <- query[as.Date(query$datetime_end) == as.Date(paste0(end_year,'-12-01')),]
   
   if(length(query) == 0){
-    error('Subsetting the query for the desired start_year and end_year lead to no remaining entry. Try different start and end year')
+    stop('Subsetting the query for the desired start_year and end_year lead to no remaining entry. Try different start and end year')
   }
   
 
@@ -238,8 +186,8 @@ get_scenarioMIP_data <- function(coordinates,
   if('pr' %in% metric){
     pr_adj <- extracted_df %>% 
       reshape2::melt(id.vars = c('Date', 'variable', 'model', 'ssp'), variable.name = 'id') %>% 
-      filter(variable == 'pr') %>% 
-      mutate(value = round(value * 60 * 60 * 24, digits = 2))
+      filter(.data$variable == 'pr') %>% 
+      mutate(value = round(.data$value * 60 * 60 * 24, digits = 2))
   } else {
     pr_adj <- NULL
   }
@@ -247,8 +195,8 @@ get_scenarioMIP_data <- function(coordinates,
   if('tasmin' %in% metric){
     tmin_adj <- extracted_df %>% 
       reshape2::melt(id.vars = c('Date', 'variable', 'model', 'ssp'), variable.name = 'id') %>% 
-      filter(variable == 'tasmin') %>% 
-      mutate(value = round(value - 273.15, digits = 2))
+      filter(.data$variable == 'tasmin') %>% 
+      mutate(value = round(.data$value - 273.15, digits = 2))
   } else {
     tmin_adj <- NULL
   }
@@ -256,8 +204,8 @@ get_scenarioMIP_data <- function(coordinates,
   if('tasmax' %in% metric){
     tmin_adj <- extracted_df %>% 
       reshape2::melt(id.vars = c('Date', 'variable', 'model', 'ssp'), variable.name = 'id') %>% 
-      filter(variable == 'tasmax') %>% 
-      mutate(value = round(value - 273.15, digits = 2))
+      filter(.data$variable == 'tasmax') %>% 
+      mutate(value = round(.data$value - 273.15, digits = 2))
   } else {
     tmax_adj <- NULL
   }
@@ -266,7 +214,7 @@ get_scenarioMIP_data <- function(coordinates,
   if(any(!metric %in% c('tasmin', 'tasmax', 'pr'))){
     other_adj <- extracted_df %>% 
       reshape2::melt(id.vars = c('Date', 'variable', 'model', 'ssp'), variable.name = 'id') %>% 
-      filter(!variable %in% c('tasmax', 'tasmin', 'pr'))
+      filter(!.data$variable %in% c('tasmax', 'tasmin', 'pr'))
   } else {
     other_adj <- NULL
   }
@@ -281,4 +229,56 @@ get_scenarioMIP_data <- function(coordinates,
   }
   
   return(extracted_df)
+}
+
+
+extract_cmip_data <- function(fname, coords){
+  
+  #fname needs to be a character
+  assertthat::assert_that(is.character(fname))
+  
+  #coords needs to be a data.frame with column names
+  assertthat::assert_that(is.data.frame(coords))
+  assertthat::assert_that(all(c('Longitude', 'Latitude') %in% colnames(coords)))
+  
+  
+  #determine the name of the variable
+  #names can be pr, tasmin, and tasmax
+  fragment_fname <- stringr::str_split(stringr::str_split(fname, pattern = '/')[[1]][2], pattern = '_')[[1]]
+  #usual names in the file
+  weather_vars <- c('tasmin', 'tasmax', 'pr')
+  #findout which one is present here
+  dname <- weather_vars[weather_vars %in% fragment_fname]
+  
+  
+  
+  #load the file
+  b <- raster::brick(fname, dname)
+  
+  #get time data
+  time <- raster::getZ(b)
+  
+  #how to get info of NA
+  fillvalue <- ncdf4::ncatt_get(ncdf4::nc_open(fname), dname, "_FillValue")
+  #ncdf4::nc_close(fname)
+  raster::NAvalue(b) <- fillvalue$value
+  
+  #if longitude only defined as degree east
+  if(as.vector(raster::extent(b))[2] > 180){
+    
+    coords$Longitude[coords$Longitude < 0] <- coords$Longitude[coords$Longitude < 0] + 360
+  } 
+  
+  
+  extract.pts <- cbind(coords$Longitude,coords$Latitude)
+  ext <- raster::extract(b,extract.pts,method="bilinear")
+  
+  #transpose extracted data
+  ext <- t(ext)
+  
+  ext_df <- as.data.frame(ext, row.names = F)
+  #colnames(ext_df) <- weather_info$id
+  ext_df$Date <- time
+  
+  return(ext_df)
 }

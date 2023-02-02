@@ -11,7 +11,7 @@ custom_PhenoFlex_GDHwrapper(x, par, constraints = FALSE)
 
 \item{par}{vector of length 12 with the PhenoFlex model parameters in the following order:
 yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope. If the set of parameters include 
-theta_star, theta_c, tau and pie_c instead of E0, E1, A0, and A1, then the function \code(\link{convert_parameters})
+theta_star, theta_c, tau and pie_c instead of E0, E1, A0, and A1, then the function \code{\link{convert_parameters}}
 should be run before inserting the parameters}
 
 \item{constraints}{boolean, set FALSE by default. If set TRUE, the function will perform
@@ -27,7 +27,7 @@ Takes hourly weather time series and PhenoFlex model parameters and returns day 
 }
 \details{
 This function is mainly used by the global optimization objective functions
-(\code(\link{evaluation_function_meigo}, \link{evaluation_function_meigo_nonlinear}, \link{evaluation_function_meigo_vns})) 
+(\code{\link{evaluation_function_meigo}, \link{evaluation_function_meigo_nonlinear}, \link{evaluation_function_meigo_vns}}) 
 to fit the PhenoFlex parameters. For a single season hourly temperature data time series and a set of model
 parameters it returns the predicted day of the year of bloom.
 
@@ -66,9 +66,6 @@ custom_PhenoFlex_GDHwrapper(x = seasonList[[1]], par = par)
 
 
 }
-}
-\references{
-\insertAllCited{}
 }
 \author{
 Lars Caspersen, \email{lars.caspersen@uni-bonn.de}

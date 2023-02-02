@@ -9,7 +9,7 @@ convert_parameters(par)
 \arguments{
 \item{par}{vector of length 12 with the parameters in the following order:
 yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope. If the set of parameters include 
-theta_star, theta_c, tau and pie_c instead of E0, E1, A0, and A1, then the function \code(\link{convert_parameters})
+theta_star, theta_c, tau and pie_c instead of E0, E1, A0, and A1, then the function \code{\link{convert_parameters}}
 should be run before inserting the parameters}
 }
 \value{
@@ -17,26 +17,23 @@ vector of length 12, with the PhenoFlex parameters yc, zc, s1, Tu, E0, E1, A0, A
 with given temperature data and model parameters.
 }
 \description{
-Takes parameter used in  \code(\link{evaluation_function_meigo_nonlinear}) and transform them 
+Takes parameter used in  \code{\link{evaluation_function_meigo_nonlinear}} and transform them 
 to the typical PhenoFlex format.
 }
 \details{
 The changed parameters are theta_star, theta_c, tau and pie_c, which get converted
 to E0, E1, A0 and A1. In case of A0 and A1 two conversion functions are used. 
-For E0 and E1 a nonlinear system is solved using the \code(\link(nlvseq)) package.
+For E0 and E1 a nonlinear system is solved using the function \link[nleqslv]{nleqslv}.
 
 The conversion follows the approach documented in Fishman et al (1987) and Egea et al. (2021).
 For more details consult equations 5 - 8 in Egea et al (2021)
 }
 \examples{
 \dontrun{
-par <-   c(40,   190,   0.5,  25,   279,    286.1,   47.7,           28,        4,   36,     4,    1.60)
+par <-   c(40, 190, 0.5, 25, 279, 286.1, 47.7, 28, 4, 36, 4, 1.60)
 
 convert_parameters(par)
 }
-}
-\references{
-\insertAllCited{}
 }
 \author{
 Lars Caspersen, \email{lars.caspersen@uni-bonn.de}

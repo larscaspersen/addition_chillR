@@ -13,27 +13,30 @@
 #' @param par traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope (default)
 #' or the new model parameters in the order yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope. In the latter case the
 #' the argument 'par_type' should be set equal to TRUE
-#' @param temp_values numeric, vector containing the temperatures for which the temperature responses should be calcualted
+#' @param temp_values numeric, vector containing the temperatures for which the temperature responses should be calculated
 #' @param par_type character, by default 'old'. If set to 'new' than the supplied parameters should contain theta_star, theta_c, tau and pie_c. These
-#' get converted to E0, E1, A0 and A1 in an intermediate step using the \code(\link{nleqslv}) package
+#' get converted to E0, E1, A0 and A1 in an intermediate step using the \code{\link{nleqslv}} package
 #' @param log_A boolean, by default FALSE. If set TRUE, then the parameters A1 and A1 are assumed to be supplied 
 #' log_transformed and get converted back before calculating the temperature responses
 #' with the columns "Temp" (for the hourly temperature) and "JDay" for the corresponding Julian day. Is usually
-#' generated using \code(\link{chillR::genSeasonList})
+#' generated using \link[chillR]{genSeasonList}
 #' @param hourtemps data.frame containing hourly temperature, by default set to NULL. If supplied, the columns
 #' 'Month' and 'Temp' should be present.
 #' @param chill_months numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
 #' the chill temperature response. By default set to c(11:12,1:3)
 #' @param heat_months numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
 #' the heat temperature response. By default set to c(1:5)
-#' @param type numeric, decides which type of plot should be returned. By default set to 0, which returns a
-#' simple temperarture response plot. If set equals to 1 or 2 hourtemps needs to be supplied. In case of type = ,frequency of observed temperature is
-#' indicated in the plot with a color gradient. If type = 2 the temperature frequency is indicated with a histogram.
+#' @param weather_freq_plot character, only applicable when hourtemps is supplied. 
+#' Decides how temperature observations should be represented in the temperature
+#' response plot. By default = 'histogram', which includes a histogram for the hourly
+#' temperature. Other option is 'gradient' which represents the frequency of observed temperature
+#' intervals in form of color gradient in the temperature response plot. Darker
+#' color indicates most frequent temperature intervals, bright color less frequent ones.
 #' @return ggplot of the mdoelled temperature response
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
-#' @import ggplot2 chillR dplyr
+#' @import ggplot2 chillR dplyr patchwork graphics
 #' @importFrom magrittr "%>%"
 #' 
 #' @export get_temp_response_plot
@@ -41,8 +44,10 @@
 get_temp_response_plot <- function(par, temp_values,
                                    par_type = 'old',
                                    log_A = FALSE, 
-                                   hourtemps = NULL, chill_months = c(11:12,1:2),
-                                   heat_months = 1:5, type = 0){
+                                   hourtemps = NULL, 
+                                   chill_months = c(11:12,1:2),
+                                   heat_months = 1:5, 
+                                   weather_freq_plot = 'histogram'){
   
   if(par_type == 'new'){
     params<-numeric(4)
@@ -61,7 +66,7 @@ get_temp_response_plot <- function(par, temp_values,
     if (output$termcd >= 3){
       #if the nle algorithm has stalled just discard this solution
       E0<-NA; E1<-NA; A0<-NA; A1<-NA
-      error('Could not find corresponding values of E0, E1, A0 and A1')
+      stop('Could not find corresponding values of E0, E1, A0 and A1')
       
       #You would add here a flag to let your optimization procedure know
       #That this solution should be ignored by lack of convergence
@@ -91,22 +96,26 @@ get_temp_response_plot <- function(par, temp_values,
   
   if(is.null(hourtemps) == FALSE){
     
-    #maybe get 30 bins?
-    n_bins <- 30
+    
+    if(weather_freq_plot == 'gradient'){
+      n_bins <- 100
+    } else if(weather_freq_plot == 'histogram'){
+      n_bins <- 30
+    }
     
     chill_temp_obs <- hourtemps %>% 
-      filter(Month %in% chill_months) %>% 
-      summarise(density = hist(Temp, breaks = n_bins, plot = FALSE)$density,
-                count = hist(Temp, breaks = n_bins, plot = FALSE)$counts,
-                Temperature = hist(Temp, breaks = n_bins, plot = FALSE)$mids) %>% 
-      mutate(Chill_response = density / max(density,na.rm = TRUE))
+      filter(.data$Month %in% chill_months) %>% 
+      summarise(density = hist(.data$Temp, breaks = n_bins, plot = FALSE)$density,
+                count = hist(.data$Temp, breaks = n_bins, plot = FALSE)$counts,
+                Temperature = hist(.data$Temp, breaks = n_bins, plot = FALSE)$mids) %>% 
+      mutate(Chill_response = .data$density / max(.data$density,na.rm = TRUE))
     
     heat_temp_obs <- hourtemps %>% 
-      filter(Month %in% heat_months) %>% 
-      summarise(density = hist(Temp, breaks = n_bins, plot = FALSE)$density,
-                count = hist(Temp, breaks = n_bins, plot = FALSE)$counts,
-                Temperature = hist(Temp, breaks = n_bins, plot = FALSE)$mids) %>% 
-      mutate(Heat_response = density / max(density,na.rm = TRUE))
+      filter(.data$Month %in% heat_months) %>% 
+      summarise(density = hist(.data$Temp, breaks = n_bins, plot = FALSE)$density,
+                count = hist(.data$Temp, breaks = n_bins, plot = FALSE)$counts,
+                Temperature = hist(.data$Temp, breaks = n_bins, plot = FALSE)$mids) %>% 
+      mutate(Heat_response = .data$density / max(.data$density,na.rm = TRUE))
     
     density_df <- merge.data.frame(chill_temp_obs[,c('Temperature', 'Chill_response')], heat_temp_obs[,c('Temperature', 'Heat_response')],
                                    by = 'Temperature', all = TRUE)
@@ -123,16 +132,14 @@ get_temp_response_plot <- function(par, temp_values,
     melted_response <- merge(melted_response, density_df_long, by.x = c('Temperature', 'variable'))
     
     
-    #color gradient for density of observations
-    
-    if(type == 1){
+    if(weather_freq_plot == 'gradient'){
       p1 <- melted_response %>% 
-        filter(variable == 'Chill_response') %>% 
-        ggplot(aes(x = Temperature, y = value, color = density)) +
+        filter(.data$variable == 'Chill_response') %>% 
+        ggplot(aes(x = .data$Temperature, y = .data$value, color = .data$density)) +
         geom_line(size = 2) +
         ylab("Temperature response (arbitrary units)") +
         xlab("Temperature (°C)") +
-        facet_wrap(vars(variable),
+        facet_wrap(vars(.data$variable),
                    scales = "free",
                    labeller = labeller(variable = c(
                      Chill_response = c("Chill response"),
@@ -145,12 +152,12 @@ get_temp_response_plot <- function(par, temp_values,
         theme(legend.position = "none")
       
       p2 <- melted_response %>% 
-        filter(variable == 'Heat_response') %>% 
-        ggplot(aes(x = Temperature, y = value, color = density)) +
+        filter(.data$variable == 'Heat_response') %>% 
+        ggplot(aes(x = .data$Temperature, y = .data$value, color = .data$density)) +
         geom_line(size = 2) +
         xlab("Temperature (°C)") +
         ylab('') +
-        facet_wrap(vars(variable),
+        facet_wrap(vars(.data$variable),
                    scales = "free",
                    labeller = labeller(variable = c(
                      Chill_response = c("Chill response"),
@@ -164,30 +171,33 @@ get_temp_response_plot <- function(par, temp_values,
       xlab <- p1$labels$x
       p1$labels$x <- p2$labels$x <- " "
       
-      p3 <- ggplot(data.frame(l = xlab, x = 1, y = 20)) +
-        geom_text(aes(x, y, label = l), size = 6) + 
+      
+      p3 <- data.frame(l = xlab, x = 1, y = 20) %>% 
+        ggplot() +
+        geom_text(aes(x = .data$x, y = .data$y, label = .data$l), size = 6) + 
         theme_void(base_size = 15) +
         coord_cartesian(clip = "off")+
         theme(plot.margin = margin(b = 0))
       
-      library(patchwork)
+      
       p <- (p1 + p2) / p3 +   plot_layout(guides = 'collect') +
         plot_layout(heights = c(25, 1))
-    } else if(type == 2) {
+    } else if(weather_freq_plot == 'histogram') {
       #transform the frequency data of chill, to make it fit to the scale (no need for heat because scale is always from 0 to 1)
       melted_response[melted_response$variable == 'Chill_response',]$density <- melted_response[melted_response$variable == 'Chill_response',]$density * max(melted_response[melted_response$variable == 'Chill_response',]$value)
       
       
       p <-melted_response %>% 
-        ggplot(aes(x = Temperature, y = value)) +
-        geom_bar(stat = 'identity', aes(x = Temperature, y = density, fill = 'frequency of temperature\nduring chilling / forcing')) +
-        geom_line(size = 2, aes(col = variable)) +
+        ggplot(aes(x = .data$Temperature, y = .data$value)) +
+        geom_bar(stat = 'identity', aes(x = .data$Temperature, y = .data$density, fill = 'observed weather'),
+                 width = 2) +
+        geom_line(size = 2, aes(col = .data$variable)) +
         ylab("Temperature response (arbitrary units)") +
         xlab("Temperature (°C)") +
-        scale_fill_manual(values = 'grey80', breaks = 'frequency of temperature\nduring chilling / forcing')+
+        scale_fill_manual(values = 'grey80', breaks = 'observed weather')+
         #sec.axis = sec_axis(~.*coeff, name="Price ($)"))
         #scale_y_continuous(sec.axis=sec_axis(~.*,name="Relative Frequency"))+
-        facet_wrap(vars(variable),
+        facet_wrap(vars(.data$variable),
                    scales = "free",
                    labeller = labeller(variable = c(
                      Chill_response = c("Chill response"),
@@ -198,7 +208,7 @@ get_temp_response_plot <- function(par, temp_values,
     }
     
     
-    
+  #if no hourly temperature is supplied  
   } else {
     temp_response <- data.frame(
       Temperature = temp_values,
@@ -208,11 +218,12 @@ get_temp_response_plot <- function(par, temp_values,
     
     melted_response <- reshape2::melt(temp_response, id.vars = "Temperature")
     
-    p <- ggplot(melted_response, aes(x = Temperature, y = value)) +
-      geom_line(size = 2, aes(col = variable)) +
+    p <- melted_response %>% 
+      ggplot(aes(x = .data$Temperature, y = .data$value)) +
+      geom_line(size = 2, aes(col = .data$variable)) +
       ylab("Temperature response (arbitrary units)") +
       xlab("Temperature (°C)") +
-      facet_wrap(vars(variable),
+      facet_wrap(vars(.data$variable),
                  scales = "free",
                  labeller = labeller(variable = c(
                    Chill_response = c("Chill response"),
@@ -222,6 +233,7 @@ get_temp_response_plot <- function(par, temp_values,
       theme_bw(base_size = 15) +
       theme(legend.position = "none")
   }
+  
   
   
   

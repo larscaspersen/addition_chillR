@@ -57,16 +57,11 @@ of the two elements in the 'years' argument.}
 
 \item{remove_NA_scenarios}{boolean parameter indicating whether temperature scenarios that
 contain NA values should be removed. Such scenarios would generate an error.}
-
-\item{generate_rain}{= boolean, by default set FALSE. If set TRUE, then precipitation
-is generated at first and temperature is generated depending on the generated 
-precipitation.}
 }
 \value{
 list of data.frames containing the simulated weather, with columns c("YEARMODA",
-"DATE","Year","Month","Day","Tmin","Tmax"). If temperature_scenario is a list, the output
-list contains simulated temperature records for all scenarios. In case 'generate_rain' was
-set equals TRUE, then the output contains a further column called "Prec"
+"DATE","Year","Month","Day","Tmin","Tmax", "Prec"). If temperature_scenario is a list, the output
+list contains simulated temperature records for all scenarios.
 }
 \description{
 Function to incorporate the temperature and precipitation generation function of the

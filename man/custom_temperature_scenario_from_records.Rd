@@ -50,7 +50,7 @@ relative one); 'scenario_type' = 'absolute' (because this is an absolute tempera
 scenario, not a relative one); 'labels' = 'regression-based scenario'.
 }
 \description{
-This is an updated version of \code(\link{chillR::temperature_scenario_from_records}) which,
+This is an updated version of \link[chillR]{temperature_scenario_from_records} which,
 besides temperature, also handles precipitation data.
 }
 \details{
