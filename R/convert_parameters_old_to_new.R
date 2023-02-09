@@ -47,6 +47,7 @@ convert_parameters_old_to_new <- function(par){
   }
   theta_star <- (E1-E0)/log((A1*sigma)/(A0*(sigma - 1)))
   
+
   #fishman 1987 eq33
   theta_c <- (E1-E0)/log(A1/A0)
   
@@ -64,15 +65,14 @@ convert_parameters_old_to_new <- function(par){
   params_old <- c(par[5:8],sigma)
   
   
-  output<-nleqslv::nleqslv(c(28), solve_theta_star, jac=NULL, params_old, xscalm="auto", method="Newton",
+  output<-nleqslv::nleqslv(c(20), solve_theta_star, jac=NULL, params_old, xscalm="auto", method="Newton",
                            control=list(trace=0,allowSingular=TRUE))
   
   
   #This is a numerical method which can produce non-convergence. Check this
   if (output$termcd >= 3){
     #if the nle algorithm has stalled just discard this solution
-    pie_c<-NA;
-    warning('Approximation of pie_c failed')
+    stop('Conversion to pie_c failed')
     
     
   } else {
@@ -157,7 +157,11 @@ solve_theta_star <- function(x,params_old){
   #for right hand site we need an approximated value of pie_c
   rhs<-(1-exp(-k1T2*(1-eta)*pie_c))/(1-exp(-(k1T1*eta+k1T2*(1-eta))*pie_c))
   
-  y <- log(lhs)-log(rhs)   #Taking logs the problems is much easily solved
+  if(rhs < 0 | lhs < 0){
+    y <- abs(lhs - rhs)
+  } else {
+    y <- log(lhs)-log(rhs)   #Taking logs the problems is much easily solved
+  }
   
   return(y)
 }
