@@ -4,11 +4,16 @@
 \alias{convert_parameters}
 \title{Converts parameters to standard PhenoFlex format}
 \usage{
-convert_parameters(par)
+convert_parameters(par, failure_return = "MEIGO")
 }
 \arguments{
 \item{par}{vector of length 12 with the parameters in the following order:
 yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope}
+
+\item{failure_return}{character, by default set to "MEIGO". Decides what should be returned if the conversion failed.
+In case of "MEIGO" it returns a MEIGO-compatible output, indicating that the 
+current parameters are not suitable. If set equal "Ignore Error" it will return the
+best estimate. If set equal "NA" it will return NA instead.}
 }
 \value{
 vector of length 12, with the PhenoFlex parameters yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope
