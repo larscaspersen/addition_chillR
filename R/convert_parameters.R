@@ -9,6 +9,10 @@
 #' 
 #' @param par vector of length 12 with the parameters in the following order:
 #' yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope
+#' @param failure_return character, by default set to "MEIGO". Decides what should be returned if the conversion failed.
+#' In case of "MEIGO" it returns a MEIGO-compatible output, indicating that the 
+#' current parameters are not suitable. If set equal "Ignore Error" it will return the
+#' best estimate. If set equal "NA" it will return NA instead.
 #' @return vector of length 12, with the PhenoFlex parameters yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope
 #' with given temperature data and model parameters. 
 #' @details The conversion follows the approach documented in Fishman et al (1987) and Egea et al. (2021).
@@ -22,7 +26,7 @@
 #' par_new <- convert_parameters(par)
 #' }
 #' @export convert_parameters
-convert_parameters <- function(par){
+convert_parameters <- function(par, failure_return = 'MEIGO'){
   params<-numeric(4)
   
   params[1] <- par[5]   #theta*
@@ -36,10 +40,18 @@ convert_parameters <- function(par){
   
   
   #This is a numerical method which can produce non-convergence. Check this
-  if (output$termcd >= 3){
+  if (output$termcd >= 3 & failure_return != "Ignore Error"){
     #if the nle algorithm has stalled just discard this solution
-    E0<-NA; E1<-NA; A0<-NA; A1<-NA
-    return(list(F=10^6, g=rep(10^6,5)))
+
+    if(failure_return == 'MEIGO'){
+      return(list(F=10^6, g=rep(10^6,5)))
+    } else if (failure_return == "NA"){
+      E0<-NA; E1<-NA; A0<-NA; A1<-NA
+    } else{
+      stop('Wrong option selected for "failure_return"')
+    }
+    
+
     
     #You would add here a flag to let your optimization procedure know
     #That this solution should be ignored by lack of convergence
