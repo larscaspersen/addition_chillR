@@ -202,7 +202,7 @@ get_scenarioMIP_data <- function(coordinates,
   }
   
   if('tasmax' %in% metric){
-    tmin_adj <- extracted_df %>% 
+    tmax_adj <- extracted_df %>% 
       reshape2::melt(id.vars = c('Date', 'variable', 'model', 'ssp'), variable.name = 'id') %>% 
       filter(.data$variable == 'tasmax') %>% 
       mutate(value = round(.data$value - 273.15, digits = 2))
