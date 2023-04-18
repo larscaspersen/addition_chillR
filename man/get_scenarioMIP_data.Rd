@@ -12,6 +12,8 @@ get_scenarioMIP_data(
   experiment,
   frequency = "mon",
   resolution = "100 km",
+  activity = "ScenarioMIP",
+  source = NULL,
   keep_downloaded = FALSE,
   path_download = "temp_cmip6",
   ...

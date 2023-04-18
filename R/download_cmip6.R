@@ -70,6 +70,8 @@ get_scenarioMIP_data <- function(coordinates,
                                  experiment,
                                  frequency = 'mon',
                                  resolution = '100 km',
+                                 activity = 'ScenarioMIP', 
+                                 source = NULL,
                                  keep_downloaded = FALSE,
                                  path_download = 'temp_cmip6',
                                  ...){
@@ -92,9 +94,8 @@ get_scenarioMIP_data <- function(coordinates,
                                        frequency = frequency, 
                                        experiment = experiment,
                                        resolution = resolution,
-                                       source = NULL,
                                        latest = TRUE,
-                                       activity = 'ScenarioMIP', 
+                                       activity = activity,
                                        years = c(start_year, end_year),
                                        ...)
   
@@ -105,8 +106,8 @@ get_scenarioMIP_data <- function(coordinates,
   
   #the date subset doesnt work so well, so make sure that only this period is covered
   #somehow the end date must be 1st of december 2100 and not 31st...
-  query <- query[as.Date(query$datetime_start) == as.Date(paste0(start_year,'-01-01')),]
-  query <- query[as.Date(query$datetime_end) == as.Date(paste0(end_year,'-12-01')),]
+  query <- query[as.Date(query$datetime_start) <= as.Date(paste0(start_year,'-01-01')),]
+  query <- query[as.Date(query$datetime_end) >= as.Date(paste0(end_year,'-12-01')),]
   
   if(length(query) == 0){
     stop('Subsetting the query for the desired start_year and end_year lead to no remaining entry. Try different start and end year')
@@ -277,7 +278,11 @@ extract_cmip_data <- function(fname, coords){
   ext <- t(ext)
   
   ext_df <- as.data.frame(ext, row.names = F)
-  #colnames(ext_df) <- weather_info$id
+  
+  colnames(ext_df) <- 
+    
+    
+  colnames(ext_df) <- coords$id
   ext_df$Date <- time
   
   return(ext_df)
