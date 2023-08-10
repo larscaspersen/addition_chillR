@@ -13,11 +13,9 @@
 #' @param performance_df data.frame with at least the columns 'cultivar' and columns with the parameters name 
 #' @param weather_list list with hourly weather observations, needed to create the histogram with the temperature
 #' frequency
-#' @param temp_values numeric, vector containing the temperatures for which the temperature responses should be calculated
+#' @param temps numeric, vector containing the temperatures for which the temperature responses should be calculated
 #' @param legend.pos character, by default 'bottom'. Specifies where the legend goes. Can take the same values as in ggplot2
 #' @param col_palette character vector, contains the hexcode of the colors used to draw the temperature responses for each cultivar
-#' @param hourtemps data.frame containing hourly temperature, by default set to NULL. If supplied, the columns
-#' 'Month' and 'Temp' should be present.
 #' @param par_names character vector, specifies the names of the parameters, by default the 'new' PhenoFlex parameters
 #' c('yc', 'zc', 's1', 'Tu', 'theta_star', 'theta_c', 'tau', 'pie_c','Tf', 'Tc', 'Tb', 'slope') 
 #' @param chill_months numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
@@ -44,6 +42,9 @@ gen_combined_temp_response_plot <- function(performance_df,
                                                           'Tf', 'Tc', 'Tb', 'slope'),
                                             chill_months = c(11:12,1:2),
                                             heat_months = 1:3){
+  
+  #declare variables called in pipes to avoid warning messages in rmd check
+  Temp <- density <- variable <- Month <- Temperature <- cultivar <- value <- NULL
   
   temp_response_df <- data.frame()
   for(i in 1:nrow(performance_df)){
@@ -99,7 +100,7 @@ gen_combined_temp_response_plot <- function(performance_df,
              width = 2) +
     geom_line(size = 2, aes(col = cultivar, y = value)) +
     ylab("Temperature response\n(arbitrary units)") +
-    xlab("Temperature (°C)") +
+    xlab("Temperature (\u00B0C)") +
     scale_fill_manual(values = 'grey80', breaks = 'Observed Temperatures')+
     facet_wrap(vars(variable),
                labeller = labeller(variable = c(
@@ -121,7 +122,7 @@ gen_combined_temp_response_plot <- function(performance_df,
              width = 2) +
     geom_line(size = 2, aes(col = cultivar, y = value)) +
     ylab("") +
-    xlab("Temperature (°C)") +
+    xlab("Temperature (\u00B0C)") +
     scale_fill_manual(values = 'grey80', breaks = 'Observed Temperatures')+
     facet_wrap(vars(variable),
                labeller = labeller(variable = c(

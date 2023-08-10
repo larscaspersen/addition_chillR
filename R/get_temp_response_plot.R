@@ -138,7 +138,7 @@ get_temp_response_plot <- function(par, temp_values,
         ggplot(aes(x = .data$Temperature, y = .data$value, color = .data$density)) +
         geom_line(size = 2) +
         ylab("Temperature response (arbitrary units)") +
-        xlab("Temperature (°C)") +
+        xlab("Temperature (\u00B0C)") +
         facet_wrap(vars(.data$variable),
                    scales = "free",
                    labeller = labeller(variable = c(
@@ -155,7 +155,7 @@ get_temp_response_plot <- function(par, temp_values,
         filter(.data$variable == 'Heat_response') %>% 
         ggplot(aes(x = .data$Temperature, y = .data$value, color = .data$density)) +
         geom_line(size = 2) +
-        xlab("Temperature (°C)") +
+        xlab("Temperature (\u00B0C)") +
         ylab('') +
         facet_wrap(vars(.data$variable),
                    scales = "free",
@@ -193,7 +193,7 @@ get_temp_response_plot <- function(par, temp_values,
                  width = 2) +
         geom_line(size = 2, aes(col = .data$variable)) +
         ylab("Temperature response (arbitrary units)") +
-        xlab("Temperature (°C)") +
+        xlab("Temperature (\u00B0C)") +
         scale_fill_manual(values = 'grey80', breaks = 'observed weather')+
         #sec.axis = sec_axis(~.*coeff, name="Price ($)"))
         #scale_y_continuous(sec.axis=sec_axis(~.*,name="Relative Frequency"))+
@@ -222,7 +222,7 @@ get_temp_response_plot <- function(par, temp_values,
       ggplot(aes(x = .data$Temperature, y = .data$value)) +
       geom_line(size = 2, aes(col = .data$variable)) +
       ylab("Temperature response (arbitrary units)") +
-      xlab("Temperature (°C)") +
+      xlab("Temperature (\u00B0C)") +
       facet_wrap(vars(.data$variable),
                  scales = "free",
                  labeller = labeller(variable = c(

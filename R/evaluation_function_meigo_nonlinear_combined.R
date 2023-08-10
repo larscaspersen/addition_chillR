@@ -21,6 +21,7 @@
 #' @param n_cult Numeric, specifying the numbers of cultivars fitted
 #' @param na_penalty numeric, value which is used when the model fails to generate a prediction
 #' for the bloom date. By default 365
+#' @param return_bloom_days boolean, by default set FALSE. Controls if the evaluation score or the predicted bloom dates get returned by the function
 #' @return list with two elements. First is called 'f' and contains the residual sum of squares of the model. The 
 #' second is 'g' which is the values of the additional model constraints defined in the function.
 #' 
@@ -64,7 +65,7 @@ evaluation_function_meigo_nonlinear_combined <- function(x,
   params[4] <- x[8+((n_cult -1) * 3)]     #pi_c
   
   
-  output<-nleqslv::nleqslv(c(500, 15000), LarsChill:::solve_nle, jac=NULL, params, xscalm="auto", method="Newton",
+  output<-nleqslv::nleqslv(c(500, 15000), solve_nle, jac=NULL, params, xscalm="auto", method="Newton",
                            control=list(trace=0,allowSingular=TRUE))
   
   
@@ -97,7 +98,7 @@ evaluation_function_meigo_nonlinear_combined <- function(x,
   
   #split the parameters and reconstruct them for the different cultivar
   
-  
+  pred_bloom <- NULL
   
   #loop over the cultivars, calculate predicted days for each cultivar
   rss <- purrr::map_dbl(1:length(SeasonList), function(i){

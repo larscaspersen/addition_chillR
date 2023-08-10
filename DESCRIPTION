@@ -5,8 +5,8 @@ Version: 0.0.1.0
 RoxygenNote: 7.2.1
 Encoding: UTF-8
 License: GPL-3
-Description: Some extra functions which are intended to enhance chillR package on the long run
+Description: Some extra functions which are intended to enhance chillR package on the long run. Hopefully they all work...
 Authors@R: 
     person("Lars", "Caspersen", , "lars.caspersen@uni-bonn.de", role = c("aut", "cre"))
 Maintainer: Lars Caspersen <lars.caspersen@uni-bonn.de>
-Depends: assertthat, chillR, dplyr, epwshiftr, ggplot2, graphics, magrittr, ncdf4, nleqslv, patchwork, purrr, raster, reshape2, RMAWGEN, stats, stringr, utils
+Depends: assertthat, chillR, dplyr, epwshiftr, ggplot2, graphics, httr, lubridate, magrittr, MEIGOR, ncdf4, nleqslv, patchwork, purrr, raster,readr, reshape2, RMAWGEN, sp, stats, stringr, tidyr, utils

@@ -30,6 +30,8 @@
 #' @param experiment character / vector or characters defining the root experiment identifier. Commonly used Tier 1 experiments include: c("ssp126", "ssp245", "ssp370", "ssp585")
 #' @param frequency defines the timestep of the model output. Default is 'mon' for monthly
 #' @param resolution size of the pixels of the model output. Default is "100 km"
+#' @param activity character, allows to specify from which modelling activity data is downloaded. By default 'ScenarioMIP'
+#' @param source by default NULL, allows to specify which models should be included. If set NULL, all available models will be used
 #' @param keep_downloaded booloean, by default FALSE. If true, the function will not 
 #' delete the downloaded .nc files. This makes sense when the user may want to 
 #' use the climate change data for other locations. Prior to downloading, the function

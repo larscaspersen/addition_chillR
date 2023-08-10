@@ -32,6 +32,8 @@ generated using \link[chillR]{genSeasonList}}
 
 \item{na_penalty}{numeric, value which is used when the model fails to generate a prediction
 for the bloom date. By default 365}
+
+\item{return_bloom_days}{boolean, by default set FALSE. Controls if the evaluation score or the predicted bloom dates get returned by the function}
 }
 \value{
 list with two elements. First is called 'f' and contains the residual sum of squares of the model. The 

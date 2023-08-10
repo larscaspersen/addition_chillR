@@ -23,6 +23,8 @@ gen_combined_temp_response_plot(
 \item{weather_list}{list with hourly weather observations, needed to create the histogram with the temperature
 frequency}
 
+\item{temps}{numeric, vector containing the temperatures for which the temperature responses should be calculated}
+
 \item{legend.pos}{character, by default 'bottom'. Specifies where the legend goes. Can take the same values as in ggplot2}
 
 \item{col_palette}{character vector, contains the hexcode of the colors used to draw the temperature responses for each cultivar}
@@ -35,11 +37,6 @@ the chill temperature response. By default set to c(11:12,1:3)}
 
 \item{heat_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
 the heat temperature response. By default set to c(1:5)}
-
-\item{temp_values}{numeric, vector containing the temperatures for which the temperature responses should be calculated}
-
-\item{hourtemps}{data.frame containing hourly temperature, by default set to NULL. If supplied, the columns
-'Month' and 'Temp' should be present.}
 }
 \value{
 ggplot of the mdoelled temperature response

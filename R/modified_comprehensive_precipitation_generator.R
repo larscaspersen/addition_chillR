@@ -6,14 +6,55 @@
 #' This function is called by the wrapper function \code{\link{temperature_generation_rmawgen_prec}}. The rest of the 
 #' documentation is copied from the original function.
 #' 
-#' 
+#' @param station station names
+#' @param prec_all matrix with precipitation in mm for all stations. one column per station
+#' @param mean_climate_prec by default NULL
+#' @param year_max numeric, starting year
+#' @param year_min numeric, end year
+#' @param leap decides if leap years are included in simulated data
+#' @param nmonth how many months are to be expected in input data
+#' @param cpf don't know
+#' @param verbose if message are printed while running function
+#' @param p don't know
+#' @param type dont't know
+#' @param lag.max lag considered when simulating temperature and or precipitation
+#' @param ic don't know
+#' @param activateVARselect don't know
+#' @param exogen if there are exogenous variables to be considered when generating weather
+#' @param exogen_sim don't know
+#' @param is_exogen_gaussian don't know
+#' @param year_max_sim don't know
+#' @param year_min_sim don't know
+#' @param mean_climate_prec_sim don't know
+#' @param onlygeneration too lazy to document
+#' @param varmodel too lazy to document
+#' @param type_quantile too lazy to document
+#' @param qnull too lazy to document
+#' @param valmin too lazy to document
+#' @param step too lazy to document
+#' @param n_GPCA_iteration too lazy to document
+#' @param n_GPCA_iteration_residuals too lazy to document
+#' @param sample too lazy to document
+#' @param extremes too lazy to document
+#' @param exogen_all too lazy to document
+#' @param exogen_all_col too lazy to document
+#' @param no_spline too lazy to document
+#' @param nscenario too lazy to document
+#' @param seed too lazy to document
+#' @param noise too lazy to document
+#'  
+#' @return list of data.frames containing the simulated weather, with columns c("YEARMODA",
+#' "DATE","Year","Month","Day","Tmin","Tmax", "Prec"). If temperature_scenario is a list, the output
+#' list contains simulated temperature records for all scenarios.
+#' @author Lars Caspersen, Eike Luedeling
+#' @keywords utility
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
 #' @import RMAWGEN
 #' @importFrom stats residuals
-#' 
-#' @export modified_ComprehensivePrecipitationGenerator
+#' @rdname temperature_generation_rmawgen_prec
+#' @export
 
 modified_ComprehensivePrecipitationGenerator <- function (station = c("T0001", "T0010", "T0099"), 
           prec_all, 
