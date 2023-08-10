@@ -25,6 +25,7 @@
 #' @importFrom dplyr summarise
 #' @importFrom dplyr pull
 #' @importFrom stats sd
+#' @importFrom dplyr bind_cols
 #' 
 #' @export pheno_ensemble_prediction
 
@@ -40,7 +41,7 @@ pheno_ensemble_prediction <- function(par_list, confidence, temp, theta_star = 2
                           modelfn = custom_PhenoFlex_GDHwrapper, 
                           SeasonList =temp)
   }) %>% 
-    do.call('cbind', .data) %>% 
+    dplyr::bind_cols() %>% 
     as.matrix()
   weights <- confidence / sum(confidence)
   
