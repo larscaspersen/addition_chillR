@@ -41,7 +41,7 @@ pheno_ensemble_prediction <- function(par_list, confidence, temp, theta_star = 2
                           modelfn = custom_PhenoFlex_GDHwrapper, 
                           SeasonList =temp)
   }) %>% 
-    dplyr::bind_cols() %>% 
+    dplyr::bind_cols(.name_repair = 'unique') %>% 
     as.matrix()
   weights <- confidence / sum(confidence)
   
