@@ -114,6 +114,14 @@ custom_PhenoFlex_GDHwrapper <- function (x, par, constraints = FALSE){
   
   JDay <- x$JDay[bloomindex]
   JDaylist <- which(x$JDay == JDay)
+  
+  #if we are in the norhtern hemisphere and the year corresponding to the index is the smaller one, return negative numbers relative to Jan-1 being 1
+  if(length(unique(x$Year)) == 2 & x$Year[bloomindex] == min(x$Year)){
+
+    JDay <- JDay - 365
+    
+  } 
+  
   n <- length(JDaylist)
   if (n == 1){
     return(JDay)
