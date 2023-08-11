@@ -29,7 +29,6 @@
 #' 
 #' @export pheno_ensemble_prediction
 
-
 pheno_ensemble_prediction <- function(par_list, confidence, temp, theta_star = 279, Tc = 36, return_se = TRUE){
   
   
@@ -41,7 +40,8 @@ pheno_ensemble_prediction <- function(par_list, confidence, temp, theta_star = 2
                           modelfn = custom_PhenoFlex_GDHwrapper, 
                           SeasonList =temp)
   }) %>% 
-    dplyr::bind_cols(.name_repair = 'unique') %>% 
+    stats::setNames(1:length(par_list)) %>% 
+    dplyr::bind_cols() %>% 
     as.matrix()
   weights <- confidence / sum(confidence)
   
