@@ -120,7 +120,7 @@ get_thermal_window_phenology <- function(weather_list_obs,
       dplyr::mutate(run_mean_frost = chillR::runn_mean(.data$chance_frost, runn_mean = run_mean_window))
   }) %>% 
     dplyr::bind_rows(.id = 'location') %>% 
-    tidyr::expand_grid(species = .data$species)
+    tidyr::expand_grid(species = species)
   
   
   #heat risk for each day of the year
@@ -132,7 +132,7 @@ get_thermal_window_phenology <- function(weather_list_obs,
       dplyr::mutate(run_mean_heat = chillR::runn_mean(.data$chance_heat, runn_mean = run_mean_window))
   }) %>% 
     dplyr::bind_rows(.id = 'location') %>% 
-    tidyr::expand_grid(species = .data$species)
+    tidyr::expand_grid(species = species)
   
   
   #save the target column in a different column, which I can access by name
