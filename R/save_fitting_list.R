@@ -19,7 +19,7 @@
 #' @author Lars Caspersen
 #' @keywords utility
 #'  
-#' @export save_fitting_result
+#' @export save_fitting_list
 save_fitting_list <- function(fit_list, path, prefix){
   
   purrr::pmap(list(fit_list, names(fit_list), 1:length(fit_list)), function(fitted, cultivar, n){

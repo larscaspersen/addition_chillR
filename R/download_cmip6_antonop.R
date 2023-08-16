@@ -1,7 +1,6 @@
-library(tidyverse)
+# library(tidyverse)
 #download cmip6 the way antonio does it
 
-ecmwfr::wf_set_key(user = '243306', key = 'cf909b0a-39cd-417f-89fa-198963d45ef7', service = 'cds')
 
 climate_extractor <- function(Scenarios, 
                               temporal_resolution = 'daily', 
@@ -11,6 +10,10 @@ climate_extractor <- function(Scenarios,
                               month = 1:12,
                               update_everything = FALSE,
                               download_path = 'cmip6_downloaded'){
+  
+  ecmwfr::wf_set_key(user = '243306', key = 'cf909b0a-39cd-417f-89fa-198963d45ef7', service = 'cds')
+  
+  
   Models<-c()
   
   if(temporal_resolution == 'daily' & ! (Scenarios  %in% c('historical', 'ssp1_2_6', 'ssp2_4_5', 'ssp5_8_5'))){
@@ -357,11 +360,11 @@ create_scenario_list <- function(cmip6_one_station,
 }
 
 
-Scenarios<-c("historical","ssp1_2_6", "ssp2_4_5", "ssp3_7_0", "ssp5_8_5")
-Scenarios <- Scenarios[3]
-
-run_download_cmip6(Scenarios = Scenarios,
-                   temporal_resolution = 'monthly')
+# Scenarios<-c("historical","ssp1_2_6", "ssp2_4_5", "ssp3_7_0", "ssp5_8_5")
+# Scenarios <- Scenarios[3]
+# 
+# run_download_cmip6(Scenarios = Scenarios,
+#                    temporal_resolution = 'monthly')
 
 #it should work now from download to scenario data
 #haven't tried the function for other ssp scenarios
