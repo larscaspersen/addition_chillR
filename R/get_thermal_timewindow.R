@@ -184,7 +184,7 @@ get_thermal_window_phenology <- function(weather_list_obs,
     stats::na.omit() %>% 
     dplyr::group_by(.data$species) %>% 
     dplyr::summarise(max_frost_risk = max(.data$run_mean_frost)) %>% 
-    dplyr::mutate(flowering_type = .data$target_col_obs,
+    dplyr::mutate(flowering_type = target_col_obs,
            max_frost_risk_padded = .data$max_frost_risk + padding)
   
   
@@ -194,7 +194,7 @@ get_thermal_window_phenology <- function(weather_list_obs,
     stats::na.omit() %>% 
     dplyr::group_by(.data$species) %>% 
     dplyr::summarise(max_heat_risk = max(.data$run_mean_heat)) %>% 
-    dplyr::mutate(flowering_type = .data$target_col_obs,
+    dplyr::mutate(flowering_type = target_col_obs,
            max_heat_risk_padded = .data$max_heat_risk + padding)
   
   
