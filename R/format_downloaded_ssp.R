@@ -1,6 +1,6 @@
 #' Bring downloaded CMIP6 data to chillR format
 #' 
-#' This function is best used after havin downloaded CMIP6 data via \link[LarsChill]{get_scenarioMIP_data}
+#' This function is best used after havin downloaded CMIP6 data via \link[LarsChill]{download_cmip6_epwshiftr}
 #' 
 #' At first data is queried using the function \link[epwshiftr]{init_cmip6_index}. If the 
 #' user wants at first to get a feeling how much data files are found in the search, it
@@ -17,7 +17,7 @@
 #' }
 #' 
 #' 
-#' @param downloaded output from the \link[LarsChill]{get_scenarioMIP_data} function
+#' @param downloaded output from the \link[LarsChill]{download_cmip6_epwshiftr} function
 #' @return data.frame with extracted data for the specified locations. In case of 'tasmin' and
 #' 'tasmax' the original unit K gets converted to degree Celsius. In case of 'pr'
 #' the original unit kg m-2 s-1 gets converted to mm day-1. 
