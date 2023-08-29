@@ -104,8 +104,27 @@ load_fitting_result_single <- function(path){
     extract_number_matrix <- function(x, row){
       #extract row of interest, split by empty spaces
       test <- strsplit(x[row], ' ')
+      
+      #drop entries with []
+      keep_fragments <- !grepl(pattern = '\\[|\\]', x = test[[1]])
+      
       #convert to number
-      tes_number <- readr::parse_number(test[[1]][-1])
+      tes_number <- readr::parse_number(test[[1]][keep_fragments], na = c('xbest', ''))
+      #remove cases in which could be converted to number (because it was text)
+      number_extracted <- tes_number[is.na(tes_number) == FALSE]
+      return(number_extracted)
+    }
+    
+    #extract one row of data from the string
+    extract_number_matrix_with_bracets <- function(x, row){
+      #extract row of interest, split by empty spaces
+      test <- strsplit(x[row], ' ')
+      
+      #drop entries with []
+      #keep_fragments <- !grepl(pattern = '\\[|\\]', x = test[[1]])
+      
+      #convert to number
+      tes_number <- readr::parse_number(test[[1]], na = c('xbest', ''))
       #remove cases in which could be converted to number (because it was text)
       number_extracted <- tes_number[is.na(tes_number) == FALSE]
       return(number_extracted)
@@ -113,7 +132,7 @@ load_fitting_result_single <- function(path){
     
     #decide number of column and rows
     nrow <- length(pos.data.x)-1
-    ncol <- max(extract_number_matrix(x, pos.data.x[1]))
+    ncol <- max(extract_number_matrix_with_bracets(x, row = pos.data.x[1]))
     
     #extract data and bind it
     data.x <- purrr::map(pos.data.x[-1], .f = function(row) extract_number_matrix(x, row)) %>% 
@@ -165,14 +184,11 @@ load_fitting_result_single <- function(path){
          'numeval' = extract_res_vector(x, pos.data.numeval),
          'end_crit' = extract_res_vector(x, pos.data.end_crit),
          'cpu_time' = data.cpu.time,
-         'Refset' = list('x' = extract_res_x(x, pos.data.Refset.x),
+         'Refset' = list('x' = extract_res_x(x, pos.data.x = pos.data.Refset.x),
                          'f' = extract_res_vector(x, pos.data.Refset.f),
                          'fpen' = extract_res_vector(x, pos.data.Refset.fpen),
                          'const' = extract_res_vector(x, pos.data.Refset.const),
                          'penalty' = extract_res_vector(x, pos.data.Refset.penalty)))
   )
 }
-
-
-
 
