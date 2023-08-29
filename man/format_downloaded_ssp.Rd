@@ -7,7 +7,7 @@
 format_downloaded_ssp(downloaded)
 }
 \arguments{
-\item{downloaded}{output from the \link[LarsChill]{get_scenarioMIP_data} function}
+\item{downloaded}{output from the \link[LarsChill]{download_cmip6_epwshiftr} function}
 }
 \value{
 data.frame with extracted data for the specified locations. In case of 'tasmin' and
@@ -15,7 +15,7 @@ data.frame with extracted data for the specified locations. In case of 'tasmin' 
 the original unit kg m-2 s-1 gets converted to mm day-1.
 }
 \description{
-This function is best used after havin downloaded CMIP6 data via \link[LarsChill]{get_scenarioMIP_data}
+This function is best used after havin downloaded CMIP6 data via \link[LarsChill]{download_cmip6_epwshiftr}
 }
 \details{
 At first data is queried using the function \link[epwshiftr]{init_cmip6_index}. If the 
