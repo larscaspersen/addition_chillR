@@ -6,14 +6,17 @@
 \usage{
 download_cmip6_ecmwfr(
   scenario,
-  n_try = 20,
-  wait = 5,
+  area,
+  user,
+  key,
+  model = "default",
+  serivce = "cds",
   temporal_resolution = "monthly",
   variable = c("Tmin", "Tmax"),
   year_start = 2015,
   year_end = 2100,
-  area = c(71, -15, 35, 50),
   month = 1:12,
+  n_try = 10,
   update_everything = FALSE,
   download_path = "cmip6_downloaded"
 )
@@ -24,10 +27,22 @@ to be downloaded. Currently the values 'ssp1_2_6', 'ssp2_4_5', 'ssp3_7_0' and
 'ssp5_8_5' are the only legit options, which are also the standard scenarios 
 of CMIP6}
 
-\item{n_try}{numneric, number of repeated calls for the API. For more information see 'Details'}
+\item{area}{numeric vector of length 4. Sets the spatial boundaries of the downloaded data.
+Coordinates are supplied in the format:  c(maximum latitude, minimum longitude, minimum latitude, maximum longitude) which corresponds to the
+northern extend, wester extend, southern extend and eastern extend of the area of interest}
 
-\item{wait}{numeric, waiting in time between repeated function calls in seconds. For more
-information see 'Details'}
+\item{user}{a character, user name from the copernicus climate data store See the 'Details' for more}
+
+\item{key}{a character. Can be found just beneath the user id on the profile when registering 
+for the copernicus website. Should be provided as a character (so in quotation marks)}
+
+\item{model}{character, by default "default". Decides which global climate models are requested. If set to "default" then depening on the scenario and temporal 
+resolution around 20 models are selected for which we know that combination of scenario and variables data is available. Can be also set to "all", then
+all potential models are requested. You can also hand pick the models you want to download as a vector of the model names. You can check \url{https://cds.climate.copernicus.eu/cdsapp#!/dataset/projections-cmip6?tab=form} for the list of models. 
+In case a certain request fails because either the model name is wrong or the requested combination of SSP, time  period and variable is not available, then the model
+is dropped from the requests and the function carries on with the remaining requests. The user will get a warning in these cases.}
+
+\item{serivce}{character, by default cds. Decides which database is used. For more details see in the documentation of \code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}}.}
 
 \item{temporal_resolution}{character, can be either 'daily' or 'monthly'. Sets
 if the downloaded CMIP6 data is in daily or monthly format}
@@ -43,11 +58,9 @@ to 2015}
 \item{year_end}{numeric, latest year for downloaded CMIP6 data. By default set
 to 2100}
 
-\item{area}{numeric vector of length 4. Sets the spatial boundaries of the downloaded data.
-Coordinates are supplied in the format:  c(maximum latitude, minimum longitude, minimum latitude, maximum longitude) which corresponds to the
-northern extend, wester extend, southern extend and eastern extend of the area of interest}
-
 \item{month}{numeric vector, sets which months should be downloaded. By default set to 1:12}
+
+\item{n_try}{numeric, number of repeated calls for the API. For more information see 'Details'}
 
 \item{update_everything}{logical, by default set to FALSE. When set FALSE already downloaded
 scenarios with matching names are skipped. If set TRUE, then files are downloaded regardless if 
@@ -60,17 +73,50 @@ new folder will be created. Path is relative to working directory}
 NULL, the downloaded files are saved in the stated directory
 }
 \description{
-Accesses the CMIP6 data of the Coperincus API via the ecwfr package. Saves the downloaded files as
+Accesses the CMIP6 data of the Coperincus API via the \code{\link[ecmwfr:wf_request_batch]{ecmwfr}} package. Saves the downloaded files as
 .zip objects in the specified path.
 }
 \details{
-Sometimes the server is not responding in time and the download fails because of that.
-To avoid that the same line of code needs to be executed several times until
-all the needed scenarios are downloaded, the call will be repeated in these cases. The argument n_calls sets the
-maximum number of repeated calls. The argument wait sets the waiting time between repeated function calls.
+Registering to cds.climate.coperincus.eu:
+\url{https://cds.climate.copernicus.eu/cdsapp#!/home}
+
+Finding the user id and the key:
+
+On the website of the copernicus climate data store, navigate to the user profile and scroll to the bottom to "API key". There
+you can find the item "UID". The user id should be provided as character (within quotation marks). Just below you can also find the key, which is also need when using this function.
+
+After successful registration some extra steps are needed in order to be able to download CMIP6 data. 
+Additional to the "Terms of use of the Copernicus Climate Store" and the "Data Protection
+and privacy agreement", you also need to agree to the "CMIP6 - Data Access - Terms of Use". 
+This needs to be done after registering. You can agree to the terms via the following link 
+\url{https://cds.climate.copernicus.eu/cdsapp/#!/terms/cmip6-wps}. 
+
+Alternatively,
+you can navigate to the term within the copernicus webpage. Go to "Datasets", you can find it in the upper ribbon of the main page. 
+There you need to search for "CMIP6" with the search field
+and choose the first result, which is named "CMIP6 climate projections". 
+There you need to click on "Download data" and scroll to the very bottom of the page to the
+field "Terms of Use". There you need to click on the button saying "Accept Terms".
+If you do not accept the terms the download via the API (and consequently via this
+function) will not be possible!
+
+
+Sometimes the server is not responding in time and the download fails because of that. In these cases after a short 
+waiting time of 5 seconds, the request is started again. If the error repeats several times the requested model
+will be dropped from the list of requests. By default the number of allowed repeated requestes is 10. The user 
+will get a warning if the model is dropped from the requests.
 }
 \examples{
 \dontrun{
+download_cmip6_ecmwfr(scenario = 'ssp1_2_6', 
+area = c(55, 5.5, 47, 15.1),
+user = 'write user id here'
+key = 'write key here',
+model = 'AWI-CM-1-1-MR',
+temporal_resolution = 'monthly', 
+variable = c('Tmin', 'Tmax'),
+year_start = 2015, 
+year_end = 2100)
 }
 }
 \author{
