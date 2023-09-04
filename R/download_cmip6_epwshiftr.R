@@ -34,6 +34,15 @@
 #' 'source' or 'variant'.
 #' @return NULL, saves files in the specified path
 #' 
+#' @examples 
+#' \dontrun{
+#' download_cmip6_epwshiftr(year_start = 2015,
+#' year_end = 2100,
+#' metric =c('tasmin', 'tasmax'),
+#' experiment = c('ssp126'))
+#' 
+#' }
+#' 
 #' @author Lars Caspersen
 #' @keywords utility
 #' @importFrom epwshiftr init_cmip6_index
