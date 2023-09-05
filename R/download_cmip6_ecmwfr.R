@@ -111,7 +111,7 @@ download_cmip6_ecmwfr <- function(scenario,
                                   user,
                                   key,
                                   model =  'default',
-                                  serivce = 'cds',
+                                  service = 'cds',
                                   temporal_resolution = 'monthly', 
                                   variable = c('Tmin', 'Tmax'),
                                   year_start = 2015, 
@@ -303,7 +303,7 @@ download_cmip6_ecmwfr <- function(scenario,
     
     #if the match was not successfull, then take the original entry and try it with that one
     if(any(is.na(Models))){
-      warning(paste('At least one of the provided model name did match any of the known GCM model names. The function will try to download it anyway, but it is likely to fail. Please check if there are no typos in the GCMs name.\nThis affects the provided model names:', 
+      warning(paste('At least one of the provided model name did not match any of the known GCM model names. The function will try to download it anyway, but it is likely to fail. Please check if there are no typos in the GCMs name.\nThis affects the provided model names:', 
                     paste0(model[is.na(match_row)], collapse = ' ') )
       )
       
