@@ -59,15 +59,34 @@ extract_cmip6_data <- function(stations,
                                keep_downloaded = TRUE){
   
   
+  #-----------------------------#
+  #check the inputs
+  #-----------------------------#
+  
   assertthat::assert_that(all(variable %in% c('Tmin', 'Tmax', 'Prec')))
   assertthat::is.dir(download_path)
   assertthat::assert_that(all(c('station_name', 'longitude', 'latitude') %in% colnames(stations)))
   assertthat::assert_that(is.numeric(stations$longitude))
   assertthat::assert_that(is.numeric(stations$latitude))
   
+  
+  
+  #check if ncdf4 and PCICt are installed
+  if(system.file(package='ncdf4') == ''){
+    stop('You need to have the package ncdf4 installed for the function to work properly.')
+  }
+  if(system.file(package = 'PCICt') == ''){
+    stop('You need to have the package PCICt installed for the function to work properly.')
+  }
+
   #need to transform the latitude because netcdf latitude only goes from 0 to 360
   stations$longitude<-stations$longitude+360
   
+  
+  
+  #---------------------------------#
+  #Unzip the zip files 
+  #---------------------------------#
   
   
   #check if zip files are present in the folder, if so assume that we have to extract the zip files, otherwise directly open them
@@ -110,6 +129,11 @@ extract_cmip6_data <- function(stations,
     }, .progress = TRUE)
   }
   
+  #-----------------------------------------------------------------#
+  #Match files in pairs (eg Tmin and Tmax of the same ssp and gcm)
+  #-----------------------------------------------------------------#
+  
+  
   #now read all the .nc files which are present in the folder
   fnames <- list.files(download_path, pattern = '.nc')
   fnames_fullname <- list.files(path = download_path, pattern = '.nc', full.names = TRUE)
@@ -126,7 +150,7 @@ extract_cmip6_data <- function(stations,
   #make rmd check shut up
   .<-NULL
   
-  #files to
+  #only take pairs which have the same number of matches present
   f_occur <- fnames %>% 
     magrittr::extract(f_index) %>% 
     gsub(pattern = paste(varname_nc, collapse = '|'), replacement = '', x = .) %>% 
@@ -135,17 +159,37 @@ extract_cmip6_data <- function(stations,
     stats::setNames(c('id', 'freq')) %>% 
     dplyr::filter(.data$freq == length(variable))
   
+  #for each of the pairs, find out their position in the vector of file names
+  index_match_list <- purrr::map(f_occur$id, function(f) grep(pattern = paste0(varname_nc , f, collapse = '|') , fnames_fullname))
+  
+  #create a 
+  
+  #-------------------------------#
+  #Open the ncdf files
+  #-------------------------------#
+  
+  
+  #this a three-level nested loop and I am not proud of that
+  #but I don't have good ideas how to change that
+  #loop1: going over the general ssp-gcm combinations
+  #loop2: for each ssp-gcm combination, take the individual variables (because they are saved to seperate files)
+  #loop3: for each variable of the ssp-gcm combination extract the individual stations coordinates
   
   cat('Extracting downloaded CMIP6 files\n')
   #open all files and read them 
 
+  #####
+  #loop1: go over the individual ssp-gcm combinations
+  ####
   all_weather <- purrr::map(f_occur$id, function(f){
     
     #filter for the passing full file names, only allow matches of variables which were
     #specified by the user
     index_match <- grep(pattern = paste0(varname_nc , f, collapse = '|') , fnames_fullname)
     
-    #iterate over the pair of files
+    ######
+    #loop2: go over the individual variabls, because they are saved in individual files
+    ######
     Datatemp <- purrr::map(index_match, function(ind){
       
       #extract the information from the file name
@@ -156,7 +200,9 @@ extract_cmip6_data <- function(stations,
       gcm <- split_name[[1]][3]
       ssp <- split_name[[1]][4]
       
-      #read for all stations
+      #######
+      #loop3: read the files for the individual locations
+      #######
       Datatemp_raw_1 <- purrr::map(1:nrow(stations), function(i){
         tmp <- try(suppressWarnings(metR::ReadNetCDF(fnames_fullname[ind], 
                          vars = variable_1, 
@@ -174,7 +220,10 @@ extract_cmip6_data <- function(stations,
         }
         
       }) 
+      ####end loop3
       
+      #sometimes there can be empty files, if you read them they have a single row
+      #in all other cases we assume it worked fine, so we combine the individual data.frames to a big one and drop possible NAs
       if(nrow(Datatemp_raw_1[[1]]) != 1){
         Datatemp_raw_1 %>% 
           dplyr::bind_rows() %>% 
@@ -183,8 +232,10 @@ extract_cmip6_data <- function(stations,
         Datatemp_raw_1[[1]]
       }
       
+      
+    #bind the individual files of the same ssp - gcm but different variables (Tmin, Tmax, possibly also Prec) to one data.frame
 
-    })  %>% 
+    })  %>%      ####end loop 2
       purrr::compact() %>% 
       purrr::reduce(left_join, by = c('time', 'lat', 'lon', 'location', 'model', 'ssp')) %>% 
       dplyr::mutate(Month = lubridate::month(as.Date(.data$time)),
@@ -215,44 +266,20 @@ extract_cmip6_data <- function(stations,
     
 
     
-  }, .progress = TRUE)
+  }, .progress = TRUE) ####end loop 1
   
-
+  #assign names to the individual ssp-gcm combinations
   names(all_weather) <- purrr::map_chr(all_weather, function(x) paste0(unique(x$ssp), '_', unique(x$model)))
   
   #if there is only one row, remove the entry and replace with NA
   all_weather <- purrr::map(all_weather, function(x) if(nrow(x) == 1) return(NULL) else x)
   
-  
+  #in case the user does not want to keep the raw files 
   if(keep_downloaded == FALSE){
     unlink(paste0(download_path,'/'), recursive = TRUE)
   }
   
   
   return(all_weather)
-  # return(bind_rows(all_weather) %>% 
-  #   reshape2::dcast(Date + Year + Month + Day + lon  + lat + location + model + ssp ~ variable, value.var = 'value') %>% 
-  #   dplyr::rename(Tmin = tasmin,
-  #          Tmax = tasmax) %>% 
-  #   split(~ location) %>% 
-  #   purrr::map(.f = function(x) split(x, list(x$ssp, x$model))))
-  
-}
-# 
-# stations$longitude <- stations$longitude - 360
-# 
-# extract_cmip6_data(stations, variable = c('Tmin', 'Tmax'))
 
-# Datatemp_raw_1[[1]] %>% 
-#   mutate( Year = lubridate::year(.data$time),
-#           Day = lubridate::day(.data$time),
-#           Date = lubridate::date(.data$time),
-#           Month = lubridate::month(.data$time))
-# 
-# 
-# 
-# station <- data.frame(
-# station_name = c('Zaragoza', 'Klein-Altendorf', 'Sfax', 'Cieza', 'Meknes', 'Santomera'),
-# longitude = c(-0.88,  6.99, 10.75, -1.41, -5.54, -1.05),
-# latitude = c(41.65, 50.61, 34.75, 38.24, 33.88, 38.06))
-# extracted <- extract_cmip6_data(stations = station)
+}
