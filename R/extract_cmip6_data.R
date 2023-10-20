@@ -23,9 +23,13 @@
 #' @author Lars Caspersen
 #' 
 #' @examples \dontrun{
-#' scenario<-c("ssp1_2_6", "ssp2_4_5", "ssp3_7_0", "ssp5_8_5")
+#' scenario<-c("ssp126", "ssp245", "ssp370", "ssp585")
 #' 
-#' purrr::map(scenario, download_cmip6_ecmwfr, area = c(52, -7, 33, 8) )
+#' download_cmip6_ecmwfr(scenario,
+#'                          key = 'your-key-here'
+#'                          user = 'your-user-name-here',
+#'                          area =  c(52, -7, 33, 8) )
+#' 
 #' 
 #' station <- data.frame(
 #' station_name = c('Zaragoza', 'Klein-Altendorf', 'Sfax', 'Cieza', 'Meknes', 'Santomera'),
