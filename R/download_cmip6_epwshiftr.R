@@ -9,22 +9,21 @@
 #' may be a good idea to run the query at first using directly the function. Terms for the search include:
 #' 
 #' \itemize{
-#'  \item{Metric: Which weather variable should be downloaded. Commonly used are 'tasmin' for
-#'  daily minimum temperature, 'tasmax' for daily maximum temperature and 'pr' for precipitation.} 
-#'  \item{Experiment: defines the root experiment identifier. Commonly used Tier 1 experiments include: c("ssp126", "ssp245", "ssp370", "ssp585")}
+#'  \item{variable: Which weather variable should be downloaded. Commonly used are 'Tmin' for
+#'  daily minimum temperature, 'Tmax' for daily maximum temperature and 'Prec' for precipitation.} 
+#'  \item{Scenarios: defines the root scenarios identifier. Commonly used Tier 1 scenarioss include: c("ssp126", "ssp245", "ssp370", "ssp585")}
 #'  \item{Frequency: defines the timestep of the model output. Default is 'mon' for monthly}
 #'  \item{Resolution: size of the pixels of the model output. Default is "100 km"}
 #'  \item{...: there are more possible search terms which can include 'source' (name of model) or 'variant' (identifier for the individual run of the model output). For more
 #'  details please consult the documentation of \link[epwshiftr]{init_cmip6_index}. Additional search terms can be specified at the end of the arguments via the '...' argument} 
 #' }
 #' 
+#' @param variable character / vector  of characters indicating which variables should be downloaded. Common choices are "Tmax" maximum temperature (°C), "Tmin" for minimum temperature (°C) and "Prec" for precipitation sum (mm). 
+#' You can also choose other parameters, For more details please check also the documenation of \link[epwshiftr]{init_cmip6_index}
 #' @param year_start numeric, marks the start of the time series to be downloaded. Usually is 2015
 #' @param year_end numeric, marks the end of the time series to be downloaded. Usually is 2100
-#' @param metric character / vector  of characters indicating which variables should be downloaded. 
-#' Common are 'tasmax' for near-surface maximum temperature, 'tasmin' for near-surface minimum temperature and
-#' 'pr' for precipitation. For more details please check also the documenation of \link[epwshiftr]{init_cmip6_index}
-#' @param experiment character / vector or characters defining the root experiment identifier. Commonly used Tier 1 experiments include: c("ssp126", "ssp245", "ssp370", "ssp585")
-#' @param frequency defines the timestep of the model output. Default is 'mon' for monthly
+#' @param scenarios character / vector or characters defining the root scenarios identifier. Commonly used Tier 1 scenarioss include: c("ssp126", "ssp245", "ssp370", "ssp585")
+#' @param frequency defines the timestep of the model output. Default is 'monthly'. Further options include "hourly", "daily" and "yearly". For more options you can also refer to \link[epwshiftr]{init_cmip6_index}.
 #' @param resolution size of the pixels of the model output. Default is "100 km"
 #' @param activity character, allows to specify from which modelling activity data is downloaded. By default 'ScenarioMIP'
 #' @param source by default NULL, allows to specify which models should be included. If set NULL, all available models will be used
@@ -38,8 +37,8 @@
 #' \dontrun{
 #' download_cmip6_epwshiftr(year_start = 2015,
 #' year_end = 2100,
-#' metric =c('tasmin', 'tasmax'),
-#' experiment = c('ssp126'))
+#' variable =c('tasmin', 'tasmax'),
+#' scenarios = c('ssp126'))
 #' 
 #' }
 #' 
@@ -55,11 +54,12 @@
 #'  
 #' @export download_cmip6_epwshiftr
 
-download_cmip6_epwshiftr <- function(year_start = 2015,
+download_cmip6_epwshiftr <- function(variable = c('Tmin', 'Tmax'),
+    
+  year_start = 2015,
                                  year_end = 2100,
-                                 metric =c('tasmin', 'tasmax'),
-                                 experiment = c('ssp126', 'ssp245', 'ssp370', 'ssp585'),
-                                 frequency = 'mon',
+                                 scenarios = c('ssp126', 'ssp245', 'ssp370', 'ssp585'),
+                                 frequency = 'monthly',
                                  resolution = '100 km',
                                  activity = 'ScenarioMIP', 
                                  source = NULL,
@@ -67,28 +67,52 @@ download_cmip6_epwshiftr <- function(year_start = 2015,
                                  ...){
   
   
-  #assertthat::assert_that(all(metric %in% c('tasmin', 'tasmax', 'pr')), msg = "Only c('tasmin', 'tasmax', 'pr') are valid options for metric")
+  #assertthat::assert_that(all(variable %in% c('tasmin', 'tasmax', 'pr')), msg = "Only c('tasmin', 'tasmax', 'pr') are valid options for variable")
   assertthat::is.number(year_start)
   assertthat::is.number(year_end)
-  assertthat::assert_that(all(is.character(metric)))
-  assertthat::assert_that(is.character(experiment))
+  assertthat::assert_that(all(is.character(variable)))
+  assertthat::assert_that(is.character(scenarios))
   #assertthat::assert_that(all(is.character(scenario)))
+  
+  
+  #if the variable is Tmin or Tmax or Prec then substitute it with the real name
+  if('Tmin' %in% variable){
+    variable[variable == 'Tmin'] <- 'tasmin'
+  }
+  if('Tmax' %in% variable){
+    variable[variable == 'Tmax'] <- 'tasmax'
+  }
+  if('Prec' %in% variable){
+    variable[variable == 'Prec'] <- 'pr'
+  }
 
+  if(frequency == 'monthly'){
+    frequency <- 'mon'
+  }
+  if(frequency == 'daily'){
+    frequency <- 'day'
+  }
+  if(frequency == 'yearly'){
+    frequency <- 'yr'
+  }
+  if(frequency == 'houlry'){
+    frequency <- '1hr'
+  }
   
   #coordinates <- data.frame(id = 'id_1', Longitude = 9.2, Latitude = 54.6 )
   
   #query the data.base
-  query <- epwshiftr::init_cmip6_index(variable = metric,
+  query <- epwshiftr::init_cmip6_index(variable = variable,
                                        frequency = frequency, 
-                                       experiment = experiment,
+                                       experiment = scenarios,
                                        resolution = resolution,
                                        latest = TRUE,
                                        activity = activity,
                                        years = c(year_start, year_end),
                                        ...)
-  # query <- epwshiftr::init_cmip6_index(variable = metric,
+  # query <- epwshiftr::init_cmip6_index(variable = variable,
   #                                      frequency = frequency,
-  #                                      experiment = experiment,
+  #                                      experiment = scenarios,
   #                                      resolution = resolution,
   #                                      latest = TRUE,
   #                                      activity = activity,
@@ -150,155 +174,3 @@ download_cmip6_epwshiftr <- function(year_start = 2015,
   }, .progress = TRUE)
   
 }
-  
-  
-  #extracting the data
-  #extracted <- extract_cmip6_data(stations = stations, download_path = path_download)
-  
-  # #get names of downloaded files
-  # fnames <- list.files(paste0(path_download,'/'))
-  # fnames <- paste0(path_download,'/', fnames)
-  # 
-  # #only work with files which are not empty
-  # fnames <- fnames[file.size(fnames) > 0L]
-  # 
-  # extracted_df <- purrr::map(fnames, function(x){
-  #   
-  #   #print(x)
-  #   extract_df <- extract_cmip_data(fname = x, coords = coordinates)
-  #   
-  #   fragment_names <- strsplit(strsplit(x, '/')[[1]][2],'_')[[1]]
-  #   
-  #   extract_df$variable <- fragment_names[1]
-  #   extract_df$model <- fragment_names[3]
-  #   extract_df$ssp <- fragment_names[4]
-  #   
-  #   return(extract_df)
-  #   
-  # } )
-  # 
-  # 
-  # extracted_df <- do.call(rbind, extracted_df)
-  # 
-  # #omit rows with NA
-  # extracted_df <- stats::na.omit(extracted_df)
-  # 
-  # #library(tidyverse)
-  # 
-  # if('pr' %in% metric){
-  #   pr_adj <- extracted_df %>% 
-  #     reshape2::melt(id.vars = c('Date', 'variable', 'model', 'ssp'), variable.name = 'id') %>% 
-  #     dplyr::filter(.data$variable == 'pr') %>% 
-  #     dplyr::mutate(value = round(.data$value * 60 * 60 * 24, digits = 2))
-  # } else {
-  #   pr_adj <- NULL
-  # }
-  # 
-  # if('tasmin' %in% metric){
-  #   tmin_adj <- extracted_df %>% 
-  #     reshape2::melt(id.vars = c('Date', 'variable', 'model', 'ssp'), variable.name = 'id') %>% 
-  #     dplyr::filter(.data$variable == 'tasmin') %>% 
-  #     dplyr::mutate(value = round(.data$value - 273.15, digits = 2))
-  # } else {
-  #   tmin_adj <- NULL
-  # }
-  # 
-  # if('tasmax' %in% metric){
-  #   tmax_adj <- extracted_df %>% 
-  #     reshape2::melt(id.vars = c('Date', 'variable', 'model', 'ssp'), variable.name = 'id') %>% 
-  #     dplyr::filter(.data$variable == 'tasmax') %>% 
-  #     dplyr::mutate(value = round(.data$value - 273.15, digits = 2))
-  # } else {
-  #   tmax_adj <- NULL
-  # }
-  # 
-  # #in case the metric contains variable which are not tasmin, tasmax, pr
-  # if(any(!metric %in% c('tasmin', 'tasmax', 'pr'))){
-  #   other_adj <- extracted_df %>% 
-  #     reshape2::melt(id.vars = c('Date', 'variable', 'model', 'ssp'), variable.name = 'id') %>% 
-  #     filter(!.data$variable %in% c('tasmax', 'tasmin', 'pr'))
-  # } else {
-  #   other_adj <- NULL
-  # }
-  # 
-  # #bind everything back together, bring back to long format
-  # extracted_df <- rbind(tmin_adj, tmax_adj, pr_adj, other_adj) %>% 
-  #   reshape2::dcast(formula = Date + variable + model + ssp ~ id)
-  
-  
-  # if(keep_downloaded == FALSE){
-  #   unlink(paste0(path_download,'/'), recursive = TRUE)
-  # }
-  
-  # return(extracted)
-#}
-
-
-# extract_cmip_data <- function(fname, coords){
-#   
-#   #fname needs to be a character
-#   assertthat::assert_that(is.character(fname))
-#   
-#   #coords needs to be a data.frame with column names
-#   assertthat::assert_that(is.data.frame(coords))
-#   assertthat::assert_that(all(c('Longitude', 'Latitude') %in% colnames(coords)))
-#   
-#   
-#   #determine the name of the variable
-#   #names can be pr, tasmin, and tasmax
-#   fragment_fname <- strsplit(strsplit(fname, '/')[[1]][2], '_')[[1]]
-#   #usual names in the file
-#   weather_vars <- c('tasmin', 'tasmax', 'pr')
-#   #findout which one is present here
-#   dname <- weather_vars[weather_vars %in% fragment_fname]
-#   
-#   
-#   Datatemp_raw <- purrr::map(1:nrow(coords), function(i){
-#     metR::ReadNetCDF(fname, 
-#                      vars = dname, 
-#                      subset = list(lon = coords[i,"Longitude"], 
-#                                    lat = coords[i,"Latitude"])) %>% 
-#       dplyr::mutate(location = coords$id[i])
-#   }) %>% 
-#     dplyr::bind_rows() %>% 
-#     stats::na.omit()
-#   
-#   
-#   
-#   
-#   
-#   
-#   #load the file
-#   b <- raster::brick(fname, dname)
-#   
-#   #get time data
-#   time <- raster::getZ(b)
-#   
-#   #how to get info of NA
-#   fillvalue <- ncdf4::ncatt_get(ncdf4::nc_open(fname), dname, "_FillValue")
-#   #ncdf4::nc_close(fname)
-#   raster::NAvalue(b) <- fillvalue$value
-#   
-#   #if longitude only defined as degree east
-#   if(as.vector(raster::extent(b))[2] > 180){
-#     
-#     coords$Longitude[coords$Longitude < 0] <- coords$Longitude[coords$Longitude < 0] + 360
-#   } 
-#   
-#   
-#   extract.pts <- cbind(coords$Longitude,coords$Latitude)
-#   ext <- raster::extract(b,extract.pts,method="bilinear")
-#   
-#   #transpose extracted data
-#   ext <- t(ext)
-#   
-#   ext_df <- as.data.frame(ext, row.names = F)
-#   
-#   colnames(ext_df) <- 
-#     
-#     
-#   colnames(ext_df) <- coords$id
-#   ext_df$Date <- time
-#   
-#   return(ext_df)
-# }
