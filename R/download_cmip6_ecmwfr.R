@@ -135,7 +135,15 @@ download_cmip6_ecmwfr <- function(scenario,
   assertthat::is.number(year_start)
   assertthat::is.number(year_end)
   assertthat::are_equal(length(area), 4)
+  assertthat::assert_that(is.character(download_path))
+  
+  #make sure the folder exists
+  if(dir.exists(download_path) == FALSE){
+    dir.create(download_path)
+  }
   assertthat::is.dir(download_path)
+  
+  
   assertthat::assert_that(all(variable %in% c('Tmin', 'Tmax', 'Prec')))
   stopifnot(is.numeric((month)))
   stopifnot(is.numeric((area)))
@@ -303,7 +311,7 @@ download_cmip6_ecmwfr <- function(scenario,
     
     #if the match was not successfull, then take the original entry and try it with that one
     if(any(is.na(Models))){
-      warning(paste('At least one of the provided model name did not match any of the known GCM model names. The function will try to download it anyway, but it is likely to fail. Please check if there are no typos in the GCMs name.\nThis affects the provided model names:', 
+      warning(paste('At least one of the provided model name did match any of the known GCM model names. The function will try to download it anyway, but it is likely to fail. Please check if there are no typos in the GCMs name.\nThis affects the provided model names:', 
                     paste0(model[is.na(match_row)], collapse = ' ') )
       )
       
@@ -315,13 +323,7 @@ download_cmip6_ecmwfr <- function(scenario,
   }
   
   
-  
-  #make sure the folder exists
-  if(dir.exists(download_path) == FALSE){
-    dir.create(download_path)
-  }
-  
-  
+
   #-----------------------------------
   #generate the request for the api
   #-----------------------------------
@@ -634,5 +636,18 @@ download_cmip6_ecmwfr <- function(scenario,
   
 }
 
+
+?download_cmip6_ecmwfr
+library(tidyverse)
+scenario <- 'ssp5_8_5'
+download_cmip6_ecmwfr(scenario = scenario,
+                      area = c(55, 5.5, 47, 15.1),
+                      user = '243306',
+                      key = 'cf909b0a-39cd-417f-89fa-198963d45ef7',
+                      model = 'AWI-CM-1-1-MR',
+                      temporal_resolution = 'monthly',
+                      variable = c('Tmin', 'Tmax'),
+                      year_start = 2015,
+                      year_end = 2100)
 
 
