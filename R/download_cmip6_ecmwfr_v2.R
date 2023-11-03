@@ -1,7 +1,10 @@
 #' Download CMIP6 Data via the ecwfr package
 #' 
 #' Accesses the CMIP6 data of the Coperincus API via the \code{\link[ecmwfr:wf_request_batch]{ecmwfr}} package. Saves the downloaded files as
-#' .zip objects in the specified path.
+#' .zip objects in the specified path in a subfolder with the coordinates of the downloaded area as subfolder name. 
+#' You can either specify the GCMs by name, take the combinations of scenario and GCM which worked
+#' in the past (model = 'default') or you can try out all GCMs for a scenario and take the ones for
+#' which there was data (model = 'all')
 #' 
 #' @param scenarios vector of characters, specifying the shared socioeconomic pathways (SSP) 
 #' to be downloaded. Currently the values 'ssp126', 'ssp245', 'ssp370' and 
@@ -87,12 +90,36 @@
 #' 
 #' @examples 
 #' \dontrun{
-#' download_cmip6_ecmwfr(scenario = 'ssp1_2_6', 
+#' # example with one specified GCM 
+#' download_cmip6_ecmwfr(scenario = 'ssp126', 
 #' area = c(55, 5.5, 47, 15.1),
 #' user = 'write user id here'
 #' key = 'write key here',
 #' model = 'AWI-CM-1-1-MR',
 #' frequency = 'monthly', 
+#' variable = c('Tmin', 'Tmax'),
+#' year_start = 2015, 
+#' year_end = 2100)
+#' 
+#' # example with default combinations of scenario and GCM
+#' download_cmip6_ecmwfr(scenario = 'ssp126', 
+#' area = c(55, 5.5, 47, 15.1),
+#' user = 'write user id here'
+#' key = 'write key here',
+#' model = 'AWI-CM-1-1-MR',
+#' frequency = 'default', 
+#' variable = c('Tmin', 'Tmax'),
+#' year_start = 2015, 
+#' year_end = 2100)
+#' 
+#' # example with all possible combinations of scenario and GCM
+#' # this may take a little longer
+#' download_cmip6_ecmwfr(scenario = 'ssp126', 
+#' area = c(55, 5.5, 47, 15.1),
+#' user = 'write user id here'
+#' key = 'write key here',
+#' model = 'AWI-CM-1-1-MR',
+#' frequency = 'all', 
 #' variable = c('Tmin', 'Tmax'),
 #' year_start = 2015, 
 #' year_end = 2100)
@@ -141,12 +168,32 @@ download_cmip6_ecmwfr <- function(scenarios,
   assertthat::are_equal(length(area), 4)
   assertthat::assert_that(is.character(path_download))
   
+  
+  #check if dplyr is installed
+  if(system.file(package = 'dplyr') == ''){
+    stop('You need to have the package dplyr installed for the function to work properly.')
+  }
+  
+
+  #check if packages are loaded, load them if not
+  if('dplyr' %in% (.packages()) == FALSE){
+    stop('The dplyr package needs to be loaded for the function to work properly. Try running library(dplyr) or library(tidyverse) and re-run the download function')
+  }
+  
+  
   #make sure the folder exists
   if(dir.exists(path_download) == FALSE){
     dir.create(path_download)
   }
   assertthat::is.dir(path_download)
   
+  #within that folder make subfolder for each area downloaded
+  if(dir.exists(paste0(path_download, '/', paste(area, collapse = '_'))) == FALSE){
+    dir.create(paste0(path_download, '/', paste(area, collapse = '_')))
+  }
+  #make the subfolder the download path
+  path_download_old <- path_download
+  path_download <- paste0(path_download, '/', paste(area, collapse = '_'))
   
   assertthat::assert_that(all(variable %in% c('Tmin', 'Tmax', 'Prec')))
   stopifnot(is.numeric((month)))
@@ -246,9 +293,11 @@ download_cmip6_ecmwfr <- function(scenarios,
   
   #in case it is default
   if(length(model) == 1){
+    
+
     if(model == 'default'){
-      
-      Models <- default_gcm_list[[frequency]][[scenario]] 
+
+      Models <- 'default'
     }
     
     #last checked 1st sept 2023
@@ -350,9 +399,9 @@ download_cmip6_ecmwfr <- function(scenarios,
   #---------------------#
   blacklist <- NULL 
   
-  if(file.exists(paste0(path_download, '/z_blacklist.txt'))){
+  if(file.exists(paste0(path_download_old, '/blacklist.txt'))){
     
-    x <- scan(paste0(path_download, '/z_blacklist.txt'), what="list", quiet = TRUE)
+    x <- scan(paste0(path_download_old, '/blacklist.txt'), what="list", quiet = TRUE)
     
     #remove everything with [] and $
     drop <- grep(pattern = c('\\['), x)
@@ -392,8 +441,12 @@ download_cmip6_ecmwfr <- function(scenarios,
     
     
     #drop blacklisted stations
-    
-    Model_download <- Models
+    if(Models == 'default'){
+      Model_download <- default_gcm_list[[frequency]][[scenario]] 
+    } else {
+      Model_download <- Models
+    }
+
     
     #remove the models which were blacklisted, but let the user know about it
     if(is.null(blacklist) == FALSE){
@@ -559,7 +612,7 @@ download_cmip6_ecmwfr <- function(scenarios,
     
     #if the request is empty, then stop this iteration and go to the next one
     if(length(request) == 0){
-      cat(paste0('In case of ', scenario, ': After filtering blacklisted scenario - model - variable combinations and already downloaded files your request is empty.\n'))
+      cat(paste0('In case of ', scenario, ': The download request is empty after filtering blacklisted scenario-model-variable combinations and already downloaded files.\n'))
       if(scenario %in% names(blacklist)){
         return(blacklist[[scenario]])
       } else {
@@ -807,34 +860,34 @@ download_cmip6_ecmwfr <- function(scenarios,
     } #end of while loop which downloads the data
     
     if(send_warning_message_missing_model){
-      warning(paste0('Dropped model: ', paste0(dropped_model_names, collapse = ', '), ' from the request, because the requested combination of\n SSP: ', scenario, ', Model: ', paste0(dropped_model_names, collapse = ', '), ', and Variables: ', paste0(variable, collapse = ', '),
+      message(paste0('Dropped model: ', paste0(dropped_model_names, collapse = ', '), ' from the request, because the requested combination of\n SSP: ', scenario, ', Model: ', paste0(dropped_model_names, collapse = ', '), ', and Variables: ', paste0(variable, collapse = ', '),
                      ' does not exist.'))
     }
     if(send_warning_message_no_points){
       
       modelname_warning_message <- gcm_lookup_df$model_name[gcm_lookup_df$api_name %in% dropped_model_names_no_points]
       
-      warning(paste0('Dropped model: ', paste0(modelname_warning_message, collapse = ', '), ' from the request, because the requested area and / or time period was not covered by the models'))
+      message(paste0('Dropped model: ', paste0(modelname_warning_message, collapse = ', '), ' from the request, because the requested area and / or time period was not covered by the models'))
     }
     if(send_warning_message_2100){
       
       modelname_warning_message <- gcm_lookup_df$model_name[gcm_lookup_df$api_name %in% dropped_model_names_2100]
       
-      warning(paste0('Dropped model: ', paste0(modelname_warning_message, collapse = ', '), ' from the request, the server failed to answer to that request too often.'))
+      message(paste0('Dropped model: ', paste0(modelname_warning_message, collapse = ', '), ' from the request, the server failed to answer to that request too often.'))
     }
     
     if(send_warning_message_2056){
       
       modelname_warning_message <- gcm_lookup_df$model_name[gcm_lookup_df$api_name %in% dropped_model_names_2056]
       
-      warning(paste0('Dropped model: ', paste0(modelname_warning_message, collapse = ', '), ' from the request, because of an internal process error of the ecmwf download function.'))
+      message(paste0('Dropped model: ', paste0(modelname_warning_message, collapse = ', '), ' from the request, because of an internal process error of the ecmwf download function.'))
     }
     
     if(send_warning_message_unknown_error){
       
       modelname_warning_message <- gcm_lookup_df$model_name[gcm_lookup_df$api_name %in% dropped_model_names_unknown_error]
       #error message which I have not encountered yet
-      warning(paste0('Unknown error when downloading the CMIP6 data. Error happended for model ', modelname_warning_message, '\nThe model was dropped from the request list.\n'))
+      message(paste0('Unknown error when downloading the CMIP6 data. Error happended for model ', modelname_warning_message, '\nThe model was dropped from the request list.\n'))
     }
     
     
@@ -849,41 +902,8 @@ download_cmip6_ecmwfr <- function(scenarios,
   }))
   
   names(blacklist_updated) <- scenarios
-  utils::capture.output(blacklist_updated, file = paste0(path_download, '/z_blacklist.txt'))
+  utils::capture.output(blacklist_updated, file = paste0(path_download_old, '/blacklist.txt'))
 
 
   
 }
-# 
-# 
-# #scenarios <- c('ssp1_2_6', 'ssp5_8_5')
-# 
-# # ?download_cmip6_ecmwfr
-# # library(tidyverse)
-# library(tidyverse)
-# library(chillR)
-# 
-# start <- Sys.time()
-# scenarios <- c('ssp1_2_6', 'ssp2_4_5', 'ssp3_7_0',  'ssp5_8_5')
-# 
-# download_cmip6_ecmwfr(scenarios = scenarios,
-#                       area = c(55, 5.5, 47, 15.1),
-#                       user = '243306',
-#                       key = 'cf909b0a-39cd-417f-89fa-198963d45ef7',
-#                       model = 'all',
-#                       frequency = 'monthly',
-#                       sec_wait = 60,
-#                       variable = c('Tmin', 'Tmax'),
-#                       year_start = 2015,
-#                       year_end = 2100)
-# 
-# end <- Sys.time()
-# end - start
-# #took 1.2 hours
-# #re-running it takes ~3min
-
-
-
-#maybe I should write a blacklist file which contains all the combinations for which I am sure that there is no data. Then I do not have to try them again and again when re-running the function. 
-
-
