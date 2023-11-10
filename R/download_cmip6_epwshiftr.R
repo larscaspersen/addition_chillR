@@ -11,33 +11,33 @@
 #' \itemize{
 #'  \item{variable: Which weather variable should be downloaded. Commonly used are 'Tmin' for
 #'  daily minimum temperature, 'Tmax' for daily maximum temperature and 'Prec' for precipitation.} 
-#'  \item{Scenarios: defines the root scenarios identifier. Commonly used Tier 1 scenarioss include: c("ssp126", "ssp245", "ssp370", "ssp585")}
-#'  \item{Frequency: defines the timestep of the model output. Default is 'mon' for monthly}
-#'  \item{Resolution: size of the pixels of the model output. Default is "100 km"}
+#'  \item{scenarios: defines the root scenarios identifier. Commonly used Tier 1 scenarioss include: c("ssp126", "ssp245", "ssp370", "ssp585")}
+#'  \item{frequency: defines the timestep of the model output. Default is 'monthly' for monthly}
+#'  \item{resolution: size of the pixels of the model output. Default is "100 km"}
 #'  \item{...: there are more possible search terms which can include 'source' (name of model) or 'variant' (identifier for the individual run of the model output). For more
 #'  details please consult the documentation of \link[epwshiftr]{init_cmip6_index}. Additional search terms can be specified at the end of the arguments via the '...' argument} 
 #' }
 #' 
 #' @param variable character / vector  of characters indicating which variables should be downloaded. Common choices are "Tmax" maximum temperature (°C), "Tmin" for minimum temperature (°C) and "Prec" for precipitation sum (mm). 
-#' You can also choose other parameters, For more details please check also the documenation of \link[epwshiftr]{init_cmip6_index}
+#' You can also choose other parameters, For more details please check also the documentation of \link[epwshiftr]{init_cmip6_index}
 #' @param year_start numeric, marks the start of the time series to be downloaded. Usually is 2015
 #' @param year_end numeric, marks the end of the time series to be downloaded. Usually is 2100
-#' @param scenarios character / vector or characters defining the root scenarios identifier. Commonly used Tier 1 scenarioss include: c("ssp126", "ssp245", "ssp370", "ssp585")
-#' @param frequency defines the timestep of the model output. Default is 'monthly'. Further options include "hourly", "daily" and "yearly". For more options you can also refer to \link[epwshiftr]{init_cmip6_index}.
+#' @param scenarios character / vector or characters defining the root scenarios identifier. Commonly used Tier 1 scenarios include: c("ssp126", "ssp245", "ssp370", "ssp585")
+#' @param frequency defines the time step of the model output. Default is 'monthly'. Further options include "hourly", "daily" and "yearly". For more options you can also refer to \link[epwshiftr]{init_cmip6_index}.
 #' @param resolution size of the pixels of the model output. Default is "100 km"
 #' @param activity character, allows to specify from which modelling activity data is downloaded. By default 'ScenarioMIP'
 #' @param source by default NULL, allows to specify which models should be included. If set NULL, all available models will be used
 #' @param path_download character, defining the path relative to working directory, 
-#' in which the .nc files should be (temporarily) safed
+#' in which the .nc files should be (temporarily) saved
 #' @param ... allows the user to define further search terms for the query such as 
 #' 'source' or 'variant'.
 #' @return NULL, saves files in the specified path
 #' 
 #' @examples 
 #' \dontrun{
-#' download_cmip6_epwshiftr(year_start = 2015,
+#' download_cmip6_epwshiftr(variable =c('tasmin', 'tasmax'),
+#' year_start = 2015,
 #' year_end = 2100,
-#' variable =c('tasmin', 'tasmax'),
 #' scenarios = c('ssp126'))
 #' 
 #' }
