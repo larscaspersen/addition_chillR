@@ -84,11 +84,9 @@ extract_cmip6_data <- function(stations,
   }
   
   #need to transform the latitude because netcdf latitude only goes from 0 to 360
-  stations <- stations %>% 
-    dplyr::mutate(longitude_old = longitude,
-                  longitude = longitude + 360) 
-  
-  
+  stations$longitude_old <- stations$longitude
+  stations$longitude <- stations$longitude + 360
+
   #detect if there are folders with data
   sub_dirs <- list.dirs(download_path)
   
@@ -336,21 +334,21 @@ extract_cmip6_data <- function(stations,
   #match elements of all weather based on their names and rbind
 
   #get all names of each list
-  test <- purrr::map(all_weather, names) %>% 
+  all_weather_combined <- purrr::map(all_weather, names) %>% 
     unlist() %>% 
     unique() %>% 
     purrr::map( function(n) purrr::map(all_weather, function(l) l[[n]]) %>% 
                   dplyr::bind_rows())
   
   #set names
-  names(test) <- purrr::map(all_weather, names) %>% 
+  names(all_weather_combined) <- purrr::map(all_weather, names) %>% 
     unlist() %>% 
     unique()
   
 
   #check if some of the stations are not even in one of the list entries, if so 
   #warn the user
-  extracted_stations <- purrr::map(test, function(t) unique(t$location)) %>% 
+  extracted_stations <- purrr::map(all_weather_combined, function(t) unique(t$location)) %>% 
     unlist() %>% 
     unique()
   
@@ -367,16 +365,6 @@ extract_cmip6_data <- function(stations,
   }
   
   
-  return(all_weather)
+  return(all_weather_combined)
 
 }
-
-
-library(tidyverse)
-station <- data.frame(
-station_name = c('Zaragoza', 'Klein-Altendorf', 'Sfax', 'Cieza', 'Meknes', 'Santomera'),
-longitude = c(-0.88,  6.99, 10.75, -1.41, -5.54, -1.05),
-latitude = c(41.65, 50.61, 34.75, 38.24, 33.88, 38.06))
-extracted <- extract_cmip6_data(stations = station)
-
-
