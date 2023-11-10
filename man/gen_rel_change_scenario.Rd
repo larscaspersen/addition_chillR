@@ -41,6 +41,12 @@ then used to generate weather data.
 }
 \examples{
 \dontrun{
+scenario<-c("ssp126", "ssp245", "ssp370", "ssp585")
+
+download_cmip6_ecmwfr(scenario,
+                         key = 'your-key-here'
+                         user = 'your-user-name-here',
+                         area =  c(52, -7, 33, 8) )
 station <- data.frame(
 station_name = c('Zaragoza', 'Klein-Altendorf', 'Sfax', 'Cieza', 'Meknes', 'Santomera'),
 longitude = c(-0.88,  6.99, 10.75, -1.41, -5.54, -1.05),

@@ -5,11 +5,11 @@
 \title{Download climate change data of CMIP6 and extract for specified location}
 \usage{
 download_cmip6_epwshiftr(
+  variable = c("Tmin", "Tmax"),
   year_start = 2015,
   year_end = 2100,
-  metric = c("tasmin", "tasmax"),
-  experiment = c("ssp126", "ssp245", "ssp370", "ssp585"),
-  frequency = "mon",
+  scenarios = c("ssp126", "ssp245", "ssp370", "ssp585"),
+  frequency = "monthly",
   resolution = "100 km",
   activity = "ScenarioMIP",
   source = NULL,
@@ -18,17 +18,16 @@ download_cmip6_epwshiftr(
 )
 }
 \arguments{
+\item{variable}{character / vector  of characters indicating which variables should be downloaded. Common choices are "Tmax" maximum temperature (°C), "Tmin" for minimum temperature (°C) and "Prec" for precipitation sum (mm). 
+You can also choose other parameters, For more details please check also the documentation of \link[epwshiftr]{init_cmip6_index}}
+
 \item{year_start}{numeric, marks the start of the time series to be downloaded. Usually is 2015}
 
 \item{year_end}{numeric, marks the end of the time series to be downloaded. Usually is 2100}
 
-\item{metric}{character / vector  of characters indicating which variables should be downloaded. 
-Common are 'tasmax' for near-surface maximum temperature, 'tasmin' for near-surface minimum temperature and
-'pr' for precipitation. For more details please check also the documenation of \link[epwshiftr]{init_cmip6_index}}
+\item{scenarios}{character / vector or characters defining the root scenarios identifier. Commonly used Tier 1 scenarios include: c("ssp126", "ssp245", "ssp370", "ssp585")}
 
-\item{experiment}{character / vector or characters defining the root experiment identifier. Commonly used Tier 1 experiments include: c("ssp126", "ssp245", "ssp370", "ssp585")}
-
-\item{frequency}{defines the timestep of the model output. Default is 'mon' for monthly}
+\item{frequency}{defines the time step of the model output. Default is 'monthly'. Further options include "hourly", "daily" and "yearly". For more options you can also refer to \link[epwshiftr]{init_cmip6_index}.}
 
 \item{resolution}{size of the pixels of the model output. Default is "100 km"}
 
@@ -37,7 +36,7 @@ Common are 'tasmax' for near-surface maximum temperature, 'tasmin' for near-surf
 \item{source}{by default NULL, allows to specify which models should be included. If set NULL, all available models will be used}
 
 \item{path_download}{character, defining the path relative to working directory, 
-in which the .nc files should be (temporarily) safed}
+in which the .nc files should be (temporarily) saved}
 
 \item{...}{allows the user to define further search terms for the query such as 
 'source' or 'variant'.}
@@ -56,14 +55,24 @@ user wants at first to get a feeling how much data files are found in the search
 may be a good idea to run the query at first using directly the function. Terms for the search include:
 
 \itemize{
- \item{Metric: Which weather variable should be downloaded. Commonly used are 'tasmin' for
- daily minimum temperature, 'tasmax' for daily maximum temperature and 'pr' for precipitation.} 
- \item{Experiment: defines the root experiment identifier. Commonly used Tier 1 experiments include: c("ssp126", "ssp245", "ssp370", "ssp585")}
- \item{Frequency: defines the timestep of the model output. Default is 'mon' for monthly}
- \item{Resolution: size of the pixels of the model output. Default is "100 km"}
+ \item{variable: Which weather variable should be downloaded. Commonly used are 'Tmin' for
+ daily minimum temperature, 'Tmax' for daily maximum temperature and 'Prec' for precipitation.} 
+ \item{scenarios: defines the root scenarios identifier. Commonly used Tier 1 scenarioss include: c("ssp126", "ssp245", "ssp370", "ssp585")}
+ \item{frequency: defines the timestep of the model output. Default is 'monthly' for monthly}
+ \item{resolution: size of the pixels of the model output. Default is "100 km"}
  \item{...: there are more possible search terms which can include 'source' (name of model) or 'variant' (identifier for the individual run of the model output). For more
  details please consult the documentation of \link[epwshiftr]{init_cmip6_index}. Additional search terms can be specified at the end of the arguments via the '...' argument} 
 }
+}
+\examples{
+\dontrun{
+download_cmip6_epwshiftr(variable =c('tasmin', 'tasmax'),
+year_start = 2015,
+year_end = 2100,
+scenarios = c('ssp126'))
+
+}
+
 }
 \author{
 Lars Caspersen
