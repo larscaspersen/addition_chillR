@@ -149,7 +149,7 @@ get_thermal_window_phenology <- function(weather_list_obs,
   
   max_frost <- observation_df %>%
     dplyr::mutate(doy_pheno = lubridate::yday(.data$target_pheno)) %>%
-    dplyr::select(.data$species, .data$location, .data$cultivar, .data$flowering_f50, .data$doy_pheno) %>%
+    dplyr::select(.data$species, .data$location, .data$cultivar, .data$doy_pheno) %>%
     merge(frost_risk, by.x = c('species', 'location', 'doy_pheno'), by.y = c('species', 'location', 'doy'), all = TRUE) %>%
     stats::na.omit() %>%
     dplyr::group_by(.data$species) %>%
@@ -157,7 +157,7 @@ get_thermal_window_phenology <- function(weather_list_obs,
 
   max_heat <- observation_df %>%
     dplyr::mutate(doy_pheno = lubridate::yday(.data$target_pheno)) %>%
-    dplyr::select(.data$species, .data$location, .data$cultivar, .data$flowering_f50, .data$doy_pheno) %>%
+    dplyr::select(.data$species, .data$location, .data$cultivar, .data$doy_pheno) %>%
     merge(heat_risk, by.x = c('species', 'location', 'doy_pheno'), by.y = c('species', 'location', 'doy'), all = TRUE) %>%
     stats::na.omit() %>%
     dplyr::group_by(.data$species) %>%
