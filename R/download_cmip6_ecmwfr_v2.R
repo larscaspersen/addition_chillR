@@ -26,7 +26,7 @@
 #' In case a certain request fails because either the model name is wrong or the requested combination of SSP, time  period and variable is not available, then the model
 #' is dropped from the requests and the function carries on with the remaining requests. The user will get a warning in these cases. 
 #' 
-#' @param serivce character, by default cds. Decides which database is used. For more details see in the documentation of \code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}}.
+#' @param service character, by default cds. Decides which database is used. For more details see in the documentation of \code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}}.
 #' 
 #' @param frequency character, can be either 'daily' or 'monthly'. Sets
 #' if the downloaded CMIP6 data is in daily or monthly format
@@ -91,7 +91,7 @@
 #' @examples 
 #' \dontrun{
 #' # example with one specified GCM 
-#' download_cmip6_ecmwfr(scenario = 'ssp126', 
+#' download_cmip6_ecmwfr(scenarios = 'ssp126', 
 #' area = c(55, 5.5, 47, 15.1),
 #' user = 'write user id here'
 #' key = 'write key here',
@@ -102,24 +102,24 @@
 #' year_end = 2100)
 #' 
 #' # example with default combinations of scenario and GCM
-#' download_cmip6_ecmwfr(scenario = 'ssp126', 
+#' download_cmip6_ecmwfr(scenarios = 'ssp126', 
 #' area = c(55, 5.5, 47, 15.1),
 #' user = 'write user id here'
 #' key = 'write key here',
-#' model = 'AWI-CM-1-1-MR',
-#' frequency = 'default', 
+#' model = 'default',
+#' frequency = 'monthly', 
 #' variable = c('Tmin', 'Tmax'),
 #' year_start = 2015, 
 #' year_end = 2100)
 #' 
 #' # example with all possible combinations of scenario and GCM
 #' # this may take a little longer
-#' download_cmip6_ecmwfr(scenario = 'ssp126', 
+#' download_cmip6_ecmwfr(scenarios = 'ssp126', 
 #' area = c(55, 5.5, 47, 15.1),
 #' user = 'write user id here'
 #' key = 'write key here',
-#' model = 'AWI-CM-1-1-MR',
-#' frequency = 'all', 
+#' model = 'all',
+#' frequency = 'monthly', 
 #' variable = c('Tmin', 'Tmax'),
 #' year_start = 2015, 
 #' year_end = 2100)
