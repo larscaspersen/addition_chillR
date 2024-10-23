@@ -33,6 +33,9 @@ contains the weighted predictions of the ensemble members. sd contains the unwei
 standard deviation of the memebers predictions. Individual_pred contains the ensemble members indivudal predictions
 }
 \description{
+Outdated
+}
+\details{
 This function takes the fitted models and temperature data and returns a weighted average prediction.
 Weights are assigned using the confidence argument. 
 The function assumes that theta_star and Tc are fixed. The
