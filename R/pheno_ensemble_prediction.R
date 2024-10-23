@@ -1,5 +1,7 @@
 #'Get weighted average prediction of several PhenoFlex models
 #'
+#'Outdated
+#'
 #'This function takes the fitted models and temperature data and returns a weighted average prediction.
 #'Weights are assigned using the confidence argument. 
 #'The function assumes that theta_star and Tc are fixed. The 

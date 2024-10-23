@@ -44,7 +44,7 @@
 #' relative one); 'scenario_type' = 'absolute' (because this is an absolute temperature
 #' scenario, not a relative one); 'labels' = 'regression-based scenario'.
 #' 
-#' @author Eike Luedeling
+#' @author Eike Luedeling, Lars Caspersen
 #' @keywords utility
 #' @importFrom  stats aggregate
 #' @importFrom stats lm

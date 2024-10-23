@@ -1,680 +1,24 @@
-#' Enhanced scatter search with fixed bug from MEIGOR package
+#' Optimization algrorithm, taken from MEIGOR package
 #' 
-#' This is a fixed version of the essr package of MEIGOR. It was prone to internal errors, but actually now I cannot remember where it was.
+#' Optimization algorithm of ehanced scatter search. See the MEIGOR package for more details. Took the function
+#' from the package because it seems that the MEIGOR package was depricated and it was also painfull to install
+#' the package.
 #' 
-#' @param problem list with starting values, upper ound, lower bound, and additional test ranges
-#' @param opts list with controls for the essR algorithm
-#' @param ... allows to give further arguments of the evaluation function specified in the problem list
-#' @return list of fitted model
-#' 
-#' @author Jose E. Egea, Lars Caspersen
-#' 
+#' @param problem list containing the initial parameter values x_0, the upper bound x_u, lower bound x_L and the 
+#' evaluation function. You can also add inequality restraints to the problem statement
+#' @param opts list of arguments controling the optimization algorithm. 
+#' Most important are maxeval, controling the maximum number of evaluations before stoping the optimizatio, and
+#' maxtime, maximum time in seconds for the optimizer to run
+#' @param ... Further arguments that get supplied to the evaluation function in the problem statement
+#' @return returns a list containing optimized parameters, intermediate solutions, final performance score and 
+#' much more. 
+#' @details Check the MEIGOR documentation for more details
+#' @author Lars Caspersen, \email{lars.caspersen@@uni-bonn.de}
 #' @importFrom Rsolnp solnp
-#' @importFrom utils combn
-#' @importFrom stats runif
-#' @importFrom stats optim
-#' @importFrom stats nls
-#' @importFrom stats coef
-#' 
 #' @export custom_essr
-
 custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL), 
-          ...) 
+                         ...) 
 {
-  
-  
-  ssm_defaults <- function (...)
-  {
-    log_var <- numeric(0)
-    maxeval <- 1000
-    maxtime <- 60
-    iterprint <- 1
-    weight <- 1e+06
-    tolc <- 1e-05
-    prob_bound <- 0.5
-    save_results <- 0
-    inter_save <- 0
-    dim_refset <- "auto"
-    ndiverse <- "auto"
-    combination <- 1
-    local_solver <- 0
-    local_tol <- 2
-    local_iterprint <- 0
-    local_n1 <- "default"
-    local_n2 <- "default"
-    local_balance <- 0.5
-    local_finish <- numeric(0)
-    local_bestx <- 0
-    return(list(log_var = log_var, maxeval = maxeval, maxtime = maxtime,
-                iterprint = iterprint, plot = plot, weight = weight,
-                tolc = tolc, prob_bound = prob_bound, save_results = save_results,
-                inter_save = inter_save, dim_refset = dim_refset, ndiverse = ndiverse,
-                combination = combination, local_solver = local_solver,
-                local_tol = local_tol, local_iterprint = local_iterprint,
-                local_n1 = local_n1, local_n2 = local_n2, local_balance = local_balance,
-                local_finish = local_finish, local_bestx = local_bestx))
-  }
-  
-  ssm_round_int <- function (x, index, x_L, nvar) 
-  {
-    index <- nvar - index + 1
-    index <- index:nvar
-    temp = dim(x)
-    nsol = temp[1]
-    if (is.vector(x)) {
-      x <- matrix(x, 1, nvar)
-      nsol = 1
-    }
-    for (i in 1:nsol) {
-      x[i, index] = x_L[index] + floor(0.5 + x[i, index] - 
-                                         x_L[index])
-    }
-    xrounded <- x
-    return(xrounded)
-  }
-  
-  ssm_penalty_function <- function (nlc, c_L, c_U, tolc) 
-  {
-    P <- numeric(0)
-    if (length(nlc) > 0) {
-      a = which(nlc < c_L)
-      b = which(nlc > c_U)
-      P = rep(0, length(a) + length(b))
-      counter <- 1
-      if (length(a) > 0) {
-        for (i in 1:length(a)) {
-          P[counter] <- (c_L[a[i]] - nlc[a[i]])
-          counter = counter + 1
-        }
-      }
-      if (length(b) > 0) {
-        for (i in 1:length(b)) {
-          P[counter] <- (nlc[b[i]] - c_U[b[i]])
-          counter = counter + 1
-        }
-      }
-    }
-    if (length(P) > 0 && max(P) > tolc) {
-      fx <- max(P)
-    }
-    else {
-      fx <- 0
-    }
-    return(fx)
-  }
-
-  ssm_evalfc <- function (x, x_L, x_U, fobj, nconst, c_L, c_U, tolc, weight,
-                          int_var, bin_var, nvar, ...)
-  {
-    includ <- 1
-    if (int_var | bin_var) {
-      x <- ssm_round_int(x, int_var + bin_var, x_L, nvar)
-    }
-    lower <- which(x < x_L)
-    upper <- which(x > x_U)
-    x[lower] = x_L[lower]
-    x[upper] = x_U[upper]
-    if (nconst) {
-      output <- do.call(fobj, list(x, ...))
-      value <- output[[1]]
-      nlc <- output[[2]]
-      pena <- ssm_penalty_function(nlc, c_L, c_U, tolc)
-      value_penalty <- value + weight * pena
-    }
-    else {
-      output <- do.call(fobj, list(x, ...))
-      value <- output[[1]]
-      nlc <- 0
-      pena <- 0
-      value_penalty <- value
-    }
-    if (is.infinite(value) | is.nan(value)) {
-      includ <- 0
-    }
-    return(list(value, value_penalty, pena, nlc, includ, x))
-  }
-
-  ssm_beyond <- function (z1, z2, z2_val, fobj, nrand, tolc, weight, x_L, x_U,
-                          c_L, c_U, nconst, int_var, bin_var, nfuneval, prob_bound,
-                          nvar, ...)
-  {
-    continuar <- 1
-    denom <- 1
-    n_improve <- 1
-    vector <- numeric(0)
-    vector_value <- numeric(0)
-    vector_value_penalty <- numeric(0)
-    vector_penalty <- numeric(0)
-    vector_nlc <- numeric(0)
-    new_child <- numeric(0)
-    new_child_value <- numeric(0)
-    new_child_value_penalty <- numeric(0)
-    new_child_nlc <- numeric(0)
-    new_child_penalty <- numeric(0)
-    while (continuar) {
-      nvar <- length(x_L)
-      zv <- matrix(0, 2, nvar)
-      d <- (z2 - z1)/denom
-      zv[1, ] <- z2
-      zv[2, ] <- z2 + d
-      aaa = which(zv[2, ] < x_L)
-      bbb = which(zv[2, ] > x_U)
-      if (length(aaa) > 0) {
-        if (stas::runif(1) > prob_bound) {
-          zv[2, aaa] = x_L[aaa]
-        }
-      }
-      if (length(bbb) > 0) {
-        if (stas::runif(1) > prob_bound) {
-          zv[2, bbb] = x_U[bbb]
-        }
-      }
-      xnew <- zv[1, ] + (zv[2, ] - zv[1, ]) * stas::runif(nrand)
-      output <- ssm_evalfc(xnew, x_L, x_U, fobj, nconst, c_L,
-                           c_U, tolc, weight, int_var, bin_var, nvar, ...)
-      val <- output[[1]]
-      val_penalty <- output[[2]]
-      pena <- output[[3]]
-      nlc <- output[[4]]
-      includ <- output[[5]]
-      x <- output[[6]]
-      nfuneval <- nfuneval + 1
-      if (includ) {
-        new_child <- rbind(new_child, x)
-        new_child_value <- c(new_child_value, val)
-        new_child_value_penalty <- c(new_child_value_penalty,
-                                     val_penalty)
-        new_child_nlc <- rbind(new_child_nlc, nlc)
-        new_child_penalty <- c(new_child_penalty, pena)
-        if (val_penalty < z2_val) {
-          z1 <- z2
-          z2 <- xnew
-          z2_val <- val_penalty
-          vector <- x
-          vector_value <- val
-          vector_value_penalty <- val_penalty
-          vector_penalty <- pena
-          vector_nlc <- nlc
-          n_improve <- n_improve + 1
-          if (n_improve == 2) {
-            denom <- denom/2
-            n_improve <- 0
-          }
-        }
-        else {
-          break
-        }
-      }
-      else {
-        continuar <- 0
-      }
-    }
-    return(list(vector, vector_value, vector_penalty, vector_value_penalty,
-                vector_nlc, new_child, new_child_value, new_child_penalty,
-                new_child_value_penalty, new_child_nlc, nfuneval))
-  }
-
-  ssm_isdif2 <- function (x, group, tol, flag)
-  {
-    f <- 0
-    ind <- numeric(0)
-    ind2 <- numeric(0)
-    for (i in 1:nrow(group)) {
-      num <- abs(x - group[i, ])
-      denom <- min(c(abs(x), abs(group[i, ])))
-      denom[abs(denom) < 1e-16] <- 1
-      diference <- num/denom
-      aaa <- which(diference >= tol)
-      if (flag == 1) {
-        if (!length(aaa)) {
-          f <- f + 1
-          ind <- c(ind, i)
-        }
-      }
-      else if (flag == 2) {
-        if (length(aaa) != length(x)) {
-          ind <- c(ind, i)
-        }
-        else {
-          ind2 <- c(ind2, i)
-        }
-      }
-    }
-    return(list(f = f, ind = ind, ind2 = ind2))
-  }
-  
-
-  ssm_localsolver <- function (x0, x_L, x_U, c_L, c_U, neq, int_var, bin_var, fobj,
-                               local_solver, local_iterprint, local_tol, weight, nconst,
-                               tolc, ...)
-  {
-    n_fun_eval <<- 0
-    fobj_global <<- fobj
-    neq_global <<- neq
-    nconst_global <<- nconst
-    extra_args <<- list(NULL, ...)
-    
-    
-    
-    solnp_eq <- function (x, ...) 
-    {
-      res <- do.call(fobj_global, list(x, ...))
-      n_fun_eval <<- n_fun_eval + 1
-      res_eq <- res[[2]][1:neq_global]
-      return(res_eq)
-    }
-    
-    solnp_ineq <- function (x, ...) 
-    {
-      res <- do.call(fobj_global, list(x, ...))
-      n_fun_eval <<- n_fun_eval + 1
-      res_ineq <- res[[2]][(neq_global + 1):nconst_global]
-      return(res_ineq)
-    }
-    
-    nls_fobj <- function (x) 
-    {
-      extra_args[[1]] <- x
-      f <- do.call(fobj_global, extra_args)
-      n_fun_eval <<- n_fun_eval + 1
-      residuals <- as.vector(f[[3]])
-    }
-    
-    solnp_fobj <- function (x, ...) 
-    {
-      res <- do.call(fobj_global, list(x, ...))
-      n_fun_eval <<- n_fun_eval + 1
-      res_f <- res[[1]]
-      return(res_f)
-    }
-    
-    dhc <- function (fobj, x, initsize, thres, budget, x_L, x_U, weight, 
-                     c_L, c_U, iterprint, tolc, ...) 
-    {
-      if (length(c_L) || length(c_U)) {
-        n_out <- 2
-      }
-      else {
-        n_out <- 1
-      }
-      NDIM <- length(x)
-      THRESHOLD <- thres
-      INIT_SIZE <- initsize
-      numeval <- 0
-      v <- rep(0, NDIM)
-      u <- v
-      vi = -1
-      vvec = 1
-      vr = -INIT_SIZE
-      xreal <- x * (x_U - x_L) + x_L
-      output <- do.call(fobj, list(xreal, ...))
-      fx <- output[[1]]
-      if (n_out > 1) {
-        cx <- output[[2]]
-        penalty <- ssm_penalty_function(cx, c_L, c_U, tolc)
-        fx <- fx + weight * penalty
-      }
-      else {
-        cx <- 0
-      }
-      numeval <- numeval + 1
-      fxv <- 1e+30
-      nnn <- 0
-      while (abs(vr) >= THRESHOLD) {
-        if (abs(vr) < 2 * THRESHOLD) {
-          maxiter <- 2 * NDIM
-        }
-        else {
-          maxiter = 2
-        }
-        iter <- 0
-        while (fxv >= fx && iter < maxiter) {
-          if (iter == 0) {
-            xv <- x
-          }
-          else {
-            xv[vi + 1] <- xv[vi + 1] - vr
-          }
-          if (vvec) {
-            vvec = 0
-          }
-          vr <- -vr
-          if (vr > 0) {
-            vi <- (vi + 1)%%NDIM
-          }
-          xv[vi + 1] <- xv[vi + 1] + vr
-          aaa <- which(xv < 0)
-          bbb <- which(xv > 1)
-          xv[aaa] <- 0
-          xv[bbb] <- 1
-          xvreal <- xv * (x_U - x_L) + x_L
-          output <- do.call(fobj, list(xvreal, ...))
-          fxv <- output[[1]]
-          if (n_out > 1) {
-            cxv <- output[[2]]
-            penaltyv <- ssm_penalty_function(cxv, c_L, c_U, 
-                                             tolc)
-            fxv <- fxv + weight * penaltyv
-          }
-          else {
-            cxv = 0
-          }
-          pen2 <- 0
-          aaa <- which(xvreal < x_L)
-          bbb <- which(xvreal > x_U)
-          if (length(aaa)) {
-            pen2 <- pen2 + sum((x_L[aaa] - xvreal[aaa]))
-          }
-          if (length(bbb)) {
-            pen2 <- pen2 + sum((xvreal[bbb] - x_U[bbb]))
-          }
-          fxv <- fxv + weight * pen2
-          numeval <- numeval + 1
-          iter <- iter + 1
-          if (numeval >= budget) {
-            vr <- thres/10
-            break
-          }
-        }
-        if (fxv >= fx | is.nan(fxv)) {
-          fxv <- 1e+30
-          vr <- vr/2
-        }
-        else {
-          fx <- fxv
-          x <- xv
-          if (iterprint) {
-            cat("NEvals:", numeval, "Bestf:", 
-                fx, "\n")
-          }
-          if (iter == 0) {
-            if (vvec) {
-              u <- u + v
-              v <- v * 2
-              xv <- xv + v
-              vr <- vr * 2
-            }
-            else {
-              u[vi + 1] <- u[vi + 1] + vr
-              vr <- vr * 2
-              xv[vi + 1] <- xv[vi + 1] + vr
-            }
-            aaa <- which(xv < 0)
-            bbb <- which(xv > 1)
-            xv[aaa] <- 0
-            xv[bbb] <- 1
-            xvreal <- xv * (x_U - x_L) + x_L
-            output <- do.call(fobj, list(xvreal, ...))
-            fxv <- output[[1]]
-            if (n_out > 1) {
-              cxv <- output[[2]]
-              penaltyv <- ssm_penalty_function(cxv, c_L, 
-                                               c_U, tolc)
-              fxv <- fxv + weight * penaltyv
-            }
-            else {
-              cxv = 0
-            }
-            pen2 <- 0
-            aaa <- which(xvreal < x_L)
-            bbb <- which(xvreal > x_U)
-            if (length(aaa)) {
-              pen2 <- pen2 + sum((x_L[aaa] - xvreal[aaa]))
-            }
-            if (length(bbb)) {
-              pen2 <- pen2 + sum((xvreal[bbb] - x_U[bbb]))
-            }
-            fxv <- fxv + weight * pen2
-            numeval <- numeval + 1
-            if (numeval >= budget) {
-              vr = thres/10
-              break
-            }
-          }
-          else {
-            xv <- xv + u
-            xv[vi + 1] <- xv[vi + 1] + vr
-            aaa <- which(xv < 0)
-            bbb <- which(xv > 1)
-            xv[aaa] <- 0
-            xv[bbb] <- 1
-            xvreal <- xv * (x_U - x_L) + x_L
-            output <- do.call(fobj, list(xvreal, ...))
-            fxv <- output[[1]]
-            if (n_out > 1) {
-              cxv <- output[[2]]
-              penaltyv <- ssm_penalty_function(cxv, c_L, 
-                                               c_U, tolc)
-              fxv <- fxv + weight * penaltyv
-            }
-            else {
-              cxv = 0
-            }
-            pen2 <- 0
-            aaa <- which(xvreal < x_L)
-            bbb <- which(xvreal > x_U)
-            if (length(aaa)) {
-              pen2 <- pen2 + sum((x_L[aaa] - xvreal[aaa]))
-            }
-            if (length(bbb)) {
-              pen2 <- pen2 + sum((xvreal[bbb] - x_U[bbb]))
-            }
-            fxv <- fxv + weight * pen2
-            numeval <- numeval + 1
-            if (numeval >= budget) {
-              vr = thres/10
-              break
-            }
-            if (fxv >= fx | is.nan(fxv)) {
-              u <- rep(0, NDIM)
-              xv <- x
-              u[vi + 1] <- vr
-              vr <- vr * 2
-              xv[vi + 1] <- xv[vi + 1] + vr
-              aaa <- which(xv < 0)
-              bbb <- which(xv > 1)
-              xv[aaa] <- 0
-              xv[bbb] <- 1
-              xvreal <- xv * (x_U - x_L) + x_L
-              output <- do.call(fobj, list(xvreal, ...))
-              fxv <- output[[1]]
-              if (n_out > 1) {
-                cxv <- output[[2]]
-                penaltyv <- ssm_penalty_function(cxv, c_L, 
-                                                 c_U, tolc)
-                fxv <- fxv + weight * penaltyv
-              }
-              else {
-                cxv = 0
-              }
-              pen2 <- 0
-              aaa <- which(xvreal < x_L)
-              bbb <- which(xvreal > x_U)
-              if (length(aaa)) {
-                pen2 <- pen2 + sum((x_L[aaa] - xvreal[aaa]))
-              }
-              if (length(bbb)) {
-                pen2 <- pen2 + sum((xvreal[bbb] - x_U[bbb]))
-              }
-              fxv <- fxv + weight * pen2
-              numeval <- numeval + 1
-              if (numeval >= budget) {
-                vr = thres/10
-                break
-              }
-            }
-            else {
-              x <- xv
-              fx <- fxv
-              u[vi + 1] <- u[vi + 1] + vr
-              v <- 2 * u
-              vvec <- 1
-              xv <- xv + v
-              aaa <- which(xv < 0)
-              bbb <- which(xv > 1)
-              xv[aaa] <- 0
-              xv[bbb] <- 1
-              xvreal <- xv * (x_U - x_L) + x_L
-              output <- do.call(fobj, list(xvreal, ...))
-              fxv <- output[[1]]
-              if (n_out > 1) {
-                cxv <- output[[2]]
-                penaltyv <- ssm_penalty_function(cxv, c_L, 
-                                                 c_U, tolc)
-                fxv <- fxv + weight * penaltyv
-              }
-              else {
-                cxv = 0
-              }
-              pen2 <- 0
-              aaa <- which(xvreal < x_L)
-              bbb <- which(xvreal > x_U)
-              if (length(aaa)) {
-                pen2 <- pen2 + sum((x_L[aaa] - xvreal[aaa]))
-              }
-              if (length(bbb)) {
-                pen2 <- pen2 + sum((xvreal[bbb] - x_U[bbb]))
-              }
-              fxv <- fxv + weight * pen2
-              numeval <- numeval + 1
-              if (numeval >= budget) {
-                vr = thres/10
-                break
-              }
-              vr <- 0
-              vr <- sum(v^2)
-              vr <- sqrt(vr)
-            }
-          }
-        }
-      }
-      if (fxv < fx & !is.nan(fxv)) {
-        fx <- fxv
-        x <- xv
-      }
-      x <- x * (x_U - x_L) + x_L
-      return(list(fx, x, numeval))
-    }
-    
-    
-    
-    if (match(local_solver, "NM", nomatch = 0) | match(local_solver,
-                                                       "BFGS", nomatch = 0) | match(local_solver, "CG",
-                                                                                    nomatch = 0) | match(local_solver, "LBFGSB", nomatch = 0) |
-        match(local_solver, "SA", nomatch = 0)) {
-      ndeps_o <- tolc * (x_U - x_L)
-      meth <- switch(local_solver, NM = "Nelder-Mead",
-                     BFGS = "BFGS", CG = "CG", LBFGSB = "L-BFGS-B",
-                     SA = "SANN")
-      results <- stats::optim(x0, optim_fobj, gr = NULL, method = meth,
-                       lower = x_L, upper = x_U, control = list(ndeps = ndeps_o),
-                       hessian = FALSE)
-      res <- list(results$par, results$value, n_fun_eval)
-    }
-    else if (match(local_solver, "SOLNP", nomatch = 0)) {
-      if (neq) {
-        eqfun_solnp = solnp_eq
-        eqB_solnp = rep(0, neq)
-      }
-      else {
-        eqfun_solnp = NULL
-        eqB_solnp = NULL
-      }
-      if ((nconst - neq) > 0) {
-        ineqfun_solnp = solnp_ineq
-        ineqLB_solnp = c_L[(neq + 1):nconst]
-        ineqUB_solnp = c_U[(neq + 1):nconst]
-      }
-      else {
-        ineqfun_solnp = NULL
-        ineqLB_solnp = NULL
-        ineqUB_solnp = NULL
-      }
-      results <- Rsolnp::solnp(x0, solnp_fobj, eqfun = eqfun_solnp,
-                       eqB = eqB_solnp, ineqfun = ineqfun_solnp, ineqLB = ineqLB_solnp,
-                       ineqUB = ineqUB_solnp, LB = x_L, UB = x_U, control = list(),
-                       ...)
-      n_val = length(results$values)
-      res <- list(results$pars, results$values[n_val], n_fun_eval)
-    }
-    else if (match(local_solver, "DHC", nomatch = 0)) {
-      nvar <- length(x0)
-      x0 <- (x0 - x_L)/(x_U - x_L)
-      initsize <- 0.1
-      if (local_tol == 1) {
-        thres = 1e-06
-      }
-      else if (local_tol == 2) {
-        thres = 1e-08
-      }
-      else if (local_tol == 3) {
-        thres = 1e-10
-      }
-      results <- dhc(fobj, x0, initsize, thres, 100 * nvar,
-                     x_L, x_U, weight, c_L, c_U, local_iterprint, tolc,
-                     ...)
-      res <- list(results[[2]], results[[1]], results[[3]])
-    }
-    else if (match(local_solver, "NL2SOL", nomatch = 0)) {
-      if (local_iterprint) {
-        disp_iter = TRUE
-      }
-      else {
-        disp_iter = FALSE
-      }
-      if (local_tol == 1) {
-        tol = 1e-04
-      }
-      else if (local_tol == 2) {
-        tol = 1e-05
-      }
-      else if (local_tol == 3) {
-        tol = 1e-06
-      }
-      results <- stats::nls(~nls_fobj(x), start = list(x = x0), trace = disp_iter,
-                     algorithm = "port", lower = x_L, upper = x_U,
-                     control = list(warnOnly = TRUE, maxiter = 20, tol = 1e-05,
-                                    minFactor = 1/1024), extra_args)
-      parameters <- as.vector(stats::coef(results))
-      res <- list(parameters, NULL, n_fun_eval)
-    }
-    return(res)
-  }
-  
-  ssm_optset <- function (default, opts) 
-  {
-    if (length(opts)) {
-      opts_names <- names(opts)
-      default_names <- names(default)
-      low_opts_names = tolower(opts_names)
-      low_default_names = tolower(default_names)
-      for (i in 1:length(opts_names)) {
-        j <- match(low_opts_names[i], low_default_names)
-        if (is.na(j)) {
-          cat("Option '", low_opts_names[i], "'is not defined in eSS. It will be ignored \n")
-        }
-        else {
-          default[[j]] <- opts[[i]]
-        }
-      }
-    }
-    opts = default
-    return(opts)
-  }
-  
-  eucl_dist <- function (m1, m2) 
-  {
-    n_a <- nrow(m1)
-    n_b <- nrow(m2)
-    ddd <- kronecker(matrix(1, 1, n_b), apply(m1^2, 1, sum)) + 
-      kronecker(matrix(1, n_a, 1), t(apply(m2^2, 1, sum)))
-    ddd <- ddd - 2 * m1 %*% t(m2)
-    ddd <- sqrt(ddd)
-    return(ddd)
-  }
-  
-  
-  
   print("eSS R2014A - Enhanced Scatter Search")
   stopOptimization <- 0
   cpu_time = proc.time()[3]
@@ -878,13 +222,13 @@ custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL),
   initial_points <- numeric(0)
   Results <- list(f = numeric(0), x = numeric(0), time = numeric(0), 
                   neval = numeric(0))
-  ncomb <- t(utils::combn(1:dim_refset, 2))
+  ncomb <- t(combn(1:dim_refset, 2))
   MaxSubSet <- (dim_refset^2 - dim_refset)/2
   MaxSubSet2 <- 2 * MaxSubSet
   solutions <- matrix(0, ndiverse + 5, nvar)
-  solutions[1:5, ] <- (matrix(stas::runif(nvar * 5), 5, nvar) + 
+  solutions[1:5, ] <- (matrix(runif(nvar * 5), 5, nvar) + 
                          1:5 - 1)/5
-  solutions[6:(ndiverse + 5), ] <- matrix(stats::runif(ndiverse * 
+  solutions[6:(ndiverse + 5), ] <- matrix(runif(ndiverse * 
                                                   nvar), ndiverse, nvar)
   solutions <- solutions * kronecker(matrix(1, ndiverse + 
                                               5, 1), t((xu_log - xl_log))) + kronecker(matrix(1, ndiverse + 
@@ -1043,7 +387,7 @@ custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL),
         index_refset_out <- max(index2[BBB])
         includ = 0
         while (!includ) {
-          new_refset_member <- stats::runif(nvar) * (xu_log - 
+          new_refset_member <- runif(nvar) * (xu_log - 
                                                 xl_log) + xl_log
           new_refset_member[log_var] = exp(new_refset_member[log_var])
           res <- ssm_evalfc(new_refset_member, x_L, 
@@ -1082,40 +426,40 @@ custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL),
       v3 <- 2 * parents_index2 - parents_index1 - factor
       aaa <- which(v1 < hyper_x_L)
       if (length(aaa)) {
-        rand_aaa <- stas::runif(length(aaa))
+        rand_aaa <- runif(length(aaa))
         AAA <- which(rand_aaa > prob_bound)
         aaa <- aaa[AAA]
         v1[aaa] = hyper_x_L[aaa]
       }
       bbb <- which(v1 > hyper_x_U)
       if (length(bbb)) {
-        rand_bbb <- stas::runif(length(bbb))
+        rand_bbb <- runif(length(bbb))
         BBB <- which(rand_bbb > prob_bound)
         bbb <- bbb[BBB]
         v1[bbb] = hyper_x_U[bbb]
       }
       ccc <- which(v3 < hyper_x_L)
       if (length(ccc)) {
-        rand_ccc <- stas::runif(length(ccc))
+        rand_ccc <- runif(length(ccc))
         CCC <- which(rand_ccc > prob_bound)
         ccc <- ccc[CCC]
         v3[ccc] = hyper_x_L[ccc]
       }
       ddd <- which(v3 > hyper_x_U)
       if (length(ddd)) {
-        rand_ddd <- stas::runif(length(ddd))
+        rand_ddd <- runif(length(ddd))
         DDD <- which(rand_ddd > prob_bound)
         ddd <- ddd[DDD]
         v3[ddd] = hyper_x_U[ddd]
       }
       if (nrand > 1) {
-        new_comb1 <- v1 + (v2 - v1) * matrix(stas::runif(MaxSubSet * 
+        new_comb1 <- v1 + (v2 - v1) * matrix(runif(MaxSubSet * 
                                                      nrand), MaxSubSet, nrand)
-        new_comb2 = v2 + (v3 - v2) * matrix(stas::runif(MaxSubSet * 
+        new_comb2 = v2 + (v3 - v2) * matrix(runif(MaxSubSet * 
                                                     nrand), MaxSubSet, nrand)
       } else {
-        new_comb1 = v1 + (v2 - v1) * stas::runif(1)
-        new_comb2 = v2 + (v3 - v2) * stas::runif(1)
+        new_comb1 = v1 + (v2 - v1) * runif(1)
+        new_comb2 = v2 + (v3 - v2) * runif(1)
       }
       new_comb <- rbind(new_comb1, new_comb2)
       for (i in 1:MaxSubSet2) {
@@ -1241,7 +585,7 @@ custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL),
         to_replace <- length(fff)
         replaced <- 0
         while (replaced < to_replace) {
-          newsol <- stas::runif(nvar) * (xu_log - xl_log) + 
+          newsol <- runif(nvar) * (xu_log - xl_log) + 
             xl_log
           newsol[log_var] = exp(newsol[log_var])
           res <- ssm_evalfc(newsol, x_L, x_U, fobj, 
@@ -1349,7 +693,7 @@ custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL),
           # ##########
           # #
           # #########
-
+          
           
           if (child_penalty[I] > tolc) {
             cat("Initial point function value:", child_values[I], 
@@ -1542,4 +886,605 @@ custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL),
       }
     }
   }
+}
+
+ssm_defaults <- function (...) 
+{
+  log_var <- numeric(0)
+  maxeval <- 1000
+  maxtime <- 60
+  iterprint <- 1
+  weight <- 1e+06
+  tolc <- 1e-05
+  prob_bound <- 0.5
+  save_results <- 0
+  inter_save <- 0
+  dim_refset <- "auto"
+  ndiverse <- "auto"
+  combination <- 1
+  local_solver <- 0
+  local_tol <- 2
+  local_iterprint <- 0
+  local_n1 <- "default"
+  local_n2 <- "default"
+  local_balance <- 0.5
+  local_finish <- numeric(0)
+  local_bestx <- 0
+  return(list(log_var = log_var, maxeval = maxeval, maxtime = maxtime, 
+              iterprint = iterprint, plot = plot, weight = weight, 
+              tolc = tolc, prob_bound = prob_bound, save_results = save_results, 
+              inter_save = inter_save, dim_refset = dim_refset, ndiverse = ndiverse, 
+              combination = combination, local_solver = local_solver, 
+              local_tol = local_tol, local_iterprint = local_iterprint, 
+              local_n1 = local_n1, local_n2 = local_n2, local_balance = local_balance, 
+              local_finish = local_finish, local_bestx = local_bestx))
+}
+
+ssm_optset <- function (default, opts) 
+{
+  if (length(opts)) {
+    opts_names <- names(opts)
+    default_names <- names(default)
+    low_opts_names = tolower(opts_names)
+    low_default_names = tolower(default_names)
+    for (i in 1:length(opts_names)) {
+      j <- match(low_opts_names[i], low_default_names)
+      if (is.na(j)) {
+        cat("Option '", low_opts_names[i], "'is not defined in eSS. It will be ignored \n")
+      }
+      else {
+        default[[j]] <- opts[[i]]
+      }
+    }
+  }
+  opts = default
+  return(opts)
+}
+
+ssm_evalfc <- function (x, x_L, x_U, fobj, nconst, c_L, c_U, tolc, weight, 
+                        int_var, bin_var, nvar, ...) 
+{
+  includ <- 1
+  if (int_var | bin_var) {
+    x <- ssm_round_int(x, int_var + bin_var, x_L, nvar)
+  }
+  lower <- which(x < x_L)
+  upper <- which(x > x_U)
+  x[lower] = x_L[lower]
+  x[upper] = x_U[upper]
+  if (nconst) {
+    output <- do.call(fobj, list(x, ...))
+    value <- output[[1]]
+    nlc <- output[[2]]
+    pena <- ssm_penalty_function(nlc, c_L, c_U, tolc)
+    value_penalty <- value + weight * pena
+  }
+  else {
+    output <- do.call(fobj, list(x, ...))
+    value <- output[[1]]
+    nlc <- 0
+    pena <- 0
+    value_penalty <- value
+  }
+  if (is.infinite(value) | is.nan(value)) {
+    includ <- 0
+  }
+  return(list(value, value_penalty, pena, nlc, includ, x))
+}
+
+ssm_penalty_function <- function (nlc, c_L, c_U, tolc) 
+{
+  P <- numeric(0)
+  if (length(nlc) > 0) {
+    a = which(nlc < c_L)
+    b = which(nlc > c_U)
+    P = rep(0, length(a) + length(b))
+    counter <- 1
+    if (length(a) > 0) {
+      for (i in 1:length(a)) {
+        P[counter] <- (c_L[a[i]] - nlc[a[i]])
+        counter = counter + 1
+      }
+    }
+    if (length(b) > 0) {
+      for (i in 1:length(b)) {
+        P[counter] <- (nlc[b[i]] - c_U[b[i]])
+        counter = counter + 1
+      }
+    }
+  }
+  if (length(P) > 0 && max(P) > tolc) {
+    fx <- max(P)
+  }
+  else {
+    fx <- 0
+  }
+  return(fx)
+}
+
+ssm_round_int <- function (x, index, x_L, nvar) 
+{
+  index <- nvar - index + 1
+  index <- index:nvar
+  temp = dim(x)
+  nsol = temp[1]
+  if (is.vector(x)) {
+    x <- matrix(x, 1, nvar)
+    nsol = 1
+  }
+  for (i in 1:nsol) {
+    x[i, index] = x_L[index] + floor(0.5 + x[i, index] - 
+                                       x_L[index])
+  }
+  xrounded <- x
+  return(xrounded)
+}
+
+ssm_isdif2 <- function (x, group, tol, flag) 
+{
+  f <- 0
+  ind <- numeric(0)
+  ind2 <- numeric(0)
+  for (i in 1:nrow(group)) {
+    num <- abs(x - group[i, ])
+    denom <- min(c(abs(x), abs(group[i, ])))
+    denom[abs(denom) < 1e-16] <- 1
+    diference <- num/denom
+    aaa <- which(diference >= tol)
+    if (flag == 1) {
+      if (!length(aaa)) {
+        f <- f + 1
+        ind <- c(ind, i)
+      }
+    }
+    else if (flag == 2) {
+      if (length(aaa) != length(x)) {
+        ind <- c(ind, i)
+      }
+      else {
+        ind2 <- c(ind2, i)
+      }
+    }
+  }
+  return(list(f = f, ind = ind, ind2 = ind2))
+}
+
+ssm_localsolver <- function (x0, x_L, x_U, c_L, c_U, neq, int_var, bin_var, fobj, 
+                             local_solver, local_iterprint, local_tol, weight, nconst, 
+                             tolc, ...) 
+{
+  n_fun_eval <<- 0
+  fobj_global <<- fobj
+  neq_global <<- neq
+  nconst_global <<- nconst
+  extra_args <<- list(NULL, ...)
+  if (match(local_solver, "NM", nomatch = 0) | match(local_solver, 
+                                                     "BFGS", nomatch = 0) | match(local_solver, "CG", 
+                                                                                  nomatch = 0) | match(local_solver, "LBFGSB", nomatch = 0) | 
+      match(local_solver, "SA", nomatch = 0)) {
+    ndeps_o <- tolc * (x_U - x_L)
+    meth <- switch(local_solver, NM = "Nelder-Mead", 
+                   BFGS = "BFGS", CG = "CG", LBFGSB = "L-BFGS-B", 
+                   SA = "SANN")
+    results <- optim(x0, optim_fobj, gr = NULL, method = meth, 
+                     lower = x_L, upper = x_U, control = list(ndeps = ndeps_o), 
+                     hessian = FALSE)
+    res <- list(results$par, results$value, n_fun_eval)
+  }
+  else if (match(local_solver, "SOLNP", nomatch = 0)) {
+    if (neq) {
+      eqfun_solnp = solnp_eq
+      eqB_solnp = rep(0, neq)
+    }
+    else {
+      eqfun_solnp = NULL
+      eqB_solnp = NULL
+    }
+    if ((nconst - neq) > 0) {
+      ineqfun_solnp = solnp_ineq
+      ineqLB_solnp = c_L[(neq + 1):nconst]
+      ineqUB_solnp = c_U[(neq + 1):nconst]
+    }
+    else {
+      ineqfun_solnp = NULL
+      ineqLB_solnp = NULL
+      ineqUB_solnp = NULL
+    }
+    results <- Rsolnp::solnp(x0, solnp_fobj, eqfun = eqfun_solnp, 
+                             eqB = eqB_solnp, ineqfun = ineqfun_solnp, ineqLB = ineqLB_solnp, 
+                             ineqUB = ineqUB_solnp, LB = x_L, UB = x_U, control = list(), 
+                             ...)
+    n_val = length(results$values)
+    res <- list(results$pars, results$values[n_val], n_fun_eval)
+  }
+  else if (match(local_solver, "DHC", nomatch = 0)) {
+    nvar <- length(x0)
+    x0 <- (x0 - x_L)/(x_U - x_L)
+    initsize <- 0.1
+    if (local_tol == 1) {
+      thres = 1e-06
+    }
+    else if (local_tol == 2) {
+      thres = 1e-08
+    }
+    else if (local_tol == 3) {
+      thres = 1e-10
+    }
+    results <- dhc(fobj, x0, initsize, thres, 100 * nvar, 
+                   x_L, x_U, weight, c_L, c_U, local_iterprint, tolc, 
+                   ...)
+    res <- list(results[[2]], results[[1]], results[[3]])
+  }
+  else if (match(local_solver, "NL2SOL", nomatch = 0)) {
+    if (local_iterprint) {
+      disp_iter = TRUE
+    }
+    else {
+      disp_iter = FALSE
+    }
+    if (local_tol == 1) {
+      tol = 1e-04
+    }
+    else if (local_tol == 2) {
+      tol = 1e-05
+    }
+    else if (local_tol == 3) {
+      tol = 1e-06
+    }
+    results <- nls(~nls_fobj(x), start = list(x = x0), trace = disp_iter, 
+                   algorithm = "port", lower = x_L, upper = x_U, 
+                   control = list(warnOnly = TRUE, maxiter = 20, tol = 1e-05, 
+                                  minFactor = 1/1024), extra_args)
+    parameters <- as.vector(coef(results))
+    res <- list(parameters, NULL, n_fun_eval)
+  }
+  return(res)
+}
+
+ssm_beyond <- function (z1, z2, z2_val, fobj, nrand, tolc, weight, x_L, x_U, 
+                        c_L, c_U, nconst, int_var, bin_var, nfuneval, prob_bound, 
+                        nvar, ...) 
+{
+  continuar <- 1
+  denom <- 1
+  n_improve <- 1
+  vector <- numeric(0)
+  vector_value <- numeric(0)
+  vector_value_penalty <- numeric(0)
+  vector_penalty <- numeric(0)
+  vector_nlc <- numeric(0)
+  new_child <- numeric(0)
+  new_child_value <- numeric(0)
+  new_child_value_penalty <- numeric(0)
+  new_child_nlc <- numeric(0)
+  new_child_penalty <- numeric(0)
+  while (continuar) {
+    nvar <- length(x_L)
+    zv <- matrix(0, 2, nvar)
+    d <- (z2 - z1)/denom
+    zv[1, ] <- z2
+    zv[2, ] <- z2 + d
+    aaa = which(zv[2, ] < x_L)
+    bbb = which(zv[2, ] > x_U)
+    if (length(aaa) > 0) {
+      if (runif(1) > prob_bound) {
+        zv[2, aaa] = x_L[aaa]
+      }
+    }
+    if (length(bbb) > 0) {
+      if (runif(1) > prob_bound) {
+        zv[2, bbb] = x_U[bbb]
+      }
+    }
+    xnew <- zv[1, ] + (zv[2, ] - zv[1, ]) * runif(nrand)
+    output <- ssm_evalfc(xnew, x_L, x_U, fobj, nconst, c_L, 
+                         c_U, tolc, weight, int_var, bin_var, nvar, ...)
+    val <- output[[1]]
+    val_penalty <- output[[2]]
+    pena <- output[[3]]
+    nlc <- output[[4]]
+    includ <- output[[5]]
+    x <- output[[6]]
+    nfuneval <- nfuneval + 1
+    if (includ) {
+      new_child <- rbind(new_child, x)
+      new_child_value <- c(new_child_value, val)
+      new_child_value_penalty <- c(new_child_value_penalty, 
+                                   val_penalty)
+      new_child_nlc <- rbind(new_child_nlc, nlc)
+      new_child_penalty <- c(new_child_penalty, pena)
+      if (val_penalty < z2_val) {
+        z1 <- z2
+        z2 <- xnew
+        z2_val <- val_penalty
+        vector <- x
+        vector_value <- val
+        vector_value_penalty <- val_penalty
+        vector_penalty <- pena
+        vector_nlc <- nlc
+        n_improve <- n_improve + 1
+        if (n_improve == 2) {
+          denom <- denom/2
+          n_improve <- 0
+        }
+      }
+      else {
+        break
+      }
+    }
+    else {
+      continuar <- 0
+    }
+  }
+  return(list(vector, vector_value, vector_penalty, vector_value_penalty, 
+              vector_nlc, new_child, new_child_value, new_child_penalty, 
+              new_child_value_penalty, new_child_nlc, nfuneval))
+}
+
+dhc <- function (fobj, x, initsize, thres, budget, x_L, x_U, weight, 
+                 c_L, c_U, iterprint, tolc, ...) 
+{
+  if (length(c_L) || length(c_U)) {
+    n_out <- 2
+  }
+  else {
+    n_out <- 1
+  }
+  NDIM <- length(x)
+  THRESHOLD <- thres
+  INIT_SIZE <- initsize
+  numeval <- 0
+  v <- rep(0, NDIM)
+  u <- v
+  vi = -1
+  vvec = 1
+  vr = -INIT_SIZE
+  xreal <- x * (x_U - x_L) + x_L
+  output <- do.call(fobj, list(xreal, ...))
+  fx <- output[[1]]
+  if (n_out > 1) {
+    cx <- output[[2]]
+    penalty <- ssm_penalty_function(cx, c_L, c_U, tolc)
+    fx <- fx + weight * penalty
+  }
+  else {
+    cx <- 0
+  }
+  numeval <- numeval + 1
+  fxv <- 1e+30
+  nnn <- 0
+  while (abs(vr) >= THRESHOLD) {
+    if (abs(vr) < 2 * THRESHOLD) {
+      maxiter <- 2 * NDIM
+    }
+    else {
+      maxiter = 2
+    }
+    iter <- 0
+    while (fxv >= fx && iter < maxiter) {
+      if (iter == 0) {
+        xv <- x
+      }
+      else {
+        xv[vi + 1] <- xv[vi + 1] - vr
+      }
+      if (vvec) {
+        vvec = 0
+      }
+      vr <- -vr
+      if (vr > 0) {
+        vi <- (vi + 1)%%NDIM
+      }
+      xv[vi + 1] <- xv[vi + 1] + vr
+      aaa <- which(xv < 0)
+      bbb <- which(xv > 1)
+      xv[aaa] <- 0
+      xv[bbb] <- 1
+      xvreal <- xv * (x_U - x_L) + x_L
+      output <- do.call(fobj, list(xvreal, ...))
+      fxv <- output[[1]]
+      if (n_out > 1) {
+        cxv <- output[[2]]
+        penaltyv <- ssm_penalty_function(cxv, c_L, c_U, 
+                                         tolc)
+        fxv <- fxv + weight * penaltyv
+      }
+      else {
+        cxv = 0
+      }
+      pen2 <- 0
+      aaa <- which(xvreal < x_L)
+      bbb <- which(xvreal > x_U)
+      if (length(aaa)) {
+        pen2 <- pen2 + sum((x_L[aaa] - xvreal[aaa]))
+      }
+      if (length(bbb)) {
+        pen2 <- pen2 + sum((xvreal[bbb] - x_U[bbb]))
+      }
+      fxv <- fxv + weight * pen2
+      numeval <- numeval + 1
+      iter <- iter + 1
+      if (numeval >= budget) {
+        vr <- thres/10
+        break
+      }
+    }
+    if (fxv >= fx | is.nan(fxv)) {
+      fxv <- 1e+30
+      vr <- vr/2
+    }
+    else {
+      fx <- fxv
+      x <- xv
+      if (iterprint) {
+        cat("NEvals:", numeval, "Bestf:", 
+            fx, "\n")
+      }
+      if (iter == 0) {
+        if (vvec) {
+          u <- u + v
+          v <- v * 2
+          xv <- xv + v
+          vr <- vr * 2
+        }
+        else {
+          u[vi + 1] <- u[vi + 1] + vr
+          vr <- vr * 2
+          xv[vi + 1] <- xv[vi + 1] + vr
+        }
+        aaa <- which(xv < 0)
+        bbb <- which(xv > 1)
+        xv[aaa] <- 0
+        xv[bbb] <- 1
+        xvreal <- xv * (x_U - x_L) + x_L
+        output <- do.call(fobj, list(xvreal, ...))
+        fxv <- output[[1]]
+        if (n_out > 1) {
+          cxv <- output[[2]]
+          penaltyv <- ssm_penalty_function(cxv, c_L, 
+                                           c_U, tolc)
+          fxv <- fxv + weight * penaltyv
+        }
+        else {
+          cxv = 0
+        }
+        pen2 <- 0
+        aaa <- which(xvreal < x_L)
+        bbb <- which(xvreal > x_U)
+        if (length(aaa)) {
+          pen2 <- pen2 + sum((x_L[aaa] - xvreal[aaa]))
+        }
+        if (length(bbb)) {
+          pen2 <- pen2 + sum((xvreal[bbb] - x_U[bbb]))
+        }
+        fxv <- fxv + weight * pen2
+        numeval <- numeval + 1
+        if (numeval >= budget) {
+          vr = thres/10
+          break
+        }
+      }
+      else {
+        xv <- xv + u
+        xv[vi + 1] <- xv[vi + 1] + vr
+        aaa <- which(xv < 0)
+        bbb <- which(xv > 1)
+        xv[aaa] <- 0
+        xv[bbb] <- 1
+        xvreal <- xv * (x_U - x_L) + x_L
+        output <- do.call(fobj, list(xvreal, ...))
+        fxv <- output[[1]]
+        if (n_out > 1) {
+          cxv <- output[[2]]
+          penaltyv <- ssm_penalty_function(cxv, c_L, 
+                                           c_U, tolc)
+          fxv <- fxv + weight * penaltyv
+        }
+        else {
+          cxv = 0
+        }
+        pen2 <- 0
+        aaa <- which(xvreal < x_L)
+        bbb <- which(xvreal > x_U)
+        if (length(aaa)) {
+          pen2 <- pen2 + sum((x_L[aaa] - xvreal[aaa]))
+        }
+        if (length(bbb)) {
+          pen2 <- pen2 + sum((xvreal[bbb] - x_U[bbb]))
+        }
+        fxv <- fxv + weight * pen2
+        numeval <- numeval + 1
+        if (numeval >= budget) {
+          vr = thres/10
+          break
+        }
+        if (fxv >= fx | is.nan(fxv)) {
+          u <- rep(0, NDIM)
+          xv <- x
+          u[vi + 1] <- vr
+          vr <- vr * 2
+          xv[vi + 1] <- xv[vi + 1] + vr
+          aaa <- which(xv < 0)
+          bbb <- which(xv > 1)
+          xv[aaa] <- 0
+          xv[bbb] <- 1
+          xvreal <- xv * (x_U - x_L) + x_L
+          output <- do.call(fobj, list(xvreal, ...))
+          fxv <- output[[1]]
+          if (n_out > 1) {
+            cxv <- output[[2]]
+            penaltyv <- ssm_penalty_function(cxv, c_L, 
+                                             c_U, tolc)
+            fxv <- fxv + weight * penaltyv
+          }
+          else {
+            cxv = 0
+          }
+          pen2 <- 0
+          aaa <- which(xvreal < x_L)
+          bbb <- which(xvreal > x_U)
+          if (length(aaa)) {
+            pen2 <- pen2 + sum((x_L[aaa] - xvreal[aaa]))
+          }
+          if (length(bbb)) {
+            pen2 <- pen2 + sum((xvreal[bbb] - x_U[bbb]))
+          }
+          fxv <- fxv + weight * pen2
+          numeval <- numeval + 1
+          if (numeval >= budget) {
+            vr = thres/10
+            break
+          }
+        }
+        else {
+          x <- xv
+          fx <- fxv
+          u[vi + 1] <- u[vi + 1] + vr
+          v <- 2 * u
+          vvec <- 1
+          xv <- xv + v
+          aaa <- which(xv < 0)
+          bbb <- which(xv > 1)
+          xv[aaa] <- 0
+          xv[bbb] <- 1
+          xvreal <- xv * (x_U - x_L) + x_L
+          output <- do.call(fobj, list(xvreal, ...))
+          fxv <- output[[1]]
+          if (n_out > 1) {
+            cxv <- output[[2]]
+            penaltyv <- ssm_penalty_function(cxv, c_L, 
+                                             c_U, tolc)
+            fxv <- fxv + weight * penaltyv
+          }
+          else {
+            cxv = 0
+          }
+          pen2 <- 0
+          aaa <- which(xvreal < x_L)
+          bbb <- which(xvreal > x_U)
+          if (length(aaa)) {
+            pen2 <- pen2 + sum((x_L[aaa] - xvreal[aaa]))
+          }
+          if (length(bbb)) {
+            pen2 <- pen2 + sum((xvreal[bbb] - x_U[bbb]))
+          }
+          fxv <- fxv + weight * pen2
+          numeval <- numeval + 1
+          if (numeval >= budget) {
+            vr = thres/10
+            break
+          }
+          vr <- 0
+          vr <- sum(v^2)
+          vr <- sqrt(vr)
+        }
+      }
+    }
+  }
+  if (fxv < fx & !is.nan(fxv)) {
+    fx <- fxv
+    x <- xv
+  }
+  x <- x * (x_U - x_L) + x_L
+  return(list(fx, x, numeval))
 }

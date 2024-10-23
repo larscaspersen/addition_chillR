@@ -68,6 +68,6 @@ use of such scenarios for local contexts requires consideration of a scenario th
 to temperatures in 1975, the central year of this period).
 }
 \author{
-Eike Luedeling
+Eike Luedeling, Lars Caspersen
 }
 \keyword{utility}
