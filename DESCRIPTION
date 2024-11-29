@@ -9,5 +9,12 @@ Description: Some extra functions which are intended to enhance chillR package o
 Authors@R: 
     person("Lars", "Caspersen", , "lars.caspersen@uni-bonn.de", role = c("aut", "cre"))
 Maintainer: Lars Caspersen <lars.caspersen@uni-bonn.de>
-Depends: dplyr, graphics, magrittr, patchwork, utils
+Depends: 
+    dplyr,
+    graphics,
+    magrittr,
+    patchwork,
+    R (>= 2.10),
+    utils
 Imports: assertthat, chillR, ggplot2, lubridate, metR, nleqslv, purrr, readr, reshape2, RMAWGEN, Rsolnp, sp, stats, stringr, tidyr
+LazyData: true
