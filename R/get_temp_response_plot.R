@@ -15,7 +15,7 @@
 #' the argument 'par_type' should be set equal to TRUE
 #' @param temp_values numeric, vector containing the temperatures for which the temperature responses should be calculated
 #' @param par_type character, by default 'old'. If set to 'new' than the supplied parameters should contain theta_star, theta_c, tau and pie_c. These
-#' get converted to E0, E1, A0 and A1 in an intermediate step using the \code{\link{nleqslv}} package
+#' get converted to E0, E1, A0 and A1 in an intermediate step 
 #' @param log_A boolean, by default FALSE. If set TRUE, then the parameters A1 and A1 are assumed to be supplied 
 #' log_transformed and get converted back before calculating the temperature responses
 #' with the columns "Temp" (for the hourly temperature) and "JDay" for the corresponding Julian day. Is usually
