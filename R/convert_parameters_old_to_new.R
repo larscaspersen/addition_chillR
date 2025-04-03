@@ -1,7 +1,6 @@
 #' Converts parameters from old to new format
 #' 
-#' Takes the parameters used in  \link[chillR]{phenologyFitter} and brings it to
-#' the format used in \code{\link{evaluation_function_meigo_nonlinear}}.
+#' Takes the standard parameters of PhenoFlex and replaces E0 to A1 parameter with intermediate parameter value.
 #' 
 #' Original parameters include E0, E1, A0, A1 and convert those to theta_star, theta_c, tau and pie_c.
 #' Parameters theta_star and tau depend on approximated intermediate variable sigma. Pie_c is
@@ -9,13 +8,13 @@
 #' is an numerical approximation, the final results differ slightly from the "true" value.
 #' This can be seen when first using \code{\link{convert_parameters}} and then convert the 
 #' parameter again to the original format using this function. The error should  be
-#' neglectible. Approximation is done using the function \link[nleqslv]{nleqslv}.
+#' negligible. Approximation is done using the function \link[nleqslv]{nleqslv}.
 #' 
 #' @param par vector of length 12 with the parameters in the following order:
 #' yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope
 #' @return vector of length 12, with the PhenoFlex parameters yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope
 #' with given temperature data and model parameters. 
-#' @details The conversion follows the approach documented in Fishman et al (1987) and Egea et al. (2021).
+#' @details The conversion follows the approach documented in Fishman et al. (1987) and Egea et al. (2021).
 #' For more details consult equations 5 - 8 in Egea et al (2021)
 #' @author Lars Caspersen, \email{lars.caspersen@@uni-bonn.de}
 #' @importFrom nleqslv nleqslv

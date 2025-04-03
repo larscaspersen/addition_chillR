@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert_parameters.R
 \name{convert_parameters}
 \alias{convert_parameters}
-\title{Converts parameters to standard PhenoFlex format}
+\title{Converts model parameters to standard PhenoFlex format}
 \usage{
 convert_parameters(par, failure_return = "MEIGO")
 }
@@ -20,7 +20,7 @@ vector of length 12, with the PhenoFlex parameters yc, zc, s1, Tu, E0, E1, A0, A
 with given temperature data and model parameters.
 }
 \description{
-Takes parameter used in  \code{\link{evaluation_function_meigo_nonlinear}} and transform them 
+Takes parameters, including intermediate parameters of chill submodel and transform them 
 to the typical PhenoFlex format.
 }
 \details{

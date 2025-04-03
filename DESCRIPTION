@@ -1,7 +1,7 @@
 Package: LarsChill
 Type: Package
-Title: Extensions of the chillR package
-Version: 0.0.1.0
+Title: Extensions of the chillR Package
+Version: 0.0.2
 RoxygenNote: 7.3.2
 Encoding: UTF-8
 License: GPL-3
@@ -16,5 +16,5 @@ Depends:
     patchwork,
     R (>= 3.5),
     utils
-Imports: assertthat, chillR, ggplot2, lubridate, metR, nleqslv, purrr, readr, reshape2, RMAWGEN, Rsolnp, sp, stats, stringr, tidyr
+Imports: chillR, ggplot2, lubridate, nleqslv, purrr, readr, reshape2, RMAWGEN, Rsolnp, stats, tidyr
 LazyData: true

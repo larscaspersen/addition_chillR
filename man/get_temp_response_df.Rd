@@ -17,7 +17,7 @@ the argument 'par_type' should be set equal to TRUE}
 data.frame with the columns "Temperature", "Chill_response" and "Heat_response"
 }
 \description{
-Applies constan temperatures to chill / heat model and returns temperature response.
+Applies constant temperatures to chill / heat model and returns temperature response.
 }
 \details{
 The output of the function is used in the temperature response plots, but it can be

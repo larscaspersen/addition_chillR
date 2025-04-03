@@ -1,2 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^fig/
+^README.Rmd
+^cran-comments\.md$

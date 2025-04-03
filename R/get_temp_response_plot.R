@@ -26,13 +26,13 @@
 #' the chill temperature response. By default set to c(11:12,1:3)
 #' @param heat_months numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
 #' the heat temperature response. By default set to c(1:5)
-#' @param weather_freq_plot character, only applicable when hourtemps is supplied. 
+#' @param weather_freq_plot character, only applicable when `hourtemps` is supplied. 
 #' Decides how temperature observations should be represented in the temperature
 #' response plot. By default = 'histogram', which includes a histogram for the hourly
 #' temperature. Other option is 'gradient' which represents the frequency of observed temperature
 #' intervals in form of color gradient in the temperature response plot. Darker
 #' color indicates most frequent temperature intervals, bright color less frequent ones.
-#' @return ggplot of the mdoelled temperature response
+#' @return ggplot of the modeled temperature response
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
@@ -49,50 +49,7 @@ get_temp_response_plot <- function(par, temp_values,
                                    heat_months = 1:5, 
                                    weather_freq_plot = 'histogram'){
   
-  if(par_type == 'new'){
-    params<-numeric(4)
-    
-    params[1] <- par[5]   #theta*
-    params[2] <- par[6]    #theta_c
-    params[3] <- par[7]    #Tau(thetha*)
-    params[4] <- par[8]     #pi_c
-    
-    
-    output<-nleqslv::nleqslv(c(500, 15000), solve_nle, jac=NULL, params, xscalm="auto", method="Newton",
-                    control=list(trace=0,allowSingular=TRUE))
-    
-    
-    #This is a numerical method which can produce non-convergence. Check this
-    if (output$termcd >= 3){
-      #if the nle algorithm has stalled just discard this solution
-      E0<-NA; E1<-NA; A0<-NA; A1<-NA
-      stop('Could not find corresponding values of E0, E1, A0 and A1')
-      
-      #You would add here a flag to let your optimization procedure know
-      #That this solution should be ignored by lack of convergence
-      
-    } else {
-      
-      par[5] <- E0 <- output$x[1]
-      par[6] <- E1 <- output$x[2]
-      
-      #A1 and A0 can be calculated through Equations 36 and 37
-      
-      q=1/params[1]-1/params[2]
-      
-      par[8] <- A1 <- -exp(E1/params[1])/params[3]*log(1-exp((E0-E1)*q))
-      par[7] <- A1*exp((E0-E1)/params[2])
-    }
-    
-  } else {
-    if(log_A){
-      par[7]<-exp(par[7])
-      par[8]<-exp(par[8])
-    }
-  }
-  
-  
-  
+  if(par_type == 'new')  par <- convert_parameters(par)
   
   if(is.null(hourtemps) == FALSE){
     

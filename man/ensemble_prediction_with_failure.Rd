@@ -7,12 +7,12 @@
 ensemble_prediction_with_failure(
   par_list,
   confidence,
+  modelfn,
   temp,
-  theta_star = 279,
-  Tc = 36,
   return_se = TRUE,
   n_fail = 5,
-  max_weight = NULL
+  max_weight = NULL,
+  ...
 )
 }
 \arguments{
@@ -26,12 +26,10 @@ order of entries is identical with order in confidence (see next input)}
 numeric vector of same length as the par_list
 assumes that bigger is better}
 
+\item{modelfn}{function that takes one set of parameters and one entry of the seasonlist and returns a bloom date}
+
 \item{temp}{seasonlist containing hourly temperature data for the predictions
 generated with chillR::genSeasonList description}
-
-\item{theta_star}{fixed value for theta_star}
-
-\item{Tc}{fixed value for Tc}
 
 \item{return_se}{logical, decides if standard deviation of the predictions around the weighted mean should be returned as well}
 
@@ -42,14 +40,15 @@ if we have 5 or more failure predictions --> weighted mean is failure as well}
 \item{max_weight}{by default NULL, when number between 0 and 1 supplied, it expresses how much
 weight an individual prediction can get. Can prevent that one prediction dominates all the 
 remaining ones because the confidence score may be inflated}
+
+\item{...}{further inputs for the `modelfn` argument}
 }
 \value{
-when return_se = TRUE --> list with weighted mean, sd and individual model predictions
-when return_se = FALSE --> vector with weighted means
+when `return_se = TRUE` --> list with weighted mean, sd and individual model predictions
+when `return_se = FALSE` --> vector with weighted means
 }
 \description{
-Takes the parameters used in  \link[chillR]{phenologyFitter} and brings it to
-the format used in \code{\link{evaluation_function_meigo_nonlinear}}.
+Take model parameters, confidence scores for each set of parameters and calculates score-weighted mean prediction.
 }
 \author{
 Lars Caspersen, \email{lars.caspersen@uni-bonn.de}

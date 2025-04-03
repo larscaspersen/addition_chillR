@@ -17,7 +17,7 @@ get_thermal_window_phenology(
 }
 \arguments{
 \item{weather_list_obs}{list of daily weather observations, which need to contain at least the columns Date, Year, Month, Day, Tmin and Tmax. Names of list elements need to
-correspond to the names supplied in the observation_df. Based on this list, the risk thresholds are calculated tolerated by each species}
+correspond to the names supplied in the `observation_df`. Based on this list, the risk thresholds are calculated tolerated by each species}
 
 \item{weather_list_pred}{same structure as weather_list_obs. Based on this input the actual day ranges for each species and location are calculated. This
 allows for variable ranges with expected changes in weather. If NULL, then the weather_list_ob is used for that, too}
@@ -33,10 +33,10 @@ observations in Date format}
 
 \item{run_mean_window}{numeric, by default 10. Decides the window length of the running mean, which is used to smooth the calculated risks.}
 
-\item{padding}{numeric, by default 0.05. Specifies how much extra risk toleance is added to the calculated risk thresholds (between 0 and 1)}
+\item{padding}{numeric, by default 0.05. Specifies how much extra risk tolerance is added to the calculated risk thresholds (between 0 and 1)}
 }
 \value{
-data.frame containing the species, location, upper day of the year and lower day of the year for the bloom timewindow
+data.frame containing the species, location, upper day of the year and lower day of the year for the bloom time window
 }
 \description{
 Calculates risks for frost and heat and calculates upper and lower day of the year with viable flowering periods for each species and location.

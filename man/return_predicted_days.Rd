@@ -4,7 +4,7 @@
 \alias{return_predicted_days}
 \title{Returns predicted bloomdays for a list of temperature time series and model parameters}
 \usage{
-return_predicted_days(par, modelfn, SeasonList, na_penalty = 365)
+return_predicted_days(par, modelfn, SeasonList, na_penalty = 365, ...)
 }
 \arguments{
 \item{par}{traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope.}
@@ -18,15 +18,15 @@ generated using \link[chillR]{genSeasonList}}
 
 \item{na_penalty}{numeric, value which is used when the model fails to generate a prediction
 for the bloom date. By default 365}
+
+\item{...}{further arguments for modelfn}
 }
 \value{
 numeric vector with the predicted bloom dates
 }
 \description{
 This is a convenience function which allows to get the predicted bloom dates for a
-set of model parameters and temperature observations. Arguments are identical
-to \code{\link{evaluation_function_meigo}}, except that the argument bloomJDays is
-not needed
+set of model parameters and temperature observations. #'
 }
 \author{
 Lars Caspersen

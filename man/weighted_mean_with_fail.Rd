@@ -23,7 +23,7 @@ function assumes that the names of the columns containing the predictions will b
 so if the predictions are stored in columns R1 to R10, these column names need to be present in confidence, too.}
 
 \item{confidence}{data.frame, needs to contain same columns as predicted (through predicted can have many more additional columns)
-assume wide format, so 10 columns when ten repitions, plus id
+assume wide format, so 10 columns when ten repetitions, plus id
 assumes that larger values mean more confidence
 id entries need to match with id entries of the first input ('predicted')}
 
@@ -44,7 +44,7 @@ same as 'predicted' but with additional column containing weighted mean and stan
 }
 \description{
 Helps to process already made predictions to weighted mean predictions. Has a routine how to handle predictions
-of bloom failure. The function makes strong assumptions on the dataframe of the predictions and the dataframe 
+of bloom failure. The function makes strong assumptions on the data frame of the predictions and the data frame 
 containing the weights (confidence)
 }
 \author{

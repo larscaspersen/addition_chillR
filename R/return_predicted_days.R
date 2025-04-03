@@ -1,11 +1,7 @@
 #' Returns predicted bloomdays for a list of temperature time series and model parameters
 #' 
 #' This is a convenience function which allows to get the predicted bloom dates for a
-#' set of model parameters and temperature observations. Arguments are identical
-#' to \code{\link{evaluation_function_meigo}}, except that the argument bloomJDays is
-#' not needed
-#' 
-#' 
+#' set of model parameters and temperature observations. #' 
 #' 
 #' @param par traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope.
 #' @param modelfn function used within the evaluation function to calculate the actual bloomday, often we use
@@ -15,6 +11,7 @@
 #' generated using \link[chillR]{genSeasonList}
 #' @param na_penalty numeric, value which is used when the model fails to generate a prediction
 #' for the bloom date. By default 365
+#' @param ... further arguments for modelfn
 #' @return numeric vector with the predicted bloom dates
 #' 
 #' @author Lars Caspersen
@@ -25,7 +22,8 @@
 return_predicted_days <- function(par, 
                                   modelfn,
                                   SeasonList,
-                                  na_penalty = 365){
+                                  na_penalty = 365,
+                                  ...){
   
   #innput:
   #         x is the parameters in meigo

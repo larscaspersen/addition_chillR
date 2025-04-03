@@ -1,6 +1,6 @@
 #' Return temperature response
 #' 
-#' Applies constan temperatures to chill / heat model and returns temperature response.
+#' Applies constant temperatures to chill / heat model and returns temperature response.
 #' 
 #' The output of the function is used in the temperature response plots, but it can be
 #' handy to create those manually, especially when comparing temperature responses of
@@ -15,7 +15,7 @@
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
-#' @import chillR
+#' @import chillR 
 #' 
 #' @export get_temp_response_df
 

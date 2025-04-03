@@ -1,7 +1,6 @@
 #' Make weighted mean prediction from scratch
 #' 
-#' Takes the parameters used in  \link[chillR]{phenologyFitter} and brings it to
-#' the format used in \code{\link{evaluation_function_meigo_nonlinear}}.
+#' Take model parameters, confidence scores for each set of parameters and calculates score-weighted mean prediction.
 #' 
 #' @param par_list list of the parameters entries contain one read of the read with the function 
 #' LarsChill::load_fitting_result(), each entry is a repetition of the same cultivar
@@ -11,10 +10,9 @@
 #' @param confidence gives the weights to the individual predictions
 #' numeric vector of same length as the par_list
 #' assumes that bigger is better
+#' @param modelfn function that takes one set of parameters and one entry of the seasonlist and returns a bloom date
 #' @param temp seasonlist containing hourly temperature data for the predictions
 #' generated with chillR::genSeasonList description
-#' @param theta_star fixed value for theta_star
-#' @param Tc fixed value for Tc
 #' @param return_se logical, decides if standard deviation of the predictions around the weighted mean should be returned as well
 #' @param n_fail numeric, decides the cut-off number of failure predictions of the weighted mean members so that the weighted mean also returns a failure
 #' in case n_fail = 5: if we have 4 or less failure predictions --> get ignored and the weighted mean is calculated based on remaining results
@@ -22,23 +20,23 @@
 #' @param max_weight by default NULL, when number between 0 and 1 supplied, it expresses how much
 #' weight an individual prediction can get. Can prevent that one prediction dominates all the 
 #' remaining ones because the confidence score may be inflated
-#' @returns  when return_se = TRUE --> list with weighted mean, sd and individual model predictions
-#' when return_se = FALSE --> vector with weighted means
+#' @param ... further inputs for the `modelfn` argument
+#' @returns  when `return_se = TRUE` --> list with weighted mean, sd and individual model predictions
+#' when `return_se = FALSE` --> vector with weighted means
 #' @author Lars Caspersen, \email{lars.caspersen@@uni-bonn.de}
-#' @importFrom nleqslv nleqslv
 #' @export ensemble_prediction_with_failure
-ensemble_prediction_with_failure <- function(par_list, confidence, temp, theta_star = 279, Tc = 36, return_se = TRUE, n_fail = 5,
-                                             max_weight = NULL){
+ensemble_prediction_with_failure <- function(par_list, confidence, modelfn, temp, return_se = TRUE, n_fail = 5,
+                                             max_weight = NULL, ...){
   
   
   predicted <- purrr::map(par_list, function(x){
     par <- x$xbest
-    par <- c(par[1:4], theta_star, par[5:8], Tc, par[9:10])
-    
+
     return_predicted_days(convert_parameters(par), 
-                          modelfn = custom_PhenoFlex_GDHwrapper, 
+                          modelfn = modelfn, 
                           SeasonList =temp,
-                          na_penalty = NA)
+                          na_penalty = NA,
+                          ...)
   }) %>% 
     stats::setNames(1:length(par_list)) %>% 
     dplyr::bind_cols() %>% 
@@ -65,7 +63,7 @@ ensemble_prediction_with_failure <- function(par_list, confidence, temp, theta_s
     dplyr::pull(.data$sd)
   
   #replace predicted NA with 0s
-  predicted_tmp <- predicted %>% replace(is.na(.), 0)
+  predicted_tmp <- predicted %>% replace(is.na(.data), 0)
   
   #calculate weighted individual pred, then get the sum
   weighted_pred <- predicted_tmp * weights 

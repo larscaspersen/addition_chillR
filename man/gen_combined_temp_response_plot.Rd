@@ -39,7 +39,7 @@ the chill temperature response. By default set to c(11:12,1:3)}
 the heat temperature response. By default set to c(1:5)}
 }
 \value{
-ggplot of the mdoelled temperature response
+ggplot of the modeled temperature response
 }
 \description{
 Returns a plot showing the chilling and forcing reaction of the PhenoFlex

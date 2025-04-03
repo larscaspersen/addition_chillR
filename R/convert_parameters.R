@@ -1,6 +1,6 @@
-#' Converts parameters to standard PhenoFlex format
+#' Converts model parameters to standard PhenoFlex format
 #' 
-#' Takes parameter used in  \code{\link{evaluation_function_meigo_nonlinear}} and transform them 
+#' Takes parameters, including intermediate parameters of chill submodel and transform them 
 #' to the typical PhenoFlex format.
 #' 
 #' The changed parameters are theta_star, theta_c, tau and pie_c, which get converted

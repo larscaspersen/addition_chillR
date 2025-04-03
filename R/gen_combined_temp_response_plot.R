@@ -22,7 +22,7 @@
 #' the chill temperature response. By default set to c(11:12,1:3)
 #' @param heat_months numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
 #' the heat temperature response. By default set to c(1:5)
-#' @return ggplot of the mdoelled temperature response
+#' @return ggplot of the modeled temperature response
 #' 
 #' @author Lars Caspersen
 #' @keywords utility

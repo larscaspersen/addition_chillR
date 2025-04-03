@@ -7,30 +7,30 @@
 pheno_ensemble_prediction(
   par_list,
   confidence,
+  modelfn,
   temp,
-  theta_star = 279,
-  Tc = 36,
-  return_se = TRUE
+  return_se = TRUE,
+  ...
 )
 }
 \arguments{
 \item{par_list}{the output of the phenology fitting done using MEIGO package}
 
-\item{confidence}{numeric vector, contaning the weights assigne to the predictions. Assumes that higher value is more confidence. Values
-get rescaled by deviding by the sum of individual confidence scores.}
+\item{confidence}{numeric vector, containing the weights assign to the predictions. Assumes that higher value is more confidence. Values
+get re-scaled by dividing by the sum of individual confidence scores.}
+
+\item{modelfn}{function that takes one set of parameters and one entry of temp as input and returns bloomdate}
 
 \item{temp}{SeasonList for the prediction, contains the hourly weather data of the weather stations}
 
-\item{theta_star}{parameter of the chill accumulation model of PhenoFlex. Marks the optimal temperature in K for chill accumulation. By default 279 K}
+\item{return_se}{boolean, by default set TRUE. Decides if sd of prediction and individual ensemble members predictions are returned as well}
 
-\item{Tc}{parameter of the heat accumulation submodel of PhenoFlex. Marks the critical temperatur for heat accumulation, above which no heat gets accumulated. By default 36 degree C}
-
-\item{return_se}{boolean, by default set TRUE. Decides if sd of prediction and individual ensemble memebers predictions are returned as well}
+\item{...}{further inputs for modelfn}
 }
 \value{
 By default returns a list with three components: predicted, sd and individual_pred. Predicted
 contains the weighted predictions of the ensemble members. sd contains the unweighted 
-standard deviation of the memebers predictions. Individual_pred contains the ensemble members indivudal predictions
+standard deviation of the members predictions. Individual_pred contains the ensemble members individual predictions
 }
 \description{
 Outdated

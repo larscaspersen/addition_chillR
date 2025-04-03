@@ -1,13 +1,13 @@
-#' Optimization algrorithm, taken from MEIGOR package
+#' Optimization algorithm, taken from MEIGOR package
 #' 
-#' Optimization algorithm of ehanced scatter search. See the MEIGOR package for more details. Took the function
-#' from the package because it seems that the MEIGOR package was depricated and it was also painfull to install
+#' Optimization algorithm of enhanced scatter search. See the MEIGOR package for more details. Took the function
+#' from the package because it seems that the MEIGOR package was deprecated and it was also painful to install
 #' the package.
 #' 
 #' @param problem list containing the initial parameter values x_0, the upper bound x_u, lower bound x_L and the 
 #' evaluation function. You can also add inequality restraints to the problem statement
-#' @param opts list of arguments controling the optimization algorithm. 
-#' Most important are maxeval, controling the maximum number of evaluations before stoping the optimizatio, and
+#' @param opts list of arguments controlling the optimization algorithm. 
+#' Most important are maxeval, controlling the maximum number of evaluations before stopping the optimization, and
 #' maxtime, maximum time in seconds for the optimizer to run
 #' @param ... Further arguments that get supplied to the evaluation function in the problem statement
 #' @return returns a list containing optimized parameters, intermediate solutions, final performance score and 
@@ -222,13 +222,13 @@ custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL),
   initial_points <- numeric(0)
   Results <- list(f = numeric(0), x = numeric(0), time = numeric(0), 
                   neval = numeric(0))
-  ncomb <- t(combn(1:dim_refset, 2))
+  ncomb <- t(utils::combn(1:dim_refset, 2))
   MaxSubSet <- (dim_refset^2 - dim_refset)/2
   MaxSubSet2 <- 2 * MaxSubSet
   solutions <- matrix(0, ndiverse + 5, nvar)
-  solutions[1:5, ] <- (matrix(runif(nvar * 5), 5, nvar) + 
+  solutions[1:5, ] <- (matrix(stats::runif(nvar * 5), 5, nvar) + 
                          1:5 - 1)/5
-  solutions[6:(ndiverse + 5), ] <- matrix(runif(ndiverse * 
+  solutions[6:(ndiverse + 5), ] <- matrix(stats::runif(ndiverse * 
                                                   nvar), ndiverse, nvar)
   solutions <- solutions * kronecker(matrix(1, ndiverse + 
                                               5, 1), t((xu_log - xl_log))) + kronecker(matrix(1, ndiverse + 
@@ -387,7 +387,7 @@ custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL),
         index_refset_out <- max(index2[BBB])
         includ = 0
         while (!includ) {
-          new_refset_member <- runif(nvar) * (xu_log - 
+          new_refset_member <- stats::runif(nvar) * (xu_log - 
                                                 xl_log) + xl_log
           new_refset_member[log_var] = exp(new_refset_member[log_var])
           res <- ssm_evalfc(new_refset_member, x_L, 
@@ -426,40 +426,40 @@ custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL),
       v3 <- 2 * parents_index2 - parents_index1 - factor
       aaa <- which(v1 < hyper_x_L)
       if (length(aaa)) {
-        rand_aaa <- runif(length(aaa))
+        rand_aaa <- stats::runif(length(aaa))
         AAA <- which(rand_aaa > prob_bound)
         aaa <- aaa[AAA]
         v1[aaa] = hyper_x_L[aaa]
       }
       bbb <- which(v1 > hyper_x_U)
       if (length(bbb)) {
-        rand_bbb <- runif(length(bbb))
+        rand_bbb <- stats::runif(length(bbb))
         BBB <- which(rand_bbb > prob_bound)
         bbb <- bbb[BBB]
         v1[bbb] = hyper_x_U[bbb]
       }
       ccc <- which(v3 < hyper_x_L)
       if (length(ccc)) {
-        rand_ccc <- runif(length(ccc))
+        rand_ccc <- stats::runif(length(ccc))
         CCC <- which(rand_ccc > prob_bound)
         ccc <- ccc[CCC]
         v3[ccc] = hyper_x_L[ccc]
       }
       ddd <- which(v3 > hyper_x_U)
       if (length(ddd)) {
-        rand_ddd <- runif(length(ddd))
+        rand_ddd <- stats::runif(length(ddd))
         DDD <- which(rand_ddd > prob_bound)
         ddd <- ddd[DDD]
         v3[ddd] = hyper_x_U[ddd]
       }
       if (nrand > 1) {
-        new_comb1 <- v1 + (v2 - v1) * matrix(runif(MaxSubSet * 
+        new_comb1 <- v1 + (v2 - v1) * matrix(stats::runif(MaxSubSet * 
                                                      nrand), MaxSubSet, nrand)
-        new_comb2 = v2 + (v3 - v2) * matrix(runif(MaxSubSet * 
+        new_comb2 = v2 + (v3 - v2) * matrix(stats::runif(MaxSubSet * 
                                                     nrand), MaxSubSet, nrand)
       } else {
-        new_comb1 = v1 + (v2 - v1) * runif(1)
-        new_comb2 = v2 + (v3 - v2) * runif(1)
+        new_comb1 = v1 + (v2 - v1) * stats::runif(1)
+        new_comb2 = v2 + (v3 - v2) * stats::runif(1)
       }
       new_comb <- rbind(new_comb1, new_comb2)
       for (i in 1:MaxSubSet2) {
@@ -585,7 +585,7 @@ custom_essr <- function (problem, opts = list(maxeval = NULL, maxtime = NULL),
         to_replace <- length(fff)
         replaced <- 0
         while (replaced < to_replace) {
-          newsol <- runif(nvar) * (xu_log - xl_log) + 
+          newsol <- stats::runif(nvar) * (xu_log - xl_log) + 
             xl_log
           newsol[log_var] = exp(newsol[log_var])
           res <- ssm_evalfc(newsol, x_L, x_U, fobj, 
@@ -1053,11 +1053,23 @@ ssm_localsolver <- function (x0, x_L, x_U, c_L, c_U, neq, int_var, bin_var, fobj
                              local_solver, local_iterprint, local_tol, weight, nconst, 
                              tolc, ...) 
 {
-  n_fun_eval <<- 0
-  fobj_global <<- fobj
-  neq_global <<- neq
-  nconst_global <<- nconst
-  extra_args <<- list(NULL, ...)
+  #this part really sucks I need to change it
+  #overwriting global variables is not a good practice, I should be able to handle
+  #it differently
+  # n_fun_eval <<- 0
+  # fobj_global <<- fobj
+  # neq_global <<- neq
+  # nconst_global <<- nconst
+  # extra_args <<- list(NULL, ...)
+  
+  n_fun_eval <- 0
+  fobj_global <- fobj
+  neq_global <- neq
+  nconst_global <- nconst
+  extra_args <- list(NULL, ...)
+  
+  
+  
   if (match(local_solver, "NM", nomatch = 0) | match(local_solver, 
                                                      "BFGS", nomatch = 0) | match(local_solver, "CG", 
                                                                                   nomatch = 0) | match(local_solver, "LBFGSB", nomatch = 0) | 
@@ -1066,9 +1078,9 @@ ssm_localsolver <- function (x0, x_L, x_U, c_L, c_U, neq, int_var, bin_var, fobj
     meth <- switch(local_solver, NM = "Nelder-Mead", 
                    BFGS = "BFGS", CG = "CG", LBFGSB = "L-BFGS-B", 
                    SA = "SANN")
-    results <- optim(x0, optim_fobj, gr = NULL, method = meth, 
+    results <- stats::optim(x0, optim_fobj, gr = NULL, method = meth, 
                      lower = x_L, upper = x_U, control = list(ndeps = ndeps_o), 
-                     hessian = FALSE)
+                     hessian = FALSE, fobj_global, extra_args)
     res <- list(results$par, results$value, n_fun_eval)
   }
   else if (match(local_solver, "SOLNP", nomatch = 0)) {
@@ -1093,6 +1105,7 @@ ssm_localsolver <- function (x0, x_L, x_U, c_L, c_U, neq, int_var, bin_var, fobj
     results <- Rsolnp::solnp(x0, solnp_fobj, eqfun = eqfun_solnp, 
                              eqB = eqB_solnp, ineqfun = ineqfun_solnp, ineqLB = ineqLB_solnp, 
                              ineqUB = ineqUB_solnp, LB = x_L, UB = x_U, control = list(), 
+                             fobj_global, neq_global, nconst_global, extra_args,
                              ...)
     n_val = length(results$values)
     res <- list(results$pars, results$values[n_val], n_fun_eval)
@@ -1131,11 +1144,11 @@ ssm_localsolver <- function (x0, x_L, x_U, c_L, c_U, neq, int_var, bin_var, fobj
     else if (local_tol == 3) {
       tol = 1e-06
     }
-    results <- nls(~nls_fobj(x), start = list(x = x0), trace = disp_iter, 
+    results <- stats::nls(~nls_fobj(x), start = list(x = x0), trace = disp_iter, 
                    algorithm = "port", lower = x_L, upper = x_U, 
                    control = list(warnOnly = TRUE, maxiter = 20, tol = 1e-05, 
                                   minFactor = 1/1024), extra_args)
-    parameters <- as.vector(coef(results))
+    parameters <- as.vector(stats::coef(results))
     res <- list(parameters, NULL, n_fun_eval)
   }
   return(res)
@@ -1167,16 +1180,16 @@ ssm_beyond <- function (z1, z2, z2_val, fobj, nrand, tolc, weight, x_L, x_U,
     aaa = which(zv[2, ] < x_L)
     bbb = which(zv[2, ] > x_U)
     if (length(aaa) > 0) {
-      if (runif(1) > prob_bound) {
+      if (stats::runif(1) > prob_bound) {
         zv[2, aaa] = x_L[aaa]
       }
     }
     if (length(bbb) > 0) {
-      if (runif(1) > prob_bound) {
+      if (stats::runif(1) > prob_bound) {
         zv[2, bbb] = x_U[bbb]
       }
     }
-    xnew <- zv[1, ] + (zv[2, ] - zv[1, ]) * runif(nrand)
+    xnew <- zv[1, ] + (zv[2, ] - zv[1, ]) * stats::runif(nrand)
     output <- ssm_evalfc(xnew, x_L, x_U, fobj, nconst, c_L, 
                          c_U, tolc, weight, int_var, bin_var, nvar, ...)
     val <- output[[1]]
@@ -1220,6 +1233,24 @@ ssm_beyond <- function (z1, z2, z2_val, fobj, nrand, tolc, weight, x_L, x_U,
               vector_nlc, new_child, new_child_value, new_child_penalty, 
               new_child_value_penalty, new_child_nlc, nfuneval))
 }
+
+eucl_dist <-
+  function(m1,m2){
+    #euclidean distance between the rows of two different matrizes
+    #the matrices must have the same number of columns
+    
+    n_a<-nrow(m1);
+    n_b<-nrow(m2);
+    
+    ddd<-kronecker(matrix(1,1,n_b),apply(m1^2,1,sum))+kronecker(matrix(1,n_a,1),t(apply(m2^2,1,sum)))
+    ddd<-ddd-2*m1%*%t(m2);
+    ddd<-sqrt(ddd);
+    
+    #The result is a matrix whose element i,j is the euclidean distance between row i of matrix a and row j of matrix b
+    
+    return(ddd)
+  }
+
 
 dhc <- function (fobj, x, initsize, thres, budget, x_L, x_U, weight, 
                  c_L, c_U, iterprint, tolc, ...) 
@@ -1488,3 +1519,37 @@ dhc <- function (fobj, x, initsize, thres, budget, x_L, x_U, weight,
   x <- x * (x_U - x_L) + x_L
   return(list(fx, x, numeval))
 }
+
+solnp_eq <-
+  function(x, fobj_global, neq_global, nconst_global, extra_args, ...){
+    res<-do.call(fobj_global, list(x, ...));
+    #n_fun_eval <- n_fun_eval + 1;
+    res_eq<-res[[2]][1:neq_global];
+    return(res_eq)
+  }
+
+solnp_fobj <-
+  function(x, fobj_global, neq_global, nconst_global, extra_args,...){
+    res<-do.call(fobj_global, list(x, ...));
+    #n_fun_eval <- n_fun_eval + 1;
+    res_f<-res[[1]];
+    return(res_f)
+  }
+
+solnp_ineq <-
+  function(x,fobj_global, neq_global, nconst_global, extra_args,...){
+    res<-do.call(fobj_global, list(x, ...));
+    #n_fun_eval <- n_fun_eval + 1;
+    res_ineq<-res[[2]][(neq_global+1):nconst_global]
+    return(res_ineq)
+  }
+
+optim_fobj <-
+  function(x, fobj_global, extra_args){
+    #Trick to avoid passing lists to nls
+    extra_args[[1]]<-x
+    f<-do.call(fobj_global, extra_args);
+    #n_fun_eval <<- n_fun_eval + 1;  
+    return(f[1])
+  }
+

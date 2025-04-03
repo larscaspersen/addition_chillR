@@ -3,7 +3,7 @@
 #' Calculates risks for frost and heat and calculates upper and lower day of the year with viable flowering periods for each species and location.
 #' 
 #' @param weather_list_obs list of daily weather observations, which need to contain at least the columns Date, Year, Month, Day, Tmin and Tmax. Names of list elements need to
-#' correspond to the names supplied in the observation_df. Based on this list, the risk thresholds are calculated tolerated by each species
+#' correspond to the names supplied in the `observation_df`. Based on this list, the risk thresholds are calculated tolerated by each species
 #' @param weather_list_pred same structure as weather_list_obs. Based on this input the actual day ranges for each species and location are calculated. This
 #' allows for variable ranges with expected changes in weather. If NULL, then the weather_list_ob is used for that, too
 #' @param observation_df data.frame containing the phenological observations. Need to contain the columns location (with the same names used as the named elements of weather_list_obs) and the phenological
@@ -12,8 +12,8 @@
 #' @param heat_threshold numeric, by default 32. Decides the temperature in degree centigrade for which the higher temperature risk gets calculated.
 #' @param target_col_obs character, by default 'flowering_f50'. Specifies the column name of observation_df where the phenological records are stored.
 #' @param run_mean_window numeric, by default 10. Decides the window length of the running mean, which is used to smooth the calculated risks.
-#' @param padding numeric, by default 0.05. Specifies how much extra risk toleance is added to the calculated risk thresholds (between 0 and 1)
-#' @return data.frame containing the species, location, upper day of the year and lower day of the year for the bloom timewindow
+#' @param padding numeric, by default 0.05. Specifies how much extra risk tolerance is added to the calculated risk thresholds (between 0 and 1)
+#' @return data.frame containing the species, location, upper day of the year and lower day of the year for the bloom time window
 #' @details there are several assumptions in the calculation of time windows. Lower day of the year cannot be lower than 1. Upper end is assumed to be before the maximum heat risk. If 
 #' calculated heat tolerance of a species exceeds the maximum risk of a location, then the upper end of the bloom window is assumed to be the peak of heat risk.
 #' @author Lars Caspersen

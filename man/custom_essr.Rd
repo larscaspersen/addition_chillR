@@ -2,7 +2,7 @@
 % Please edit documentation in R/custom_essr.R
 \name{custom_essr}
 \alias{custom_essr}
-\title{Optimization algrorithm, taken from MEIGOR package}
+\title{Optimization algorithm, taken from MEIGOR package}
 \usage{
 custom_essr(problem, opts = list(maxeval = NULL, maxtime = NULL), ...)
 }
@@ -10,8 +10,8 @@ custom_essr(problem, opts = list(maxeval = NULL, maxtime = NULL), ...)
 \item{problem}{list containing the initial parameter values x_0, the upper bound x_u, lower bound x_L and the 
 evaluation function. You can also add inequality restraints to the problem statement}
 
-\item{opts}{list of arguments controling the optimization algorithm. 
-Most important are maxeval, controling the maximum number of evaluations before stoping the optimizatio, and
+\item{opts}{list of arguments controlling the optimization algorithm. 
+Most important are maxeval, controlling the maximum number of evaluations before stopping the optimization, and
 maxtime, maximum time in seconds for the optimizer to run}
 
 \item{...}{Further arguments that get supplied to the evaluation function in the problem statement}
@@ -21,8 +21,8 @@ returns a list containing optimized parameters, intermediate solutions, final pe
 much more.
 }
 \description{
-Optimization algorithm of ehanced scatter search. See the MEIGOR package for more details. Took the function
-from the package because it seems that the MEIGOR package was depricated and it was also painfull to install
+Optimization algorithm of enhanced scatter search. See the MEIGOR package for more details. Took the function
+from the package because it seems that the MEIGOR package was deprecated and it was also painful to install
 the package.
 }
 \details{

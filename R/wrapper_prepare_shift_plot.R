@@ -1,13 +1,13 @@
 #'Prepare a the data.frame to make a shift plot
 #'
-#'Takes a data.frame as an input, usually the result of sime kind of climate change impact projection.
-#'Prepares data, so that I can make easliy shift plots as in Caspersen et al (in review), or the 
-#'analysis of apple phenology at lake constance. 
+#'Takes a data.frame as an input, usually the result of some kind of climate change impact projection.
+#'Prepares data, so that I can make easily shift plots as in Caspersen et al. (in review), or the 
+#'analysis of apple phenology at lake Constance. 
 #'
 #'Makes relative strong assumptions on the structure of the input. Make sure to format it accordingly.
 #'
 #' @param shift_df data.frame containing the summarized climate change impact projections and the baseline values. Assumes that it is already summarized (e.g. by median).
-#' Assumes that the difference of future and baseline is summarized in the column "shift". Assumes baseline is summmarized in column "baseline".
+#' Assumes that the difference of future and baseline is summarized in the column "shift". Assumes baseline is summarized in column "baseline".
 #' @param group_col character vector, containing the column names to group the shift data. Usually this includes the climate scenario,the scenario year and cultivar name.
 #' All columns need to be present in shift_df. 
 #' @param cut_share numeric vector, segments of the shift plot. Should be between 0 and 1. For each interval, the function will calculate the percentage of shifts within or exceeding the interval#'
@@ -57,7 +57,7 @@ create_break_df <- function(sub, cut_share = c(0 ,0.2, 0.4, 0.6, 0.8, 1)){
   stopifnot(max(cut_share) == 1)
   
   #find points of data-set that correspond to the share cut-off points
-  cut_off_points <- quantile(sub$shift, probs = cut_share)
+  cut_off_points <- stats::quantile(sub$shift, probs = cut_share)
   
   #find point of transition from plus to minus
   if(max(sub$shift) > 0 & min(sub$shift) < 0){
@@ -111,10 +111,9 @@ create_break_df <- function(sub, cut_share = c(0 ,0.2, 0.4, 0.6, 0.8, 1)){
     break_df$max_cover <- ifelse(is.na(break_df$share_start), yes = break_df$share_start_neg, no = break_df$share_start)
     
     #drop the intermediate columns used to construct the interval cover names
-    break_df <- break_df %>% 
-      dplyr::select(end, start, min_cover, max_cover, cover) %>% 
-      dplyr::mutate(baseline = baseline)
-    
+    break_df <- break_df[,c("end", "start", "min_cover", "max_cover", "cover")] 
+    break_df$baseline <- baseline
+
     return(break_df)
   }
   

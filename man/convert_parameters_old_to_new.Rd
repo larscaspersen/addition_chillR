@@ -15,8 +15,7 @@ vector of length 12, with the PhenoFlex parameters yc, zc, s1, Tu, theta_star, t
 with given temperature data and model parameters.
 }
 \description{
-Takes the parameters used in  \link[chillR]{phenologyFitter} and brings it to
-the format used in \code{\link{evaluation_function_meigo_nonlinear}}.
+Takes the standard parameters of PhenoFlex and replaces E0 to A1 parameter with intermediate parameter value.
 }
 \details{
 Original parameters include E0, E1, A0, A1 and convert those to theta_star, theta_c, tau and pie_c.
@@ -25,9 +24,9 @@ approximated using theta_star, theta_c and tau. Since the conversion
 is an numerical approximation, the final results differ slightly from the "true" value.
 This can be seen when first using \code{\link{convert_parameters}} and then convert the 
 parameter again to the original format using this function. The error should  be
-neglectible. Approximation is done using the function \link[nleqslv]{nleqslv}.
+negligible. Approximation is done using the function \link[nleqslv]{nleqslv}.
 
-The conversion follows the approach documented in Fishman et al (1987) and Egea et al. (2021).
+The conversion follows the approach documented in Fishman et al. (1987) and Egea et al. (2021).
 For more details consult equations 5 - 8 in Egea et al (2021)
 }
 \examples{
