@@ -1,0 +1,25 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: LarsChill
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Lars
+    family-names: Caspersen
+    email: lcaspers@uni-bonn.de
+    affiliation: University of Bonn
+    orcid: 'https://orcid.org/0009-0000-3057-7327'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.15174333
+repository-code: 'https://github.com/larscaspersen/addition_chillR'
+abstract: Supplementary R functions to the chillR package
+keywords:
+  - dormancy
+  - phenology
+  - chill
+version: v0.0.2
