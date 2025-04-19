@@ -80,7 +80,7 @@ temperature_generation_rmawgen_prec(
 
 \item{p}{don't know}
 
-\item{type}{don't know}
+\item{type}{dont't know}
 
 \item{lag.max}{lag considered when simulating temperature and or precipitation}
 

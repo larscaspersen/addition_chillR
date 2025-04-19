@@ -33,4 +33,4 @@ Makes relative strong assumptions on the structure of the input. Make sure to fo
 \author{
 Lars Caspersen
 }
-\keyword{utility}
+\keyword{plotting}

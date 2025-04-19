@@ -3,21 +3,19 @@
 #' Returns a plot showing the chilling and forcing reaction of the PhenoFlex
 #' model parameters for certain temperatures.
 #' 
-#' Furthermore, it can highlight which temperatures where observed in the 
-#' data set used to generate the model parameters. The function can handle
-#' the common PhenoFlex parameters (which include E0, E1, A0 and A1) and the
-#' "new" parameters (which include theta_star, theta_c, tau and pie_c instead of the
-#' earlier mentioned parameters). 
+#' Assumes that the parameter data.frame has parameters in seperate columns and different
+#' cultivars. species etc. in rows. Runs on the twelve standard PhenoFlex parameters:
+#' yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope. In the actual calculation of
+#' chill and heat responses only the last 9 parameters are considered (and yc, zc and s1 are ignored).
 #' 
+#' Returns temperature response plot.#' 
 #' 
-#' @param performance_df data.frame with at least the columns 'cultivar' and columns with the parameters name 
+#' @param par_df data.frame with at least the columns 'cultivar' and columns with the parameters name 
 #' @param weather_list list with hourly weather observations, needed to create the histogram with the temperature
 #' frequency
 #' @param temps numeric, vector containing the temperatures for which the temperature responses should be calculated
 #' @param legend.pos character, by default 'bottom'. Specifies where the legend goes. Can take the same values as in ggplot2
 #' @param col_palette character vector, contains the hexcode of the colors used to draw the temperature responses for each cultivar
-#' @param par_names character vector, specifies the names of the parameters, by default the 'new' PhenoFlex parameters
-#' c('yc', 'zc', 's1', 'Tu', 'theta_star', 'theta_c', 'tau', 'pie_c','Tf', 'Tc', 'Tb', 'slope') 
 #' @param chill_months numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
 #' the chill temperature response. By default set to c(11:12,1:3)
 #' @param heat_months numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
@@ -25,13 +23,13 @@
 #' @return ggplot of the modeled temperature response
 #' 
 #' @author Lars Caspersen
-#' @keywords utility
+#' @keywords plotting
 #' @import ggplot2 chillR dplyr patchwork graphics
 #' @importFrom magrittr "%>%"
 #' 
 #' @export gen_combined_temp_response_plot
 
-gen_combined_temp_response_plot <- function(performance_df,  
+gen_combined_temp_response_plot <- function(par_df,  
                                             weather_list, 
                                             temps = seq(-5, 50, by = 0.1),
                                             legend.pos = 'bottom', 
@@ -47,9 +45,9 @@ gen_combined_temp_response_plot <- function(performance_df,
   Temp <- density <- variable <- Month <- Temperature <- cultivar <- value <- NULL
   
   temp_response_df <- data.frame()
-  for(i in 1:nrow(performance_df)){
+  for(i in 1:nrow(par_df)){
     
-    par <- unlist(performance_df[i,par_names])
+    par <- unlist(par_df[i,phenoflex_parnames_old])
     # if(performance_df$cultivar[i] == 'Mission'){
     #   par[12] <- 1.6
     #   par[9] <- 2
@@ -57,7 +55,7 @@ gen_combined_temp_response_plot <- function(performance_df,
     
     temp_response_df <- rbind(temp_response_df,
                               data.frame(cultivar = performance_df$cultivar[i],
-                                         get_temp_response_df(convert_parameters(par),
+                                         get_temp_response_df(par,
                                                               temp_values = temps))
     )
   }

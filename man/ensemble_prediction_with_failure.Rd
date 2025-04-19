@@ -53,3 +53,4 @@ Take model parameters, confidence scores for each set of parameters and calculat
 \author{
 Lars Caspersen, \email{lars.caspersen@uni-bonn.de}
 }
+\keyword{PhenoFlex}

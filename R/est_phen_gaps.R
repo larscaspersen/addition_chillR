@@ -21,8 +21,6 @@
 #' 
 #' @author Lars Caspersen
 #' @keywords utility
-#' 
-#' @export est_phen_gaps
 
 #functions to establish simple linear shifts from one place to another
 

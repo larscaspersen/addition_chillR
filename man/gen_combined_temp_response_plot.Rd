@@ -5,7 +5,7 @@
 \title{Draws temperature response plot from PhenoFlex parameters for several cultivars}
 \usage{
 gen_combined_temp_response_plot(
-  performance_df,
+  par_df,
   weather_list,
   temps = seq(-5, 50, by = 0.1),
   legend.pos = "bottom",
@@ -18,7 +18,7 @@ gen_combined_temp_response_plot(
 )
 }
 \arguments{
-\item{performance_df}{data.frame with at least the columns 'cultivar' and columns with the parameters name}
+\item{par_df}{data.frame with at least the columns 'cultivar' and columns with the parameters name}
 
 \item{weather_list}{list with hourly weather observations, needed to create the histogram with the temperature
 frequency}
@@ -28,9 +28,6 @@ frequency}
 \item{legend.pos}{character, by default 'bottom'. Specifies where the legend goes. Can take the same values as in ggplot2}
 
 \item{col_palette}{character vector, contains the hexcode of the colors used to draw the temperature responses for each cultivar}
-
-\item{par_names}{character vector, specifies the names of the parameters, by default the 'new' PhenoFlex parameters
-c('yc', 'zc', 's1', 'Tu', 'theta_star', 'theta_c', 'tau', 'pie_c','Tf', 'Tc', 'Tb', 'slope')}
 
 \item{chill_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
 the chill temperature response. By default set to c(11:12,1:3)}
@@ -46,13 +43,14 @@ Returns a plot showing the chilling and forcing reaction of the PhenoFlex
 model parameters for certain temperatures.
 }
 \details{
-Furthermore, it can highlight which temperatures where observed in the 
-data set used to generate the model parameters. The function can handle
-the common PhenoFlex parameters (which include E0, E1, A0 and A1) and the
-"new" parameters (which include theta_star, theta_c, tau and pie_c instead of the
-earlier mentioned parameters).
+Assumes that the parameter data.frame has parameters in seperate columns and different
+cultivars. species etc. in rows. Runs on the twelve standard PhenoFlex parameters:
+yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope. In the actual calculation of
+chill and heat responses only the last 9 parameters are considered (and yc, zc and s1 are ignored).
+
+Returns temperature response plot.#'
 }
 \author{
 Lars Caspersen
 }
-\keyword{utility}
+\keyword{plotting}

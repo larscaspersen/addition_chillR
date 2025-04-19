@@ -7,8 +7,6 @@
 get_temp_response_plot(
   par,
   temp_values,
-  par_type = "old",
-  log_A = FALSE,
   hourtemps = NULL,
   chill_months = c(11:12, 1:2),
   heat_months = 1:5,
@@ -16,19 +14,9 @@ get_temp_response_plot(
 )
 }
 \arguments{
-\item{par}{traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope (default)
-or the new model parameters in the order yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope. In the latter case the
-the argument 'par_type' should be set equal to TRUE}
+\item{par}{traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope}
 
 \item{temp_values}{numeric, vector containing the temperatures for which the temperature responses should be calculated}
-
-\item{par_type}{character, by default 'old'. If set to 'new' than the supplied parameters should contain theta_star, theta_c, tau and pie_c. These
-get converted to E0, E1, A0 and A1 in an intermediate step}
-
-\item{log_A}{boolean, by default FALSE. If set TRUE, then the parameters A1 and A1 are assumed to be supplied 
-log_transformed and get converted back before calculating the temperature responses
-with the columns "Temp" (for the hourly temperature) and "JDay" for the corresponding Julian day. Is usually
-generated using \link[chillR]{genSeasonList}}
 
 \item{hourtemps}{data.frame containing hourly temperature, by default set to NULL. If supplied, the columns
 'Month' and 'Temp' should be present.}
@@ -63,4 +51,4 @@ earlier mentioned parameters).
 \author{
 Lars Caspersen
 }
-\keyword{utility}
+\keyword{plotting}

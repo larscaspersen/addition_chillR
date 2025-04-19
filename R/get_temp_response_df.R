@@ -7,9 +7,7 @@
 #' several cultivars or different set of parameters of same cultivar.
 #' 
 #' 
-#' @param par traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope (default)
-#' or the new model parameters in the order yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope. In the latter case the
-#' the argument 'par_type' should be set equal to TRUE
+#' @param par traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope 
 #' @param temp_values numeric, vector containing the temperatures for which the temperature responses should be calculated
 #' @return data.frame with the columns "Temperature", "Chill_response" and "Heat_response"
 #' 

@@ -17,6 +17,7 @@
 #' @details The conversion follows the approach documented in Fishman et al. (1987) and Egea et al. (2021).
 #' For more details consult equations 5 - 8 in Egea et al (2021)
 #' @author Lars Caspersen, \email{lars.caspersen@@uni-bonn.de}
+#' @keywords PhenoFlex
 #' @importFrom nleqslv nleqslv
 #' @examples 
 #' \dontrun{

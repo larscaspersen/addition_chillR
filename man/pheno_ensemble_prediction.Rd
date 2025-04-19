@@ -43,4 +43,4 @@ The function assumes that theta_star and Tc are fixed. The
 \author{
 Lars Caspersen
 }
-\keyword{utility}
+\keyword{PhenoFlex}

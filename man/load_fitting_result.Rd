@@ -23,4 +23,4 @@ This function reads the saved PhenoFlex model to a list.
 \author{
 Lars Caspersen
 }
-\keyword{utility}
+\keyword{PhenoFlex}

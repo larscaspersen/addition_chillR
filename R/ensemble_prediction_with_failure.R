@@ -24,6 +24,7 @@
 #' @returns  when `return_se = TRUE` --> list with weighted mean, sd and individual model predictions
 #' when `return_se = FALSE` --> vector with weighted means
 #' @author Lars Caspersen, \email{lars.caspersen@@uni-bonn.de}
+#' @keywords PhenoFlex
 #' @export ensemble_prediction_with_failure
 ensemble_prediction_with_failure <- function(par_list, confidence, modelfn, temp, return_se = TRUE, n_fail = 5,
                                              max_weight = NULL, ...){

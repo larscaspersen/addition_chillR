@@ -7,9 +7,7 @@
 get_temp_response_df(par, temp_values)
 }
 \arguments{
-\item{par}{traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope (default)
-or the new model parameters in the order yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope. In the latter case the
-the argument 'par_type' should be set equal to TRUE}
+\item{par}{traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope}
 
 \item{temp_values}{numeric, vector containing the temperatures for which the temperature responses should be calculated}
 }

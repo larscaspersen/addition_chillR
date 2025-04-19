@@ -39,3 +39,4 @@ par_old_again <- convert_parameters_old_to_new(par)
 \author{
 Lars Caspersen, \email{lars.caspersen@uni-bonn.de}
 }
+\keyword{PhenoFlex}

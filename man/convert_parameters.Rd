@@ -40,3 +40,4 @@ par_new <- convert_parameters(par)
 \author{
 Lars Caspersen, \email{lars.caspersen@uni-bonn.de}
 }
+\keyword{PhenoFlex}

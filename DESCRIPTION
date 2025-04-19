@@ -1,6 +1,6 @@
 Package: LarsChill
 Type: Package
-Title: Extensions of the chillR Package
+Title: Functions supplementing the chillR package.
 Version: 0.0.2
 RoxygenNote: 7.3.2
 Encoding: UTF-8

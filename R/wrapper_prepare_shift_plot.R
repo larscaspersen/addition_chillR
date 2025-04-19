@@ -14,7 +14,7 @@
 #' @return data.frame, with additional columns for the intervals and the agreement among the climate projections regarding the intensity of the shift
 #' 
 #' @author Lars Caspersen
-#' @keywords utility
+#' @keywords plotting
 #' 
 #' @importFrom purrr map
 #' @importFrom dplyr select

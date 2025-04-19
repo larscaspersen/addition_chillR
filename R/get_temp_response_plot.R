@@ -10,16 +10,8 @@
 #' earlier mentioned parameters). 
 #' 
 #' 
-#' @param par traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope (default)
-#' or the new model parameters in the order yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope. In the latter case the
-#' the argument 'par_type' should be set equal to TRUE
+#' @param par traditional model parameters of PhenoFlex in the order yc, zc, s1, Tu, E0, E1, A0, A1, Tf, Tc, Tb, slope 
 #' @param temp_values numeric, vector containing the temperatures for which the temperature responses should be calculated
-#' @param par_type character, by default 'old'. If set to 'new' than the supplied parameters should contain theta_star, theta_c, tau and pie_c. These
-#' get converted to E0, E1, A0 and A1 in an intermediate step 
-#' @param log_A boolean, by default FALSE. If set TRUE, then the parameters A1 and A1 are assumed to be supplied 
-#' log_transformed and get converted back before calculating the temperature responses
-#' with the columns "Temp" (for the hourly temperature) and "JDay" for the corresponding Julian day. Is usually
-#' generated using \link[chillR]{genSeasonList}
 #' @param hourtemps data.frame containing hourly temperature, by default set to NULL. If supplied, the columns
 #' 'Month' and 'Temp' should be present.
 #' @param chill_months numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
@@ -35,21 +27,17 @@
 #' @return ggplot of the modeled temperature response
 #' 
 #' @author Lars Caspersen
-#' @keywords utility
+#' @keywords plotting
 #' @import ggplot2 chillR dplyr patchwork graphics
 #' @importFrom magrittr "%>%"
 #' 
 #' @export get_temp_response_plot
 
 get_temp_response_plot <- function(par, temp_values,
-                                   par_type = 'old',
-                                   log_A = FALSE, 
                                    hourtemps = NULL, 
                                    chill_months = c(11:12,1:2),
                                    heat_months = 1:5, 
                                    weather_freq_plot = 'histogram'){
-  
-  if(par_type == 'new')  par <- convert_parameters(par)
   
   if(is.null(hourtemps) == FALSE){
     

@@ -11,7 +11,7 @@
 #' @return list with the fitted objects. Elements are named after the files (without numbering and prefix)
 #' 
 #' @author Lars Caspersen
-#' @keywords utility
+#' @keywords PhenoFlex
 #' @importFrom readr parse_number
 #'  
 #' @export load_fitting_result

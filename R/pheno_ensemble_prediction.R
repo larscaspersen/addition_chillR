@@ -18,7 +18,7 @@
 #' standard deviation of the members predictions. Individual_pred contains the ensemble members individual predictions
 #' 
 #' @author Lars Caspersen
-#' @keywords utility
+#' @keywords PhenoFlex
 #' 
 #' @importFrom magrittr set_colnames
 #' @importFrom reshape2 melt
