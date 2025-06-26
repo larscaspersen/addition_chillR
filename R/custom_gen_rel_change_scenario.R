@@ -61,13 +61,13 @@
 #' 
 #' }
 #' 
-#' @importFrom dplyr group_by
-#' @importFrom dplyr select
-#' @importFrom dplyr summarise
-#' @importFrom tidyr pivot_wider
+#' @importFrom stats aggregate
+#' @importFrom purrr map_lgl
 #' @importFrom tidyr pivot_longer
+#' @importFrom dplyr select
+#' @importFrom tidyr pivot_wider
 #' @importFrom dplyr mutate
-#' @importFrom dplyr arrange
+#' @importFrom dplyr bind_rows
 #' @importFrom magrittr "%>%"
 #' 
 #'  
@@ -79,7 +79,7 @@ custom_gen_rel_change_scenario <- function(downloaded_list,
                                            reference_period = c(1986:2014),
                                            future_window_width = 30){
   
-  var_missing <- purrr::map_lgl(extracted, function(x){
+  var_missing <- purrr::map_lgl(downloaded_list, function(x){
     all(variable %in% colnames(x)) == FALSE
   }) %>% any()
   if(var_missing) stop('Some variables are missing in the downloaded data')

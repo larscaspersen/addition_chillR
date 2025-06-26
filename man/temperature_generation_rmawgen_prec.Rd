@@ -144,16 +144,18 @@ interval to be used for calibrating the temperature generator.}
 interval for which temperatures are to be generated.}
 
 \item{temperature_scenario}{can be one of three options:
-1) a data.frame with two columns Tmin and Tmax and n_intervals (default: 12) rows containing
+\enumerate{
+\item a data.frame with two columns Tmin and Tmax and n_intervals (default: 12) rows containing
 temperature changes for all time intervals, or absolute temperatures for these intervals.
-2) a temperature scenario object, consisting of the following elements: 'data' = a data frame with
+\item a temperature scenario object, consisting of the following elements: 'data' = a data frame with
 n_intervals elements containing the absolute or relative temperature information (as in input option 1);
 'scenario_year' = the year the scenario is representative of; 'reference_year' = the year the scenario
 is representative of; 'scenario_type' = the scenario type ('absolute' or 'relative' - if NA, this is
 assigned automatically); 'labels' = and elements attached to the input temperature_scenario as an
 element names 'labels'. A subset of these elements can also be specified, but 'data' must be present.
-3) a (named or unnamed) list containing multiple objects of types 1 and 2. In this case, outputs are
-generated for all scenarios.}
+\item a (named or unnamed) list containing multiple objects of types 1 and 2. In this case, outputs are
+generated for all scenarios.
+}}
 
 \item{check_temperature_scenario_type}{boolean variable specifying whether
 temperature scenarios should be checked - and the scenario_type updated if necessary -
@@ -192,7 +194,7 @@ and sim_years[2]). Monthly change vectors for minimum and maximum temperatures a
 (mm) can be specified to allow generation of temperature change scenarios.
 }
 \details{
-This function is called by the wrapper function \code{\link{temperature_generation_rmawgen_prec}}. The rest of the 
+This function is called by the wrapper function \code{\link{temperature_generation_rmawgen_prec}}. The rest of the
 documentation is copied from the original function.
 
 Note that this function uses the temperature generation algorithms of the RMAWGEN

@@ -22,7 +22,7 @@ Original parameters include E0, E1, A0, A1 and convert those to theta_star, thet
 Parameters theta_star and tau depend on approximated intermediate variable sigma. Pie_c is
 approximated using theta_star, theta_c and tau. Since the conversion
 is an numerical approximation, the final results differ slightly from the "true" value.
-This can be seen when first using \code{\link{convert_parameters}} and then convert the 
+This can be seen when first using \code{\link{convert_parameters}} and then convert the
 parameter again to the original format using this function. The error should  be
 negligible. Approximation is done using the function \link[nleqslv]{nleqslv}.
 

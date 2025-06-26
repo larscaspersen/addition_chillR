@@ -29,7 +29,7 @@ get re-scaled by dividing by the sum of individual confidence scores.}
 }
 \value{
 By default returns a list with three components: predicted, sd and individual_pred. Predicted
-contains the weighted predictions of the ensemble members. sd contains the unweighted 
+contains the weighted predictions of the ensemble members. sd contains the unweighted
 standard deviation of the members predictions. Individual_pred contains the ensemble members individual predictions
 }
 \description{
@@ -37,7 +37,7 @@ Outdated
 }
 \details{
 This function takes the fitted models and temperature data and returns a weighted average prediction.
-Weights are assigned using the confidence argument. 
+Weights are assigned using the confidence argument.
 The function assumes that theta_star and Tc are fixed. The
 }
 \author{

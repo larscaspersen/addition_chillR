@@ -11,7 +11,7 @@ convert_parameters(par, failure_return = "MEIGO")
 yc, zc, s1, Tu, theta_star, theta_c, tau, pie_c, Tf, Tc, Tb, slope}
 
 \item{failure_return}{character, by default set to "MEIGO". Decides what should be returned if the conversion failed.
-In case of "MEIGO" it returns a MEIGO-compatible output, indicating that the 
+In case of "MEIGO" it returns a MEIGO-compatible output, indicating that the
 current parameters are not suitable. If set equal "Ignore Error" it will return the
 best estimate. If set equal "NA" it will return NA instead.}
 }
@@ -20,12 +20,12 @@ vector of length 12, with the PhenoFlex parameters yc, zc, s1, Tu, E0, E1, A0, A
 with given temperature data and model parameters.
 }
 \description{
-Takes parameters, including intermediate parameters of chill submodel and transform them 
+Takes parameters, including intermediate parameters of chill submodel and transform them
 to the typical PhenoFlex format.
 }
 \details{
 The changed parameters are theta_star, theta_c, tau and pie_c, which get converted
-to E0, E1, A0 and A1. In case of A0 and A1 two conversion functions are used. 
+to E0, E1, A0 and A1. In case of A0 and A1 two conversion functions are used.
 For E0 and E1 a nonlinear system is solved using the function \link[nleqslv]{nleqslv}.
 
 The conversion follows the approach documented in Fishman et al (1987) and Egea et al. (2021).

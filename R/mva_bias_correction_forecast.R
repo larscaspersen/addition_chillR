@@ -6,9 +6,9 @@
 #' Leung et al. (1999). Returns a data.frame with corrected and original forecast data.
 #' 
 #' Bias correction does three steps for each month of the year:
-#' \item{Calculate monthly means and sd for observed and forecasted data}
-#' \item{Correct forecasted monthly mean with the formula: (mean_fcst_m_t - mean_fcst)*(sd_obs / sd_fcst) + mean_obs}
-#' \item{Scale (sub) daily observation using share of corrected and uncorrected forecast mean}
+#' * Calculate monthly means and sd for observed and forecasted data
+#' * Correct forecasted monthly mean with the formula: (mean_fcst_m_t - mean_fcst) x (sd_obs / sd_fcst) + mean_obs
+#' * Scale (sub) daily observation using share of corrected and uncorrected forecast mean
 #' 
 #' mean_fcst_m_t = monthly mean of forecast member m, at year t
 #' mean_fcst = monthly mean of all forecast members at all years
@@ -53,14 +53,17 @@
 #' request_env = req)
 #' 
 #' #extract values
-#' extract_seasonal_forecast(file = 'season-forecast_dwd21_2m_temperature_1993-2000_11_1_0-720_51-6.5-50-7.5.nc', 
+##' fname <- 'season-forecast_dwd21_2m_temperature_1996_11_1_0-168_51-6.5-50-7.5.nc'
+#' 
+#' extract_seasonal_forecast(file = fname, 
 #' target_lat = 50.7,
 #' target_lon = 7.1)
 #' 
 #' #download local observation
 #' long <- 7.0871843
 #' lat <- 50.7341602
-#' weather_dwd <- chillR::handle_dwd(action = 'list_stations', location = c(long, lat), 
+#' weather_dwd <- chillR::handle_dwd(action = 'list_stations', 
+#'                                   location = c(long, lat), 
 #'                                   time_interval = c(19800101, 20251231))
 #'                                   
 #' data <- chillR::handle_dwd(action = "download_weather",
@@ -86,12 +89,20 @@
 #' @importFrom assertthat is.dir
 #' @importFrom ecmwfr wf_transfer
 #' @importFrom ecmwfr wf_request
+#' @importFrom dplyr mutate
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarise
+#' @importFrom dplyr filter
+#' @importFrom lubridate ym
 #'  
 #' @export mva_bias_correction_forecast
 #' 
 
 mva_bias_correction_forecast <- function(observed, predicted,
                                          unit_observed = 'C'){
+  
+  #declase . as a global variable
+  . <- NULL
   
   #summarize both on a monthly basis
   if(all(c('Month', 'Year') %in% colnames(observed)) == FALSE){
@@ -100,9 +111,9 @@ mva_bias_correction_forecast <- function(observed, predicted,
   
   
   fcst_sum <- predicted %>% 
-    group_by(Year, Month, model) %>% 
-    summarise(mean_fcst = mean(temp) %>%  round(digits = 4)) %>% 
-    mutate(year_mo = lubridate::ym(paste(Year, Month)))
+    dplyr::group_by(.$Year, .$Month, .$model) %>% 
+    dplyr::summarise(mean_fcst = mean(.$temp) %>%  round(digits = 4)) %>% 
+    dplyr::mutate(year_mo = lubridate::ym(paste(.$Year, .$Month)))
   
   
   
@@ -120,13 +131,13 @@ mva_bias_correction_forecast <- function(observed, predicted,
   
   #summarize temperature for each month
   observed_sum = observed %>% 
-    mutate(year_mo = lubridate::ym(paste(Year, Month))) %>% 
-    filter(year_mo %in% fcst_sum$year_mo) %>% 
-    group_by(Year, Month) %>% 
-    summarise(mean_obs = mean(target_col) %>%  round(digits = 4)) 
+    dplyr::mutate(year_mo = lubridate::ym(paste(.$Year, .$Month))) %>% 
+    dplyr::filter(.$year_mo %in% fcst_sum$year_mo) %>% 
+    dplyr::group_by(.$Year, .$Month) %>% 
+    dplyr::summarise(mean_obs = mean(.$target_col) %>%  round(digits = 4)) 
   
   if(unit_observed == 'C'){
-    observed_sum$mean_obs <- mean_obs + 273.15
+    observed_sum$mean_obs <- observed_sum$mean_obs + 273.15
   } else if(unit_observed == 'F'){
     observed_sum$mean_obs <- (observed_sum$mean_obs + 459.67) * 5/9 
   }
@@ -149,13 +160,12 @@ mva_bias_correction_forecast <- function(observed, predicted,
   fcst_sum$fcst_call = fcst_call
   
   #calc correction factor that is used to scale the daily observation of forecast
-  fcst_sum <- fcst_sum %>% 
-    mutate(corr_fact = abs(fcst_call / mean_fcst))
+  fcst_sum$corr_fact <- abs(fcst_sum$fcst_call / fcst_sum$mean_fcst)
   
   
   predicted %>% 
     merge(fcst_sum,
           by = c('Year', 'Month', 'model')) %>% 
-    mutate(temp_corrected = temp * corr_fact) %>% 
+    dplyr::mutate(temp_corrected = .$temp * .$corr_fact) %>% 
     return()
 }

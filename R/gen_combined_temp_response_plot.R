@@ -16,6 +16,7 @@
 #' @param temps numeric, vector containing the temperatures for which the temperature responses should be calculated
 #' @param legend.pos character, by default 'bottom'. Specifies where the legend goes. Can take the same values as in ggplot2
 #' @param col_palette character vector, contains the hexcode of the colors used to draw the temperature responses for each cultivar
+#' @param par_names character, contains the names of the parameters, included in par_df. By default: c('yc', 'zc', 's1', 'Tu', 'theta_star', 'theta_c', 'tau', 'pie_c','Tf', 'Tc', 'Tb', 'slope')
 #' @param chill_months numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
 #' the chill temperature response. By default set to c(11:12,1:3)
 #' @param heat_months numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
@@ -47,14 +48,14 @@ gen_combined_temp_response_plot <- function(par_df,
   temp_response_df <- data.frame()
   for(i in 1:nrow(par_df)){
     
-    par <- unlist(par_df[i,phenoflex_parnames_old])
+    par <- unlist(par_df[i,par_names])
     # if(performance_df$cultivar[i] == 'Mission'){
     #   par[12] <- 1.6
     #   par[9] <- 2
     # }
     
     temp_response_df <- rbind(temp_response_df,
-                              data.frame(cultivar = performance_df$cultivar[i],
+                              data.frame(cultivar = par_df$cultivar[i],
                                          get_temp_response_df(par,
                                                               temp_values = temps))
     )
@@ -93,7 +94,7 @@ gen_combined_temp_response_plot <- function(par_df,
   chill_plot <- melted_response %>% 
     filter(variable == 'Chill_response') %>% 
     ggplot(aes(x = Temperature)) +
-    geom_bar(data = melted_response[melted_response$variable == 'Chill_response' & melted_response$cultivar == performance_df$cultivar[1],],
+    geom_bar(data = melted_response[melted_response$variable == 'Chill_response' & melted_response$cultivar == par_df$cultivar[1],],
              stat = 'identity', aes(x = Temperature, y = density, fill = 'Observed Temperatures'),
              width = 2) +
     geom_line(size = 2, aes(col = cultivar, y = value)) +
@@ -106,7 +107,7 @@ gen_combined_temp_response_plot <- function(par_df,
                ))) +
     
     
-    scale_color_manual(values = col_palette[1:nrow(performance_df)]) +
+    scale_color_manual(values = col_palette[1:nrow(par_df)]) +
     xlim(-5, 20)+
     #annotate('text', label = 'A', x = -5, y = 33, size = 5)+
     theme_bw(base_size = 15)+
@@ -115,7 +116,7 @@ gen_combined_temp_response_plot <- function(par_df,
   heat_plot <- melted_response %>% 
     filter(variable == 'Heat_response') %>% 
     ggplot(aes(x = Temperature)) +
-    geom_bar(data = melted_response[melted_response$variable == 'Heat_response' & melted_response$cultivar == performance_df$cultivar[1],],
+    geom_bar(data = melted_response[melted_response$variable == 'Heat_response' & melted_response$cultivar == par_df$cultivar[1],],
              stat = 'identity', aes(x = Temperature, y = density, fill = 'Observed Temperatures'),
              width = 2) +
     geom_line(size = 2, aes(col = cultivar, y = value)) +
@@ -126,7 +127,7 @@ gen_combined_temp_response_plot <- function(par_df,
                labeller = labeller(variable = c(
                  Heat_response = c("Heat response")
                ))) +
-    scale_color_manual(values = col_palette[1:nrow(performance_df)]) +
+    scale_color_manual(values = col_palette[1:nrow(par_df)]) +
     xlim(0, 50)+
     #annotate('text', label ='B', x = 0, y = 1, size = 5)+
     theme_bw(base_size = 15)+

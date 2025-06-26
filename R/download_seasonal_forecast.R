@@ -24,7 +24,7 @@
 #' the downloaded forecast data. Coordinates are provided in the format:
 #' max latitude, min longitude, min latitude, max longtidue  
 #' 
-#' @param leadtime_hours numeric or character, indicates for which timepoints 
+#' @param leadtime_hour numeric or character, indicates for which timepoints 
 #' data should be downloaded. By default is set to 'all', requesting full length of forecast.
 #' Leadtime hour indicates timepoints (in hours since first day midnight). 
 #' Data is provided every six hours, so provided values need to be divisible by six.
@@ -62,9 +62,7 @@
 #' 
 #' @param system character, indicates the global circulation model used for the forecast. Check documentation of the dataset, 
 #' or the details, to see what combination of originating_center and system are valid.
-#' 
-#' @param target_lon numeric, longitude of the location you want to extract. Be default set to NULL. If both target_lat and target_lon are NULL, then all the pixel values are extracted.
-#' 
+
 #' @return if start_download = TRUE, then nothing is returned. If start_download = FAlSE, then an environment object is returned,
 #' that can be used to download the requested data later (once it is ready for download). 
 #' 
@@ -72,26 +70,25 @@
 #' 
 #' Combination of originating center, system and maximum leadtime_hour
 #' 
-#' \item{ecmwf}{system = c('4', '5', '51'), year_start = 1981, leadtime_hour_end = 5160, month = 1:12, day = '01'} 
-#' \item{ukmo}{system = as.character(c(12:15, 600:604)), year_start = 1993, leadtime_hour_end = 5160, month = 1:12, day = c('01', '9', '17', '25')}
-#' \item{meteo_france}{system = as.character(5:9),year_start = 1993, leadtime_hour_end = 5160, month = 1:12, day = c('01')}
-#' \item{dwd}{system = as.character(c(2, 21,22)),year_start = 1993, leadtime_hour_end = 4416,month = 1:12, day = c('01')}
-#' \item{cmcc}{system = as.character(c(3, 35)), year_start = 1993, leadtime_hour_end = 4416, month = 1:12, day = c('01')}
-#' \item{ncep}{system = as.character(c(2)),year_start = 1993,leadtime_hour_end = 5160,month = 1:12,day = as.character(1:30)}
-#' \item{jma}{system = as.character(c(2, 3)),year_start = 1981,leadtime_hour_end = 5160,month = 1:12,day = as.character(1:30)}
-#' \item{eccc}{system = as.character(1:5),year_start = 1993, leadtime_hour_end = 5136,month = 1:12,day = c('01')}
-#' \item{bom}{system = as.character(2),year_start = 1993,leadtime_hour_end = 5208,month = 2:7,day = c('01'))}
-
-#' #' Structure of automated names
+#' * ecmwf: system = c('4', '5', '51'), year_start = 1981, leadtime_hour_end = 5160, month = 1:12, day = '01' 
+#' * ukmo: system = as.character(c(12:15, 600:604)), year_start = 1993, leadtime_hour_end = 5160, month = 1:12, day = c('01', '9', '17', '25')
+#' * meteo_france: system = as.character(5:9),year_start = 1993, leadtime_hour_end = 5160, month = 1:12, day = c('01')
+#' * dwd: system = as.character(c(2, 21,22)),year_start = 1993, leadtime_hour_end = 4416,month = 1:12, day = c('01')
+#' * cmcc: system = as.character(c(3, 35)), year_start = 1993, leadtime_hour_end = 4416, month = 1:12, day = c('01')
+#' * ncep: system = as.character(c(2)),year_start = 1993,leadtime_hour_end = 5160,month = 1:12,day = as.character(1:30)
+#' * jma: system = as.character(c(2, 3)),year_start = 1981,leadtime_hour_end = 5160,month = 1:12,day = as.character(1:30)
+#' * eccc: system = as.character(1:5),year_start = 1993, leadtime_hour_end = 5136,month = 1:12,day = c('01')
+#' * bom: system = as.character(2),year_start = 1993,leadtime_hour_end = 5208,month = 2:7,day = c('01'))
 #' 
-#' \item{'seasonal_forecast'} 
-#' \item{organization (e.g. dwd) with system (e.g. 21) --> dwd21}
-#' \item{variable (2m_temperature)}
-#' \item{years (e.g. 1996), if a range is supplied it covers min year to max year (e.g. 1996-2000)}
-#' \item{reference month (e.g. 11) this is the start point of the forecast, if a range is supplie it covers min month to max month (e.g. 1-12)}
-#' \item{leadtime (e.g 6), this is the hours since the reference month (usually starts at day 1 of the month), if range it covers 
-#' max leadtime_hour to min leadtime_hour (e.g. 0-168 for a week forecast)}
-#' \item{area (e.g. 51-6.5-50-7.5), coordinates of map, follows the order: max latitude, min longitude, min latitude, max longtidue}
+#' Structure of automated names
+#' * 'seasonal_forecast'
+#' * organization (e.g. dwd) with system (e.g. 21) --> dwd21
+#' * variable (2m_temperature)
+#' * years (e.g. 1996), if a range is supplied it covers min year to max year (e.g. 1996-2000)
+#' * reference month (e.g. 11) this is the start point of the forecast, if a range is supplie it covers min month to max month (e.g. 1-12)
+#' * leadtime (e.g 6), this is the hours since the reference month (usually starts at day 1 of the month), if range it covers 
+#' max leadtime_hour to min leadtime_hour (e.g. 0-168 for a week forecast)
+#' * area (e.g. 51-6.5-50-7.5), coordinates of map, follows the order: max latitude, min longitude, min latitude, max longtidue
 #' Example: season-forecast_dwd21_2m_temperature_1996_11_1_0-24_51-6.5-50-7.5
 #' year: 1996, month: 11, leadtime: from 0 to 24 (from Nov 1 to Nov 2), area: 51, 6.5, 50, 7.5
 #' 
@@ -117,7 +114,7 @@
 #' leadtime_hour = seq(0, 24*2, by = 6), 
 #' start_download = TRUE)
 #' 
-#' #use initial request and download indepently from another
+#' #use initial request and download independently from another
 #' req <- download_seasonal_forecast(year = c('1996'),
 #' month = '11', 
 #' area = c(51, 6.5, 50, 7.5),
@@ -132,7 +129,8 @@
 #' start_download = FALSE,
 #' request_env = req)
 #' 
-#' #you can also save the req_environment and run the download later in another r session
+#' #you can also save the req_environment and run the download 
+#' #later in another r session
 #' saveRDS(req, file = 'request.rds')
 #' req <- readRDS('request.rds')
 #' 
@@ -172,7 +170,7 @@ download_seasonal_forecast <- function(year,
     }
     #something went wrong with the request
     if(request_env$is_failed()){
-      error('The API indicated, that your request failed. Maybe you requeset was too large. Try reducing the number of requested years')
+      stop('The API indicated, that your request failed. Maybe you requeset was too large. Try reducing the number of requested years')
     }
     
     #download the request if it is pending
@@ -279,7 +277,7 @@ download_seasonal_forecast <- function(year,
   
   #make sure that years are covered 
   if(all(year %in% as.character(master_list[[originating_centre]]$year_start:year_end)) == FALSE){
-    stop(past0('The selected year is outside the valid range. You can only select years for the range: ', master_list[[originating_centre]]$year_start, ' - ', year_end))
+    stop(paste0('The selected year is outside the valid range. You can only select years for the range: ', master_list[[originating_centre]]$year_start, ' - ', year_end))
   }
   
   if(length(leadtime_hour) == 1){

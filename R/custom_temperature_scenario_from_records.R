@@ -45,9 +45,12 @@
 #' @keywords utility
 #' @importFrom stats lm
 #' @examples
-#' 
-#' custom_temperature_scenario_from_records(weather=KA_weather,year=2001,weather_start=2000,weather_end=2005)
-#' 
+#' \dontrun{
+#' custom_temperature_scenario_from_records(weather=chillR::KA_weather,
+#' year=2001,
+#' weather_start=2000,
+#' weather_end=2005)
+#' }
 #'  
 #' @export custom_temperature_scenario_from_records
 

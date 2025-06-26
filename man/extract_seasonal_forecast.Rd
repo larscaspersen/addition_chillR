@@ -28,7 +28,7 @@ target_lat: latitude for the target point, that we wanted to extract
 target_lon: longitude of the taret point, that we wanted to extract
 }
 \description{
-Opens a downloaded netcdf file (.nc) and brings it into a data.frame format. 
+Opens a downloaded netcdf file (.nc) and brings it into a data.frame format.
 In case target latitude and longitude are provided, it extracts the values of the closest
 pixel. Otherwise it will extract all pixel values. The function was developed for
 precipitation but may also be compatible with other variables.
@@ -44,7 +44,9 @@ area = c(51, 6.5, 50, 7.5),
 leadtime_hour = seq(0, 24*7, by = 6), 
 start_download = TRUE)
 
-extract_seasonal_forecast(file = 'season-forecast_dwd21_2m_temperature_1996_11_1_0-168_51-6.5-50-7.5.nc', 
+fname <- 'season-forecast_dwd21_2m_temperature_1996_11_1_0-168_51-6.5-50-7.5.nc'
+
+extract_seasonal_forecast(file = fname, 
 target_lat = 50.7,
 target_lon = 7.1)
 

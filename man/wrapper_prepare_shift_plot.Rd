@@ -24,7 +24,7 @@ data.frame, with additional columns for the intervals and the agreement among th
 }
 \description{
 Takes a data.frame as an input, usually the result of some kind of climate change impact projection.
-Prepares data, so that I can make easily shift plots as in Caspersen et al. (in review), or the 
+Prepares data, so that I can make easily shift plots as in Caspersen et al. (in review), or the
 analysis of apple phenology at lake Constance.
 }
 \details{

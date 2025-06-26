@@ -29,10 +29,12 @@ frequency}
 
 \item{col_palette}{character vector, contains the hexcode of the colors used to draw the temperature responses for each cultivar}
 
-\item{chill_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
+\item{par_names}{character, contains the names of the parameters, included in par_df. By default: c('yc', 'zc', 's1', 'Tu', 'theta_star', 'theta_c', 'tau', 'pie_c','Tf', 'Tc', 'Tb', 'slope')}
+
+\item{chill_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for
 the chill temperature response. By default set to c(11:12,1:3)}
 
-\item{heat_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
+\item{heat_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for
 the heat temperature response. By default set to c(1:5)}
 }
 \value{

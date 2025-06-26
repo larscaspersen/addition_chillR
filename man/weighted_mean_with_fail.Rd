@@ -34,7 +34,7 @@ in case n_fail = 5: if we have 4 or less failure predictions --> get ignored and
 if we have 5 or more failure predictions --> weighted mean is failure as well}
 
 \item{max_weight}{by default NULL, when number between 0 and 1 supplied, it expresses how much
-weight an individual prediction can get. Can prevent that one prediction dominates all the 
+weight an individual prediction can get. Can prevent that one prediction dominates all the
 remaining ones because the confidence score may be inflated}
 
 \item{.progress}{logical, if set TRUE than process par appears indicating the remaining time until the function completes}
@@ -44,7 +44,7 @@ same as 'predicted' but with additional column containing weighted mean and stan
 }
 \description{
 Helps to process already made predictions to weighted mean predictions. Has a routine how to handle predictions
-of bloom failure. The function makes strong assumptions on the data frame of the predictions and the data frame 
+of bloom failure. The function makes strong assumptions on the data frame of the predictions and the data frame
 containing the weights (confidence)
 }
 \author{

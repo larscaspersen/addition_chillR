@@ -7,7 +7,7 @@
 mva_bias_correction_forecast(observed, predicted, unit_observed = "C")
 }
 \arguments{
-\item{observed}{data.frame, contains observed temperature. Is usually the same format as 
+\item{observed}{data.frame, contains observed temperature. Is usually the same format as
 when downloaded via chillR package. Should contain columns: Year, Month, Day, and a column with temperature. Valid options are:
 Tmean, Temp, or combination of Tmin and Tmax.}
 
@@ -28,9 +28,11 @@ Leung et al. (1999). Returns a data.frame with corrected and original forecast d
 }
 \details{
 Bias correction does three steps for each month of the year:
-\item{Calculate monthly means and sd for observed and forecasted data}
-\item{Correct forecasted monthly mean with the formula: (mean_fcst_m_t - mean_fcst)*(sd_obs / sd_fcst) + mean_obs}
-\item{Scale (sub) daily observation using share of corrected and uncorrected forecast mean}
+\itemize{
+\item Calculate monthly means and sd for observed and forecasted data
+\item Correct forecasted monthly mean with the formula: (mean_fcst_m_t - mean_fcst) x (sd_obs / sd_fcst) + mean_obs
+\item Scale (sub) daily observation using share of corrected and uncorrected forecast mean
+}
 
 mean_fcst_m_t = monthly mean of forecast member m, at year t
 mean_fcst = monthly mean of all forecast members at all years
@@ -38,7 +40,7 @@ sd_obs = standard deviation of observed monthly means across all years
 df_fcst = standard deviation of monthly means across all members m, across all years
 mean_obs = monthly mean of observed temperature, across all years
 
-Important note: as the function corrects using a factor, it is sensitive to sub-zero values. The function 
+Important note: as the function corrects using a factor, it is sensitive to sub-zero values. The function
 carries the mean correction out in Kelvin behin the scenes.
 }
 \examples{
@@ -62,14 +64,17 @@ start_download = FALSE,
 request_env = req)
 
 #extract values
-extract_seasonal_forecast(file = 'season-forecast_dwd21_2m_temperature_1993-2000_11_1_0-720_51-6.5-50-7.5.nc', 
+fname <- 'season-forecast_dwd21_2m_temperature_1996_11_1_0-168_51-6.5-50-7.5.nc'
+
+extract_seasonal_forecast(file = fname, 
 target_lat = 50.7,
 target_lon = 7.1)
 
 #download local observation
 long <- 7.0871843
 lat <- 50.7341602
-weather_dwd <- chillR::handle_dwd(action = 'list_stations', location = c(long, lat), 
+weather_dwd <- chillR::handle_dwd(action = 'list_stations', 
+                                  location = c(long, lat), 
                                   time_interval = c(19800101, 20251231))
                                   
 data <- chillR::handle_dwd(action = "download_weather",

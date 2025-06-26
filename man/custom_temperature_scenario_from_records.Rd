@@ -23,7 +23,7 @@ c("Month", "Day", "Year"). Also needs to contain variables specified in argument
 \item{year}{numeric vector of years, for which the scenario is to be produced.}
 
 \item{variable, }{vector with characters. Specifies for which columns the
-temperature scenario is generated. By default set to c('Tmin', 'Tmax') for 
+temperature scenario is generated. By default set to c('Tmin', 'Tmax') for
 minimum and maximum temperature. Also allows 'Prec' for precipitation.}
 
 \item{weather_start}{start year of the period to be considered in calculating the regression.
@@ -46,7 +46,7 @@ window. Defaults to 15.}
 list of climate scenario objects, consisting of the following elements: 'data' =
 a data frame with n_intervals elements containing the absolute temperature information.
 'scenario_year' = the year the scenario is representative of, i.e. the specified 'year' parameter.
-'reference_year' = NA (because this is an absolute temperature scenarios, not a 
+'reference_year' = NA (because this is an absolute temperature scenarios, not a
 relative one); 'scenario_type' = 'absolute' (because this is an absolute temperature
 scenario, not a relative one); 'labels' = 'regression-based scenario'.
 }
@@ -66,9 +66,12 @@ use of such scenarios for local contexts requires consideration of a scenario th
 to temperatures in 1975, the central year of this period).
 }
 \examples{
-
-custom_temperature_scenario_from_records(weather=KA_weather,year=2001,weather_start=2000,weather_end=2005)
-
+\dontrun{
+custom_temperature_scenario_from_records(weather=chillR::KA_weather,
+year=2001,
+weather_start=2000,
+weather_end=2005)
+}
  
 }
 \author{

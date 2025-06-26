@@ -21,13 +21,13 @@ get_temp_response_plot(
 \item{hourtemps}{data.frame containing hourly temperature, by default set to NULL. If supplied, the columns
 'Month' and 'Temp' should be present.}
 
-\item{chill_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
+\item{chill_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for
 the chill temperature response. By default set to c(11:12,1:3)}
 
-\item{heat_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for 
+\item{heat_months}{numeric vector, indicating for which months the frequency of observed temperature should be calculated for
 the heat temperature response. By default set to c(1:5)}
 
-\item{weather_freq_plot}{character, only applicable when `hourtemps` is supplied. 
+\item{weather_freq_plot}{character, only applicable when \code{hourtemps} is supplied.
 Decides how temperature observations should be represented in the temperature
 response plot. By default = 'histogram', which includes a histogram for the hourly
 temperature. Other option is 'gradient' which represents the frequency of observed temperature
@@ -42,7 +42,7 @@ Returns a plot showing the chilling and forcing reaction of the PhenoFlex
 model parameters for certain temperatures.
 }
 \details{
-Furthermore, it can highlight which temperatures where observed in the 
+Furthermore, it can highlight which temperatures where observed in the
 data set used to generate the model parameters. The function can handle
 the common PhenoFlex parameters (which include E0, E1, A0 and A1) and the
 "new" parameters (which include theta_star, theta_c, tau and pie_c instead of the

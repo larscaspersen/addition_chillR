@@ -18,7 +18,7 @@ error, for the current set of E0 and E1, which gets minimized during the approxi
 \description{
 This function is used with the nlseq packages to to convert
 the parameters theta_star, theta_c, tau and pie_c to E0, E1, A0 and A1.
-Parameters E0 and E1 need to be numerically approximated. The function returns the 
+Parameters E0 and E1 need to be numerically approximated. The function returns the
 error of the approximation for the given set of parameters.
 }
 \author{

@@ -16,7 +16,7 @@ ensemble_prediction_with_failure(
 )
 }
 \arguments{
-\item{par_list}{list of the parameters entries contain one read of the read with the function 
+\item{par_list}{list of the parameters entries contain one read of the read with the function
 LarsChill::load_fitting_result(), each entry is a repetition of the same cultivar
 parameters are extracted from the 'xbest' entry within the individual list members
 I assumed ten model parameters with theta_star and Tc being fixed, but you can change that in the code after the line par <- x$xbest
@@ -38,14 +38,14 @@ in case n_fail = 5: if we have 4 or less failure predictions --> get ignored and
 if we have 5 or more failure predictions --> weighted mean is failure as well}
 
 \item{max_weight}{by default NULL, when number between 0 and 1 supplied, it expresses how much
-weight an individual prediction can get. Can prevent that one prediction dominates all the 
+weight an individual prediction can get. Can prevent that one prediction dominates all the
 remaining ones because the confidence score may be inflated}
 
-\item{...}{further inputs for the `modelfn` argument}
+\item{...}{further inputs for the \code{modelfn} argument}
 }
 \value{
-when `return_se = TRUE` --> list with weighted mean, sd and individual model predictions
-when `return_se = FALSE` --> vector with weighted means
+when \code{return_se = TRUE} --> list with weighted mean, sd and individual model predictions
+when \code{return_se = FALSE} --> vector with weighted means
 }
 \description{
 Take model parameters, confidence scores for each set of parameters and calculates score-weighted mean prediction.

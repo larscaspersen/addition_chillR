@@ -2,9 +2,9 @@
 #' 
 #' Function to incorporate the temperature and precipitation generation function of the
 #' RMAWGEN weather generator into chillR. The weather generator is calibrated
-#' using the weather data.frame (years between years[1] and years[2]), and then
-#' generates synthetic weather for a user-defined time frame (bounded by sim_years[1]
-#' and sim_years[2]). Monthly change vectors for minimum and maximum temperatures and mean daily rainfall
+#' using the weather data.frame (years between years\[1\] and years\[2\]), and then
+#' generates synthetic weather for a user-defined time frame (bounded by sim_years\[1\]
+#' and sim_years\[2\]). Monthly change vectors for minimum and maximum temperatures and mean daily rainfall
 #' (mm) can be specified to allow generation of temperature change scenarios.
 #' 
 #' Note that this function uses the temperature generation algorithms of the RMAWGEN

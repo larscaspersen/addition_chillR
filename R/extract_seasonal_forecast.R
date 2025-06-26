@@ -38,7 +38,9 @@
 #' leadtime_hour = seq(0, 24*7, by = 6), 
 #' start_download = TRUE)
 #' 
-#' extract_seasonal_forecast(file = 'season-forecast_dwd21_2m_temperature_1996_11_1_0-168_51-6.5-50-7.5.nc', 
+#' fname <- 'season-forecast_dwd21_2m_temperature_1996_11_1_0-168_51-6.5-50-7.5.nc'
+#' 
+#' extract_seasonal_forecast(file = fname, 
 #' target_lat = 50.7,
 #' target_lon = 7.1)
 #' 
@@ -50,10 +52,6 @@
 #' @importFrom CFtime CFtime
 #' @importFrom CFtime as_timestamp
 #' @importFrom CFtime parse_timestamps
-#' @importFrom dplyr mutate  
-#' @importFrom dplyr select
-#' @importFrom magrittr "%>%"
-#' 
 #'  
 #' @export extract_seasonal_forecast
 #' 
@@ -158,14 +156,15 @@ target_lon = NULL){
     for(j in 1:length(lon_idx)){
       temp <- as.vector(temp_array[lon_idx[j], lat_idx[j],,,i])  
       
-      int_df <- time_cf  %>% 
-        dplyr::mutate(temperature = round(temp, digits = 4),
-               unit = temp_units$value,
-               latitude = lat[lat_idx[j]],
-               target_lat = target_lat[j],
-               longitude = lon[lon_idx[j]],
-               target_lon = target_lon[j],
-               model = i)
+      int_df <- time_cf
+      
+      int_df$temperature <- round(temp, digits = 4)
+      int_df$unit <- temp_units$value
+      int_df$latitude <- lat[lat_idx[j]]
+      int_df$target_lat <- target_lat[j]
+      int_df$longitude <- lon[lon_idx[j]]
+      int_df$target_lon <- target_lon[j]
+      int_df$model <- i
       
       temp_df <- rbind(temp_df, int_df)
     }
@@ -175,13 +174,15 @@ target_lon = NULL){
   
   ncdf4::nc_close(nc)
   
-  temp_df %>% 
-    dplyr::mutate(Month = month,
-           Year = year,
-           Day = day,
-           Hour = hour,
-           temp = temperature) %>% 
-    dplyr::select(Year, Month, Day, Hour, temp, unit, model, latitude, longitude, target_lat, target_lon) %>% 
-    return()
+  #
+  temp_df$Month <-  temp_df$month
+  temp_df$Year <-  temp_df$year
+  temp_df$Day <-  temp_df$day
+  temp_df$Hour <-  temp_df$hour 
+  temp_df$temp <-  temp_df$temperature 
+  
+  temp_df <- temp_df[,c('Year', 'Month', 'Day', 'Hour', 'temp', 'unit', 'model', 'latitude', 'longitude', 'target_lat', 'target_lon')]
+  
+  return(temp_df)
   
 }

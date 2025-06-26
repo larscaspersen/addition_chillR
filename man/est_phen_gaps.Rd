@@ -17,7 +17,7 @@ est_phen_gaps(target_df, target_col, split_col)
 data.frame with species, location, upper and lower limit in day of the year
 }
 \description{
-Allows to shift properties of bloom time window from one location to another. 
+Allows to shift properties of bloom time window from one location to another.
 Minimum requirement is at least one shared species between the locations.
 }
 \author{

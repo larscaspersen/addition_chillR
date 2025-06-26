@@ -7,17 +7,17 @@
 custom_essr(problem, opts = list(maxeval = NULL, maxtime = NULL), ...)
 }
 \arguments{
-\item{problem}{list containing the initial parameter values x_0, the upper bound x_u, lower bound x_L and the 
+\item{problem}{list containing the initial parameter values x_0, the upper bound x_u, lower bound x_L and the
 evaluation function. You can also add inequality restraints to the problem statement}
 
-\item{opts}{list of arguments controlling the optimization algorithm. 
+\item{opts}{list of arguments controlling the optimization algorithm.
 Most important are maxeval, controlling the maximum number of evaluations before stopping the optimization, and
 maxtime, maximum time in seconds for the optimizer to run}
 
 \item{...}{Further arguments that get supplied to the evaluation function in the problem statement}
 }
 \value{
-returns a list containing optimized parameters, intermediate solutions, final performance score and 
+returns a list containing optimized parameters, intermediate solutions, final performance score and
 much more.
 }
 \description{

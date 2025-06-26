@@ -21,17 +21,23 @@ download_seasonal_forecast(
 )
 }
 \arguments{
-\item{year}{numeric or character, indicates for which years forecast data 
+\item{year}{numeric or character, indicates for which years forecast data
 should be downloaded. Can also be a vector of years.
 For most data sources, earliest possible year is 1993, some also can go back to 1981. For
 more details check the documentation of the dataset.}
 
-\item{month}{numeric or character, indicates for which months forecast data should be downloaded. 
+\item{month}{numeric or character, indicates for which months forecast data should be downloaded.
 This indicates the start_point of the forecast. Can also be a vector of months.}
 
-\item{area}{numeric, of length 4. Specifies the coordinates of the area for 
+\item{area}{numeric, of length 4. Specifies the coordinates of the area for
 the downloaded forecast data. Coordinates are provided in the format:
 max latitude, min longitude, min latitude, max longtidue}
+
+\item{leadtime_hour}{numeric or character, indicates for which timepoints
+data should be downloaded. By default is set to 'all', requesting full length of forecast.
+Leadtime hour indicates timepoints (in hours since first day midnight).
+Data is provided every six hours, so provided values need to be divisible by six.
+Can be a vector of hours. Maximum value depends on data source, but in most cases cover up to six months (=4416).}
 
 \item{fname}{character, indicates file name for the download. By default is set to NULL,
 so that file name is decided automatically. Automated file naming indicates most relevant
@@ -40,7 +46,7 @@ parameter specified in the download call. For more infor of automated file namin
 \item{download_path}{character, specifies where the downloaded file should be saved. Is by default
 the working directory of the R session.}
 
-\item{start_download}{logical, indicates if download should start after the request is sent. 
+\item{start_download}{logical, indicates if download should start after the request is sent.
 If set TRUE (default), the function will be busy until the file is downloaded from the
 API. Usually it takes a while until the dataset is ready for download, so in larger requests
 (several years, several months) it is adviced to set to FALSE. When set to FALSE,
@@ -48,7 +54,7 @@ the request is sent to API and the file can be downloaded later. See in example 
 download and request can be run independently from another.}
 
 \item{request_env}{environment object, created by the download function when parameter start_download is set FALSE.
-Allows the download of the requested forecast data independently from the request. Can be also used in 
+Allows the download of the requested forecast data independently from the request. Can be also used in
 a different R session, if the request_env is saved.}
 
 \item{data_format}{character, decides on file format. By default is set to 'netcdf'.
@@ -63,16 +69,8 @@ for the start. By default set to 1, for first day of the month}
 \item{variable}{character, indicates what variable to download. By default set to '2m_temperature' for temperature at
 2m height. Check the documentation of the dataset for more options.}
 
-\item{system}{character, indicates the global circulation model used for the forecast. Check documentation of the dataset, 
+\item{system}{character, indicates the global circulation model used for the forecast. Check documentation of the dataset,
 or the details, to see what combination of originating_center and system are valid.}
-
-\item{leadtime_hours}{numeric or character, indicates for which timepoints 
-data should be downloaded. By default is set to 'all', requesting full length of forecast.
-Leadtime hour indicates timepoints (in hours since first day midnight). 
-Data is provided every six hours, so provided values need to be divisible by six.
-Can be a vector of hours. Maximum value depends on data source, but in most cases cover up to six months (=4416).}
-
-\item{target_lon}{numeric, longitude of the location you want to extract. Be default set to NULL. If both target_lat and target_lon are NULL, then all the pixel values are extracted.}
 }
 \value{
 if start_download = TRUE, then nothing is returned. If start_download = FAlSE, then an environment object is returned,
@@ -85,42 +83,43 @@ forecast daily and subdaily data on single levels. You can find more information
 the dataset online: https://cds.climate.copernicus.eu/datasets/seasonal-original-single-levels?tab=overview.
 }
 \details{
-The communication with the API is done with the help of the ecmwfr package. 
+The communication with the API is done with the help of the ecmwfr package.
 Check out the ecmwfr package: https://cran.r-project.org/web/packages/ecmwfr/index.html
 The package can be used to also access other datasets. For instance, the ecmwfr package is used
 to download climate change projections from the Coupled Model Intercomparison Project Phase 6 (CMIP6)
 in the chillR package.
 
-
-
 Combination of originating center, system and maximum leadtime_hour
+\itemize{
+\item ecmwf: system = c('4', '5', '51'), year_start = 1981, leadtime_hour_end = 5160, month = 1:12, day = '01'
+\item ukmo: system = as.character(c(12:15, 600:604)), year_start = 1993, leadtime_hour_end = 5160, month = 1:12, day = c('01', '9', '17', '25')
+\item meteo_france: system = as.character(5:9),year_start = 1993, leadtime_hour_end = 5160, month = 1:12, day = c('01')
+\item dwd: system = as.character(c(2, 21,22)),year_start = 1993, leadtime_hour_end = 4416,month = 1:12, day = c('01')
+\item cmcc: system = as.character(c(3, 35)), year_start = 1993, leadtime_hour_end = 4416, month = 1:12, day = c('01')
+\item ncep: system = as.character(c(2)),year_start = 1993,leadtime_hour_end = 5160,month = 1:12,day = as.character(1:30)
+\item jma: system = as.character(c(2, 3)),year_start = 1981,leadtime_hour_end = 5160,month = 1:12,day = as.character(1:30)
+\item eccc: system = as.character(1:5),year_start = 1993, leadtime_hour_end = 5136,month = 1:12,day = c('01')
+\item bom: system = as.character(2),year_start = 1993,leadtime_hour_end = 5208,month = 2:7,day = c('01'))
+}
 
-\item{ecmwf}{system = c('4', '5', '51'), year_start = 1981, leadtime_hour_end = 5160, month = 1:12, day = '01'} 
-\item{ukmo}{system = as.character(c(12:15, 600:604)), year_start = 1993, leadtime_hour_end = 5160, month = 1:12, day = c('01', '9', '17', '25')}
-\item{meteo_france}{system = as.character(5:9),year_start = 1993, leadtime_hour_end = 5160, month = 1:12, day = c('01')}
-\item{dwd}{system = as.character(c(2, 21,22)),year_start = 1993, leadtime_hour_end = 4416,month = 1:12, day = c('01')}
-\item{cmcc}{system = as.character(c(3, 35)), year_start = 1993, leadtime_hour_end = 4416, month = 1:12, day = c('01')}
-\item{ncep}{system = as.character(c(2)),year_start = 1993,leadtime_hour_end = 5160,month = 1:12,day = as.character(1:30)}
-\item{jma}{system = as.character(c(2, 3)),year_start = 1981,leadtime_hour_end = 5160,month = 1:12,day = as.character(1:30)}
-\item{eccc}{system = as.character(1:5),year_start = 1993, leadtime_hour_end = 5136,month = 1:12,day = c('01')}
-\item{bom}{system = as.character(2),year_start = 1993,leadtime_hour_end = 5208,month = 2:7,day = c('01'))}
-#' Structure of automated names
-
-\item{'seasonal_forecast'} 
-\item{organization (e.g. dwd) with system (e.g. 21) --> dwd21}
-\item{variable (2m_temperature)}
-\item{years (e.g. 1996), if a range is supplied it covers min year to max year (e.g. 1996-2000)}
-\item{reference month (e.g. 11) this is the start point of the forecast, if a range is supplie it covers min month to max month (e.g. 1-12)}
-\item{leadtime (e.g 6), this is the hours since the reference month (usually starts at day 1 of the month), if range it covers 
-max leadtime_hour to min leadtime_hour (e.g. 0-168 for a week forecast)}
-\item{area (e.g. 51-6.5-50-7.5), coordinates of map, follows the order: max latitude, min longitude, min latitude, max longtidue}
+Structure of automated names
+\itemize{
+\item 'seasonal_forecast'
+\item organization (e.g. dwd) with system (e.g. 21) --> dwd21
+\item variable (2m_temperature)
+\item years (e.g. 1996), if a range is supplied it covers min year to max year (e.g. 1996-2000)
+\item reference month (e.g. 11) this is the start point of the forecast, if a range is supplie it covers min month to max month (e.g. 1-12)
+\item leadtime (e.g 6), this is the hours since the reference month (usually starts at day 1 of the month), if range it covers
+max leadtime_hour to min leadtime_hour (e.g. 0-168 for a week forecast)
+\item area (e.g. 51-6.5-50-7.5), coordinates of map, follows the order: max latitude, min longitude, min latitude, max longtidue
 Example: season-forecast_dwd21_2m_temperature_1996_11_1_0-24_51-6.5-50-7.5
 year: 1996, month: 11, leadtime: from 0 to 24 (from Nov 1 to Nov 2), area: 51, 6.5, 50, 7.5
+}
 
 How to run request and download indepently from another:
 The API usually needs some time (some minutes to some hours) to process the request and make the data available for download.
-So it can be convenient to handle data request and download seperately. If you set start_download = FALSE, 
-then the function returns an object that allows to run the request later on. The object is an environment containing several variables and functions. 
+So it can be convenient to handle data request and download seperately. If you set start_download = FALSE,
+then the function returns an object that allows to run the request later on. The object is an environment containing several variables and functions.
 To commence download, you can simply re-run the download function, this time supply the obtained object from the request to the variable 'request_env'
 If the data is ready for download, the download will start. If it still being processed or if it is still queued, the function would inform you about it and
 you can try it another time. You can also directly use the object obtained from the intial data-request to do the download manually. You can find an example
@@ -138,7 +137,7 @@ area = c(51, 6.5, 50, 7.5),
 leadtime_hour = seq(0, 24*2, by = 6), 
 start_download = TRUE)
 
-#use initial request and download indepently from another
+#use initial request and download independently from another
 req <- download_seasonal_forecast(year = c('1996'),
 month = '11', 
 area = c(51, 6.5, 50, 7.5),
@@ -153,7 +152,8 @@ leadtime_hour = seq(0, 24*2, by = 6),
 start_download = FALSE,
 request_env = req)
 
-#you can also save the req_environment and run the download later in another r session
+#you can also save the req_environment and run the download 
+#later in another r session
 saveRDS(req, file = 'request.rds')
 req <- readRDS('request.rds')
 
