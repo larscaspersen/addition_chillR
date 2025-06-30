@@ -14,7 +14,7 @@ download_seasonal_forecast(
   start_download = TRUE,
   request_env = NULL,
   data_format = "netcdf",
-  day = NULL,
+  day = 1,
   originating_centre = "dwd",
   variable = "2m_temperature",
   system = "21"

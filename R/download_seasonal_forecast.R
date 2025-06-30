@@ -153,7 +153,7 @@ download_seasonal_forecast <- function(year,
                                        start_download = TRUE,
                                        request_env = NULL,
                                        data_format = 'netcdf',
-                                       day = NULL,
+                                       day = 1,
                                        originating_centre = 'dwd',
                                        variable = "2m_temperature",
                                        system = '21'){
@@ -219,10 +219,17 @@ download_seasonal_forecast <- function(year,
     assertthat::is.dir(download_path)
   )
   
-  if(length(day) == 0){
+  if(is.null(day)){
+      day <- '01'
+  }
+  if(length(day) == 1){
     if(day == 1){
       day <- '01'
+    } else {
+      day <- as.character(day)
     }
+  } else {
+    day <- as.character(day)
   }
   
   #set the current year as highest possible end-year

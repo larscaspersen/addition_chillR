@@ -84,16 +84,8 @@
 #' 
 #' }
 #' 
-#' @importFrom assertthat assert_that
-#' @importFrom assertthat is.string
-#' @importFrom assertthat is.dir
-#' @importFrom ecmwfr wf_transfer
-#' @importFrom ecmwfr wf_request
-#' @importFrom dplyr mutate
-#' @importFrom dplyr group_by
-#' @importFrom dplyr summarise
-#' @importFrom dplyr filter
 #' @importFrom lubridate ym
+#' @importFrom stats aggregate
 #'  
 #' @export mva_bias_correction_forecast
 #' 
@@ -101,20 +93,18 @@
 mva_bias_correction_forecast <- function(observed, predicted,
                                          unit_observed = 'C'){
   
-  #declase . as a global variable
-  . <- NULL
-  
   #summarize both on a monthly basis
   if(all(c('Month', 'Year') %in% colnames(observed)) == FALSE){
     stop('Columns "Month" and "Year" need to be present in object "observed"')
   }
   
   
-  fcst_sum <- predicted %>% 
-    dplyr::group_by(.$Year, .$Month, .$model) %>% 
-    dplyr::summarise(mean_fcst = mean(.$temp) %>%  round(digits = 4)) %>% 
-    dplyr::mutate(year_mo = lubridate::ym(paste(.$Year, .$Month)))
-  
+  fcst_sum <- stats::aggregate(predicted$temp, by = list(Month = predicted$Month, 
+                                                  Year = predicted$Year,
+                                                  model = predicted$model),FUN = mean,
+                        na.action = na.pass, na.rm = TRUE)
+  fcst_sum$mean_fcst <- round(fcst_sum$x, digits = 4)
+  fcst_sum$year_mo <- lubridate::ym(paste(fcst_sum$Year, fcst_sum$Month))
   
   
   #select target column
@@ -128,13 +118,15 @@ mva_bias_correction_forecast <- function(observed, predicted,
     stop('Temperature column with the name "Tmean", "Temp", "Tmin" together with "Tmax" need to be present in object "observed".')
   }
   
+  observed$year_mo <- lubridate::ym(paste(observed$Year, observed$Month))
+  #filter only relevant years and months
+  observed_sub <- observed[observed$year_mo %in% fcst_sum$year_mo,]
   
-  #summarize temperature for each month
-  observed_sum = observed %>% 
-    dplyr::mutate(year_mo = lubridate::ym(paste(.$Year, .$Month))) %>% 
-    dplyr::filter(.$year_mo %in% fcst_sum$year_mo) %>% 
-    dplyr::group_by(.$Year, .$Month) %>% 
-    dplyr::summarise(mean_obs = mean(.$target_col) %>%  round(digits = 4)) 
+  observed_sum <-  stats::aggregate(observed_sub$target_col, by = list(Month = observed_sub$Month, 
+                                                               Year = observed_sub$Year),FUN = mean,
+                            na.action = na.pass, na.rm = TRUE)
+  observed_sum$mean_obs <- round(observed_sum$x, digits = 4)
+  
   
   if(unit_observed == 'C'){
     observed_sum$mean_obs <- observed_sum$mean_obs + 273.15
@@ -160,12 +152,13 @@ mva_bias_correction_forecast <- function(observed, predicted,
   fcst_sum$fcst_call = fcst_call
   
   #calc correction factor that is used to scale the daily observation of forecast
-  fcst_sum$corr_fact <- abs(fcst_sum$fcst_call / fcst_sum$mean_fcst)
+  fcst_sum$corr_fact <- (fcst_sum$fcst_call / fcst_sum$mean_fcst)
   
   
-  predicted %>% 
-    merge(fcst_sum,
-          by = c('Year', 'Month', 'model')) %>% 
-    dplyr::mutate(temp_corrected = .$temp * .$corr_fact) %>% 
-    return()
+  #select appropriate columns
+  fcst_sum <- fcst_sum[,c('Year', 'Month', 'model', 'mean_fcst', 'fcst_call', 'corr_fact')]
+  
+  combined <-  merge(predicted, fcst_sum, by = c('Year', 'Month', 'model')) 
+  combined$temp_corrected = combined$temp * combined$corr_fact 
+  return(combined)
 }
