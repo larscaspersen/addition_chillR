@@ -54,35 +54,18 @@
 #' @examples \dontrun{
 #' 
 #' #download temperature for Bonn
-#' fcst_temp <- download_shortterm_forecast(latitude = 50.7,
+#' fcst_temp <- download_shortterm_forecast_historical(latitude = 50.7,
 #'                                          longitude = 7.1,
 #'                                          var = 'temperature_2m',
-#'                                          forecast_days = 16)
+#'                                          start_date = '2024-11-01,
+#'                                          end_date = '2024-11-10)
 #' 
 #' #download rain for Bonn
-#' fcst_rain <- download_shortterm_forecast(latitude = 50.7,
+#' fcst_rain <- download_shortterm_forecast_historical(latitude = 50.7,
 #'                                          longitude = 7.1,
 #'                                          var = 'rain',
-#'                                          forecast_days = 16)
-#' 
-#' #specify model
-#' #--> need to build params list
-#' fcst_specific_model <- download_shortterm_forecast(params = list(
-#'   latitude = 50.7, 
-#'   longitude = 7.1,
-#'   hourly = 'temperature_2m',
-#'   forecast_days = 16,
-#'  model = 'ecmwf_ifs025'
-#' ))
-#' 
-#' #seamless combines forecast of several models
-#' fcst_specific_model <- download_shortterm_forecast(params = list(
-#'   latitude = 50.7, 
-#'   longitude = 7.1,
-#'   hourly = 'temperature_2m',
-#'   forecast_days = 16,
-#'   model = 'icon_seamless'
-#' )) 
+#'                                          start_date = '2024-11-01,
+#'                                          end_date = '2024-11-10)
 #' }
 #' 
 #' @export download_shortterm_forecast
@@ -102,7 +85,7 @@ download_shortterm_forecast_historical <- function(latitude=NULL,
       longitude = longitude,
       hourly = var,
       start_date = start_date,
-      end_date = end_date,
+      end_date = end_date
     )
   } 
   out <- download_shortterm_forecast(params = params, base_url = base_url)
