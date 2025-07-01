@@ -86,6 +86,7 @@
 #' 
 #' @importFrom lubridate ym
 #' @importFrom stats aggregate
+#' @importFrom stats na.pass
 #'  
 #' @export mva_bias_correction_forecast
 #' 
@@ -124,7 +125,7 @@ mva_bias_correction_forecast <- function(observed, predicted,
   
   observed_sum <-  stats::aggregate(observed_sub$target_col, by = list(Month = observed_sub$Month, 
                                                                Year = observed_sub$Year),FUN = mean,
-                            na.action = na.pass, na.rm = TRUE)
+                            na.action = stats::na.pass, na.rm = TRUE)
   observed_sum$mean_obs <- round(observed_sum$x, digits = 4)
   
   
