@@ -21,6 +21,7 @@ Year, Month, Day, Hour indicate the date for the extracted value.
 temp: contains the extracted temperature values
 unit: indicates in what unit the temperatue is supplied (usually Kelvin)
 model: indicates the individual model that provided the output. Usually, the seasonal forecast contain an
+reference_time: start point of the forecast (Date)
 ensemble of models making the predictions. The underlying model is that generated the observation is shared among models, they are just different instances, as the forecast involves randomness.
 latitude: original latitude of the pixel
 longtidue: original longitude of the pixel
