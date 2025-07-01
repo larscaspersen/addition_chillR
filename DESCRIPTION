@@ -15,5 +15,5 @@ Depends:
     magrittr,
     R (>= 3.5),
     utils
-Imports: assertthat, chillR, CFtime,dplyr, ecmwfr,  ggplot2, lubridate, ncdf4, nleqslv, patchwork, purrr, readr, reshape2, RMAWGEN, Rsolnp, stats, tidyr
+Imports: assertthat, chillR, CFtime,dplyr, ecmwfr,  ggplot2, httr, jsonlite, lubridate, ncdf4, nleqslv, patchwork, purrr, readr, reshape2, RMAWGEN, Rsolnp, stats, tidyr
 LazyData: true
