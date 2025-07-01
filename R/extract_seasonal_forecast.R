@@ -20,6 +20,7 @@
 #' temp: contains the extracted temperature values
 #' unit: indicates in what unit the temperatue is supplied (usually Kelvin)
 #' model: indicates the individual model that provided the output. Usually, the seasonal forecast contain an
+#' reference_time: start point of the forecast (Date)
 #' ensemble of models making the predictions. The underlying model is that generated the observation is shared among models, they are just different instances, as the forecast involves randomness.
 #' latitude: original latitude of the pixel
 #' longtidue: original longitude of the pixel
@@ -101,6 +102,13 @@ target_lon = NULL){
   #bring into proper format
   time_cf <- CFtime::parse_timestamps(cf, timestamps)
   
+  
+  #process reference period (startpoint of forecast)
+  ref_time_units <- ncdf4::ncatt_get(nc, "forecast_reference_time", "units")$value
+  ref_time_cf <- CFtime::CFtime(ref_time_units, calendar = "proleptic_gregorian", fcst_ref_time)
+  ref_timestamps <- CFtime::as_timestamp(ref_time_cf)
+  
+  
   #------------------#
   #LOCATION
   #------------------#
@@ -165,6 +173,7 @@ target_lon = NULL){
       int_df$longitude <- lon[lon_idx[j]]
       int_df$target_lon <- target_lon[j]
       int_df$model <- i
+      int_df$reference_time <- rep(ref_timestamps, each = length(fcst_period))
       
       temp_df <- rbind(temp_df, int_df)
     }
@@ -181,7 +190,7 @@ target_lon = NULL){
   temp_df$Hour <-  temp_df$hour 
   temp_df$temp <-  temp_df$temperature 
   
-  temp_df <- temp_df[,c('Year', 'Month', 'Day', 'Hour', 'temp', 'unit', 'model', 'latitude', 'longitude', 'target_lat', 'target_lon')]
+  temp_df <- temp_df[,c('Year', 'Month', 'Day', 'Hour', 'temp', 'unit', 'model', 'reference_time', 'latitude', 'longitude', 'target_lat', 'target_lon')]
   
   return(temp_df)
   
