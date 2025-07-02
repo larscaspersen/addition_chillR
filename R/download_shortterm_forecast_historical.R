@@ -68,7 +68,7 @@
 #'                                          end_date = '2024-11-10)
 #' }
 #' 
-#' @export download_shortterm_forecast
+#' @export download_shortterm_forecast_historical
 #' 
 
 download_shortterm_forecast_historical <- function(latitude=NULL,
