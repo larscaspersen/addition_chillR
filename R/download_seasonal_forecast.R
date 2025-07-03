@@ -187,10 +187,6 @@ download_seasonal_forecast <- function(year,
   month <- as.character(month)
   leadtime_hour <- as.character(leadtime_hour)
   
-  #maybe also use check_request
-  #ecmwfr::wf_check_request()
-  
-  
   #check input of request, send request (and download if start_download)
   
   #----------------------#
@@ -290,12 +286,21 @@ download_seasonal_forecast <- function(year,
   if(length(leadtime_hour) == 1){
     if(leadtime_hour == 'all'){
       leadtime_hour <- as.character(seq(0, master_list[[originating_centre]]$leadtime_hour_end, by = 6))
+      if(any(c("maximum_2m_temperature_in_the_last_24_hours","minimum_2m_temperature_in_the_last_24_hours") %in% variable)){
+        leadtime_hour <- as.character(seq(24, master_list[[originating_centre]]$leadtime_hour_end, by = 24))
+      } 
     }
   }
   
   #make sure that leadtime is covered
   if(all(leadtime_hour %in% as.character(seq(0,master_list[[originating_centre]]$leadtime_hour_end, by = 6))) == FALSE){
     stop(paste0('The leadtime is outside the valid range. You can only select leadtime (hours) for the range: 0 - ',  master_list[[originating_centre]]$leadtime_hour_end,'.\ Hours need to be divisible by 6'))
+  }
+  
+  #in case the variable contains  c("maximum_2m_temperature_in_the_last_24_hours","minimum_2m_temperature_in_the_last_24_hours"), only leadtime hour divisible by 24 is allowed
+  if(any(c("maximum_2m_temperature_in_the_last_24_hours","minimum_2m_temperature_in_the_last_24_hours") %in% variable)){
+    if(any(as.numeric(leadtime_hour) %% 24 != 0))
+      stop('Leadtime hour needs to be divisible by 24 if variable includes daily minimum or maximum temperature. Adjust the leadtime_hour input or set it to "all"')
   }
   
   if(all(as.character(day) %in% master_list[[originating_centre]]$day) == FALSE){
@@ -339,10 +344,21 @@ download_seasonal_forecast <- function(year,
   
   
   if(is.null(fname)){
+    
+    var_fname <- variable
+    if(length(variable) >1){
+      var_fname <- paste(variable, collapse = '-')
+      if(length(variable) == 2){
+        if(all(variable %in%  c("maximum_2m_temperature_in_the_last_24_hours","minimum_2m_temperature_in_the_last_24_hours"))){
+          var_fname <- 'Tmin-Tmax' 
+        }
+      }
+    }
+    
   #create a filename based on the request
   fname <- paste0('season-forecast_',
                   originating_centre, system, '_',
-                  variable, '_',
+                  var_fname, '_',
                   min_year, max_year, '_',
                   min_month, max_month, '_',
                   min_day, max_day, '_',
