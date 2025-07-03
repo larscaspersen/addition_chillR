@@ -18,15 +18,15 @@ absolute or relative path to the file.}
 \value{
 data.frame containing the columns: Year, Month, Day, Hour, temp, unit, model, latitude, longitude, target_lat, target_lon.
 Year, Month, Day, Hour indicate the date for the extracted value.
-temp: contains the extracted temperature values
-unit: indicates in what unit the temperatue is supplied (usually Kelvin)
+one column containing the variable value and another with the unit of the value
+name of the variable columns are the same as in the nc file
 model: indicates the individual model that provided the output. Usually, the seasonal forecast contain an
 reference_time: start point of the forecast (Date)
 ensemble of models making the predictions. The underlying model is that generated the observation is shared among models, they are just different instances, as the forecast involves randomness.
 latitude: original latitude of the pixel
-longtidue: original longitude of the pixel
+longitude: original longitude of the pixel
 target_lat: latitude for the target point, that we wanted to extract
-target_lon: longitude of the taret point, that we wanted to extract
+target_lon: longitude of the target point, that we wanted to extract
 }
 \description{
 Opens a downloaded netcdf file (.nc) and brings it into a data.frame format.

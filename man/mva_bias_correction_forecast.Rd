@@ -4,7 +4,14 @@
 \alias{mva_bias_correction_forecast}
 \title{Perform mean and variance adjustment (MVA) bias correction}
 \usage{
-mva_bias_correction_forecast(observed, predicted, unit_observed = "C")
+mva_bias_correction_forecast(
+  observed,
+  predicted,
+  obs_cols = "Tmean",
+  pred_cols = "temp",
+  unit_observed = "C",
+  unit_predicted = "K"
+)
 }
 \arguments{
 \item{observed}{data.frame, contains observed temperature. Is usually the same format as
@@ -14,8 +21,19 @@ Tmean, Temp, or combination of Tmin and Tmax.}
 \item{predicted}{data.frame containing the forecast data. Usually the same format as when running the
 extract_seaonal_forecast() function. Should contain columns: Year, Month, Day, Temp, unit}
 
+\item{obs_cols}{character, indicates in which columns the observed weather variable is stored. Can be also a vector of column names, needs
+to match the length and order of the columns indicated in the pred_cols argument. Columns of predicted and observed are matched in the same order as
+indicated in the vectors}
+
+\item{pred_cols}{character, indicates in which columns the forecast weather variable is stored. Can be also a vector of column names, needs
+to match the length and order of the columns indicated in the obs_cols argument. Columns of predicted and observed are matched in the same order as
+indicated in the vectors}
+
 \item{unit_observed, }{character, by default "C". Indicates the unit of the input temperature. Bias correction is done in Kelvin.
 To indicate Fahrenheit, use "F". To indicate Kelvin use "K"}
+
+\item{unit_predicted, }{character, by default "K". Indicates the unit of the forecast temperature. Bias correction is done in Kelvin.
+To indicate Fahrenheit, use "F". To indicate Celsius use "C"}
 }
 \value{
 data.frame, same format as "predicted", with additional column indicating correction factor and corrected (sub) daily temperature
