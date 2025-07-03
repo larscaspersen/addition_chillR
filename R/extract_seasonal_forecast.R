@@ -17,15 +17,15 @@
 #' 
 #' @return data.frame containing the columns: Year, Month, Day, Hour, temp, unit, model, latitude, longitude, target_lat, target_lon.
 #' Year, Month, Day, Hour indicate the date for the extracted value.
-#' temp: contains the extracted temperature values
-#' unit: indicates in what unit the temperatue is supplied (usually Kelvin)
+#' one column containing the variable value and another with the unit of the value
+#' name of the variable columns are the same as in the nc file
 #' model: indicates the individual model that provided the output. Usually, the seasonal forecast contain an
 #' reference_time: start point of the forecast (Date)
 #' ensemble of models making the predictions. The underlying model is that generated the observation is shared among models, they are just different instances, as the forecast involves randomness.
 #' latitude: original latitude of the pixel
-#' longtidue: original longitude of the pixel
+#' longitude: original longitude of the pixel
 #' target_lat: latitude for the target point, that we wanted to extract
-#' target_lon: longitude of the taret point, that we wanted to extract
+#' target_lon: longitude of the target point, that we wanted to extract
 #' 
 #' @author Lars Caspersen
 #' 
@@ -67,8 +67,8 @@ target_lon = NULL){
   #check variables
   vars <- names(nc$var)
   #expect vars to be valid time and t2m
-  if(any(vars != c("valid_time", "t2m"))) {
-    warning(paste('Expected ncdf file to contain "valid_time", and "t2m" as variables. However, this file contains:', paste(vars, collapse = ', '), 
+  if(any(vars %in% c("valid_time", "t2m", "mx2t24", "mn2t24") == FALSE)) {
+    warning(paste('Expected ncdf file to contain "valid_time", and one of the following further variables "t2m", "mx2t24", or "mn2t24". However, this file contains:', paste(vars, collapse = ', '), 
                   '\nExtracting values might malfunction for the variables you downloaded'))
   }
   
@@ -132,6 +132,8 @@ target_lon = NULL){
       stop('Target latitude or longitude not covered by downloaded grid. Either check if you downloaded the right area or check if the target coordinates are right')
     }
     
+    
+    #position of the pixel(s) that we extract
     lat_idx <- c()
     lon_idx <- c()
     #find closest pixel to the target coordinates
@@ -152,46 +154,57 @@ target_lon = NULL){
   #TEMPERATURE
   #-----------------#
   
-  #extract data
-  temp_array <- ncdf4::ncvar_get(nc,vars[2], collapse_degen = FALSE)
-  #extract unit
-  temp_units <- ncdf4::ncatt_get(nc,vars[2],"units")
+  #contains the extracted values
+  res_df <- data.frame()
   
-  #container for extracted data
-  temp_df <- data.frame()
-  
-  for(i in 1:length(number)){
-    for(j in 1:length(lon_idx)){
-      temp <- as.vector(temp_array[lon_idx[j], lat_idx[j],,,i])  
+  #iterate over further variables
+  for(v in vars[2:length(vars)]){
+    #extract data
+    temp_array <- ncdf4::ncvar_get(nc,v, collapse_degen = FALSE)
+    #extract unit
+    temp_units <- ncdf4::ncatt_get(nc,v,"units")
+    
+    temp_df <- data.frame()
+    for(i in 1:length(number)){
+      for(j in 1:length(lon_idx)){
+        temp <- as.vector(temp_array[lon_idx[j], lat_idx[j],,,i])  
+        
+        int_df <- time_cf[,c('year', 'month', 'day', 'hour')]
+        
+        int_df[,v] <- round(temp, digits = 4)
+        int_df[,paste0('unit_', v)] <- temp_units$value
+        int_df$latitude <- lat[lat_idx[j]]
+        int_df$target_lat <- target_lat[j]
+        int_df$longitude <- lon[lon_idx[j]]
+        int_df$target_lon <- target_lon[j]
+        int_df$model <- i
+        int_df$reference_time <- rep(ref_timestamps, each = length(fcst_period))
+        
+        temp_df <- rbind(temp_df, int_df)
+      }
       
-      int_df <- time_cf
       
-      int_df$temperature <- round(temp, digits = 4)
-      int_df$unit <- temp_units$value
-      int_df$latitude <- lat[lat_idx[j]]
-      int_df$target_lat <- target_lat[j]
-      int_df$longitude <- lon[lon_idx[j]]
-      int_df$target_lon <- target_lon[j]
-      int_df$model <- i
-      int_df$reference_time <- rep(ref_timestamps, each = length(fcst_period))
-      
-      temp_df <- rbind(temp_df, int_df)
     }
     
-    
+    if(nrow(res_df) == 0){
+      res_df <- temp_df
+    } else{
+      #merge with final data.frame
+      res_df <- merge(res_df, temp_df, by = c('year', 'month', 'day', 'hour', 'latitude', 'longitude', 'target_lat', 'target_lon', 'model', 'reference_time'))
+    }
+
   }
+  
+
   
   ncdf4::nc_close(nc)
   
-  #
-  temp_df$Month <-  temp_df$month
-  temp_df$Year <-  temp_df$year
-  temp_df$Day <-  temp_df$day
-  temp_df$Hour <-  temp_df$hour 
-  temp_df$temp <-  temp_df$temperature 
+  #rename some columns
+  colnames(res_df)[which(colnames(res_df) == 'month')] <- 'Month'
+  colnames(res_df)[which(colnames(res_df) == 'year')] <- 'Year'
+  colnames(res_df)[which(colnames(res_df) == 'day')] <- 'Day'
+  colnames(res_df)[which(colnames(res_df) == 'hour')] <- 'Hour'
   
-  temp_df <- temp_df[,c('Year', 'Month', 'Day', 'Hour', 'temp', 'unit', 'model', 'reference_time', 'latitude', 'longitude', 'target_lat', 'target_lon')]
-  
-  return(temp_df)
+  return(res_df)
   
 }
