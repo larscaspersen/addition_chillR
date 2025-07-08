@@ -87,7 +87,7 @@ weighted_mean_with_fail <- function(predicted, confidence, return_se = TRUE, n_f
       dplyr::pull(.data$sd)
     
     #replace predicted NA with 0s
-    predicted_tmp <- predicted %>% replace(is.na(.data), 0)
+    predicted_tmp <- replace(predicted, is.na(predicted), 0)
     
     #calculate weighted individual pred, then get the sum
     weighted_pred <- predicted_tmp * weights 
