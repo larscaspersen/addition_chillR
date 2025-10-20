@@ -62,7 +62,12 @@
 #' 
 #' @param system character, indicates the global circulation model used for the forecast. Check documentation of the dataset, 
 #' or the details, to see what combination of originating_center and system are valid.
-
+#' 
+#' @param user character, the email address linked to the Copernicus Datastore / ECMWF account. 
+#' Make sure to also set the key (need to do it only once.) To set the key, run the following code: 
+#' ecmwfr::wf_set_key(key = "insert API key here", user = "insert email address of profile here"). 
+#' Make sure to replace the example text with your actual key and email address.'
+#' 
 #' @return if start_download = TRUE, then nothing is returned. If start_download = FAlSE, then an environment object is returned,
 #' that can be used to download the requested data later (once it is ready for download). 
 #' 
