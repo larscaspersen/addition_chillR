@@ -156,7 +156,8 @@ download_seasonal_forecast <- function(year,
                                        day = 1,
                                        originating_centre = 'dwd',
                                        variable = "2m_temperature",
-                                       system = '21'){
+                                       system = '21',
+                                       user = 'ecmwfr'){
   
   #in case request id is supplied, start the download
   if(is.null(request_env) == FALSE){
@@ -343,6 +344,16 @@ download_seasonal_forecast <- function(year,
   if(data_format == 'grib') fextension <- '.grib'
   
   
+  #check the username
+  test_key <- try(ecmwfr::wf_get_key(user =  user))
+  if(class(test_key) == "try-error"){
+    stop('The user name does not have an API key linked to it. Check your profile on the copernicus data store. To set the key run:  
+    ecmwfr::wf_set_key(key = "insert API key here", user = "insert email address of profile here"). 
+         Make sure to replace the example text with your actual key and email address.')
+  }
+  
+
+  
   if(is.null(fname)){
     
     var_fname <- variable
@@ -387,7 +398,8 @@ download_seasonal_forecast <- function(year,
   #submit request
   req <- ecmwfr::wf_request(request = request,
                             path = download_path, 
-                            transfer = start_download)
+                            transfer = start_download, 
+                            user = user)
   
   #return the environment of the request, needed to run the 
   #download later on
