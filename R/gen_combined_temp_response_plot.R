@@ -101,7 +101,7 @@ gen_combined_temp_response_plot <- function(par_df,
     ylab("Temperature response\n(arbitrary units)") +
     xlab("Temperature (\u00B0C)") +
     scale_fill_manual(values = 'grey80', breaks = 'Observed Temperatures')+
-    facet_wrap(vars(variable),
+    facet_wrap(~variable,
                labeller = labeller(variable = c(
                  Chill_response = c("Chill response")
                ))) +
@@ -123,7 +123,7 @@ gen_combined_temp_response_plot <- function(par_df,
     ylab("") +
     xlab("Temperature (\u00B0C)") +
     scale_fill_manual(values = 'grey80', breaks = 'Observed Temperatures')+
-    facet_wrap(vars(variable),
+    facet_wrap( ~ variable,
                labeller = labeller(variable = c(
                  Heat_response = c("Heat response")
                ))) +
@@ -133,7 +133,7 @@ gen_combined_temp_response_plot <- function(par_df,
     theme_bw(base_size = 15)+
     theme(legend.title=element_blank())
   
-  p <- (chill_plot + heat_plot) +  plot_layout(guides = 'collect') + plot_annotation(tag_levels = 'A') &
+  p <- (chill_plot + heat_plot) +  patchwork::plot_layout(guides = 'collect') + patchwork::plot_annotation(tag_levels = 'A') &
     theme(legend.position=legend.pos) 
   
   return(p)
